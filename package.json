@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/babel-node --presets=es2015 spec/run.js",
-    "lint": "./node_modules/.bin/eslint src/*",
+    "lint": "./node_modules/.bin/eslint src/*js*",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook -s public -o .out",
     "deploy-storybook": "storybook-to-ghpages"

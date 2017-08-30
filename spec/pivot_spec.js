@@ -31,7 +31,7 @@ describe("  utils", function() {
       const aoaInput =  [ ["a","b"], [1,2], [3,4] ];
       const pd = new   utils.PivotData({data: aoaInput});
 
-      return it("has the correct grand total value", () =>
+      it("has the correct grand total value", () =>
         expect(pd.getAggregator([],[]).value())
         .toBe(2)
       );
@@ -41,7 +41,7 @@ describe("  utils", function() {
       const aoaInput =  [ ["a","b"], [1,2], [3,4] ];
       const pd = new   utils.PivotData({data: aoaInput, aggregator});
 
-      return it("has the correct grand total value", () =>
+      it("has the correct grand total value", () =>
         expect(pd.getAggregator([],[]).value())
         .toBe((1+3)/(2+4))
       );
@@ -51,7 +51,7 @@ describe("  utils", function() {
       const aosInput =  [ {a:1, b:2}, {a:3, b:4} ];
       const pd = new   utils.PivotData({data: aosInput, aggregator});
 
-      return it("has the correct grand total value", () =>
+      it("has the correct grand total value", () =>
         expect(pd.getAggregator([],[]).value())
         .toBe((1+3)/(2+4))
       );
@@ -61,7 +61,7 @@ describe("  utils", function() {
       const raggedAosInput =  [ {a:1}, {b:4}, {a: 3, b: 2} ];
       const pd = new   utils.PivotData({data: raggedAosInput, aggregator});
 
-      return it("has the correct grand total value", () =>
+      it("has the correct grand total value", () =>
         expect(pd.getAggregator([],[]).value())
         .toBe((1+3)/(2+4))
       );
@@ -70,11 +70,11 @@ describe("  utils", function() {
     describe("with function input", function() {
       const functionInput = function(record) {
         record({a:1, b:2});
-        return record({a:3, b:4});
+        record({a:3, b:4});
       };
       const pd = new   utils.PivotData({data: functionInput, aggregator});
 
-      return it("has the correct grand total value", () =>
+      it("has the correct grand total value", () =>
         expect(pd.getAggregator([],[]).value())
         .toBe((1+3)/(2+4))
       );
@@ -82,7 +82,7 @@ describe("  utils", function() {
 
 
 
-    return describe("with rows/cols", function() {
+    describe("with rows/cols", function() {
       const pd = new   utils.PivotData({
         data:fixtureData,
         rows: ["name", "colour"],
@@ -113,14 +113,14 @@ describe("  utils", function() {
         }
         expect(numNotNull)
         .toBe(4);
-        return expect(numNull)
+        expect(numNull)
         .toBe(12);
       });
 
       it("returns matching records", function() {
         const records = [];
         pd.forEachMatchingRecord({gender: "male"}, x => records.push(x.name));
-        return expect(records)
+        expect(records)
         .toEqual(["Nick", "John"]);
     });
 
@@ -128,24 +128,21 @@ describe("  utils", function() {
         const agg = pd.getAggregator([ 'Carol', 'yellow' ],[ 102, 14 ]);
         const val = agg.value();
         expect(val).toBe(1);
-        return expect(agg.format(val)).toBe("1");
+        expect(agg.format(val)).toBe("1");
       });
 
-      return it("has a correct grand total aggregator", function() {
+      it("has a correct grand total aggregator", function() {
         const agg = pd.getAggregator([],[]);
         const val = agg.value();
         expect(val).toBe(4);
-        return expect(agg.format(val)).toBe("4");
+        expect(agg.format(val)).toBe("4");
       });
     });
   });
 
   describe(".aggregatorTemplates", function() {
 
-    const getVal = function(aggregator) {
-      const pd = new   utils.PivotData({data: fixtureData, aggregator});
-      return pd.getAggregator([],[]).value();
-    };
+    const getVal = (agg) => new utils.PivotData({data: fixtureData, aggregator: agg}).getAggregator([],[]).value();
     const tpl =   utils.aggregatorTemplates;
 
     describe(".count", () =>
@@ -235,7 +232,7 @@ describe("  utils", function() {
         .toBe(98.5);
         expect(getVal(tpl.quantile(1/3)(['trials'])))
         .toBe(102);
-        return expect(getVal(tpl.quantile(1)(['trials'])))
+        expect(getVal(tpl.quantile(1)(['trials'])))
         .toBe(112);
       })
     );
@@ -254,10 +251,17 @@ describe("  utils", function() {
       )
     );
 
-    return describe(".sumOverSum", () =>
+    describe(".sumOverSum", () =>
       it("works", () =>
         expect(getVal(tpl.sumOverSum()(['successes', 'trials'])))
         .toBe((12+25+30+14)/(95+102+103+112))
+      )
+    );
+
+    describe(".fractionOf", () =>
+      it("works", () =>
+        expect(getVal(tpl.fractionOf(tpl.sum())(['trials'])))
+        .toBe(1)
       )
     );
   });
@@ -276,7 +280,7 @@ describe("  utils", function() {
       'b', 'c', 'd', 'null'
     ];
 
-    return it("sorts naturally (null, NaN, numbers & numbery strings, Alphanum for text strings)", () =>
+    it("sorts naturally (null, NaN, numbers & numbery strings, Alphanum for text strings)", () =>
       expect(sortedArr.slice().sort(naturalSort))
       .toEqual(sortedArr)
     );
@@ -290,7 +294,7 @@ describe("  utils", function() {
       .toEqual([4,3,2,1,5])
   );
 
-    return it("sorts lowercase after uppercase", () =>
+    it("sorts lowercase after uppercase", () =>
       expect(["Ab","aA","aa","ab"].sort(sortAs(["Ab","Aa"])))
       .toEqual(["Ab","ab","aa","aA"])
   );
@@ -301,60 +305,60 @@ describe("  utils", function() {
 
     it("formats numbers", function() {
       const nf = numberFormat();
-      return expect(nf(1234567.89123456))
+      expect(nf(1234567.89123456))
       .toEqual("1,234,567.89");
     });
 
     it("formats booleans", function() {
       const nf = numberFormat();
-      return expect(nf(true))
+      expect(nf(true))
       .toEqual("1.00");
     });
 
     it("formats numbers in strings", function() {
       const nf = numberFormat();
-      return expect(nf("1234567.89123456"))
+      expect(nf("1234567.89123456"))
       .toEqual("1,234,567.89");
     });
 
     it("doesn't formats strings", function() {
       const nf = numberFormat();
-      return expect(nf("hi there"))
+      expect(nf("hi there"))
       .toEqual("");
     });
 
     it("doesn't formats objects", function() {
       const nf = numberFormat();
-      return expect(nf({a:1}))
+      expect(nf({a:1}))
       .toEqual("");
     });
 
     it("formats percentages", function() {
       const nf = numberFormat({scaler: 100, suffix: "%"});
-      return expect(nf(0.12345))
+      expect(nf(0.12345))
       .toEqual("12.35%");
     });
 
     it("adds separators", function() {
       const nf = numberFormat({thousandsSep: "a", decimalSep: "b"});
-      return expect(nf(1234567.89123456))
+      expect(nf(1234567.89123456))
       .toEqual("1a234a567b89");
     });
 
     it("adds prefixes and suffixes", function() {
       const nf = numberFormat({prefix: "a", suffix: "b"});
-      return expect(nf(1234567.89123456))
+      expect(nf(1234567.89123456))
       .toEqual("a1,234,567.89b");
     });
 
-    return it("scales and rounds", function() {
+    it("scales and rounds", function() {
       const nf = numberFormat({digitsAfterDecimal: 3, scaler: 1000});
-      return expect(nf(1234567.89123456))
+      expect(nf(1234567.89123456))
       .toEqual("1,234,567,891.235");
     });
   });
 
-  return describe(".derivers", function() {
+  describe(".derivers", function() {
     describe(".dateFormat()", function() {
       const df =   utils.derivers.dateFormat("x", "abc % %% %%% %a %y %m %n %d %w %x %H %M %S", true);
 
@@ -363,16 +367,16 @@ describe("  utils", function() {
         .toBe('abc % %% %%% %a 2015 01 Jan 02 Fri 5 23 43 11')
       );
 
-      return it("formats input parsed by Date.parse()", function() {
+      it("formats input parsed by Date.parse()", function() {
         expect(df({x: "2015-01-02T23:43:11Z"}))
         .toBe('abc % %% %%% %a 2015 01 Jan 02 Fri 5 23 43 11');
 
-        return expect(df({x: "bla"}))
+        expect(df({x: "bla"}))
         .toBe('');
       });
     });
 
-    return describe(".bin()", function() {
+    describe(".bin()", function() {
       const binner =   utils.derivers.bin("x", 10);
 
       it("bins numbers", function() {
@@ -382,7 +386,7 @@ describe("  utils", function() {
         expect(binner({x: 9}))
         .toBe(0);
 
-        return expect(binner({x: 111}))
+        expect(binner({x: 111}))
         .toBe(110);
       });
 
@@ -401,7 +405,7 @@ describe("  utils", function() {
         .toBeNaN()
       );
 
-      return it("doesn't bin objects", () =>
+      it("doesn't bin objects", () =>
         expect(binner({x: {a:1}}))
         .toBeNaN()
       );
