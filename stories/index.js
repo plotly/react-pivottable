@@ -1,16 +1,17 @@
 import React from 'react';
 
-import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
-import { linkTo } from '@storybook/addon-links';
-import {PivotData} from '../src/Utilities';
-import TableRenderer from '../src/TableRenderer'
+import { setAddon, storiesOf } from '@storybook/react';
+import JSXAddon from 'storybook-addon-jsx'
+setAddon(JSXAddon)
+
+import PivotTable from '../src/PivotTable'
+import { mps } from './SampleData'
+const dataSetHider = (dataset) => (injectRecord) => dataset.map(injectRecord);
+
+storiesOf('PivotTable', module)
+  .addWithJSX('Canadian MPs 2012 dataset', () => <PivotTable
+    cols={['Party']} rows={['Province']} data={dataSetHider(mps)} />
+  );
 
 
-storiesOf('SmartWrapper', module)
-  .add('Table Renderer', function(){
-    const data = [['a','b','c','d'],[1,1,1,1],[1,2,1,2],[2,1,2,1],[2,2,2,2]];
-    const pivotData = new PivotData(data, {cols:['a','b'], rows:['c','d']});
-    return <TableRenderer {...{pivotData}} />
-    }
-    );
+

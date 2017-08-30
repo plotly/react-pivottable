@@ -25,12 +25,11 @@ const raggedFixtureData = [
 describe("  utils", function() {
 
   describe(".PivotData()", function() {
-    const sumOverSumOpts =
-      {aggregator:   utils.aggregators["Sum over Sum"](["a","b"])};
+    const aggregator = utils.aggregators["Sum over Sum"](["a","b"]);
 
     describe("with no options", function() {
       const aoaInput =  [ ["a","b"], [1,2], [3,4] ];
-      const pd = new   utils.PivotData(aoaInput);
+      const pd = new   utils.PivotData({data: aoaInput});
 
       return it("has the correct grand total value", () =>
         expect(pd.getAggregator([],[]).value())
@@ -40,7 +39,7 @@ describe("  utils", function() {
 
     describe("with array-of-array input", function() {
       const aoaInput =  [ ["a","b"], [1,2], [3,4] ];
-      const pd = new   utils.PivotData(aoaInput, sumOverSumOpts);
+      const pd = new   utils.PivotData({data: aoaInput, aggregator});
 
       return it("has the correct grand total value", () =>
         expect(pd.getAggregator([],[]).value())
@@ -50,7 +49,7 @@ describe("  utils", function() {
 
     describe("with array-of-object input", function() {
       const aosInput =  [ {a:1, b:2}, {a:3, b:4} ];
-      const pd = new   utils.PivotData(aosInput, sumOverSumOpts);
+      const pd = new   utils.PivotData({data: aosInput, aggregator});
 
       return it("has the correct grand total value", () =>
         expect(pd.getAggregator([],[]).value())
@@ -60,7 +59,7 @@ describe("  utils", function() {
 
     describe("with ragged array-of-object input", function() {
       const raggedAosInput =  [ {a:1}, {b:4}, {a: 3, b: 2} ];
-      const pd = new   utils.PivotData(raggedAosInput, sumOverSumOpts);
+      const pd = new   utils.PivotData({data: raggedAosInput, aggregator});
 
       return it("has the correct grand total value", () =>
         expect(pd.getAggregator([],[]).value())
@@ -73,7 +72,7 @@ describe("  utils", function() {
         record({a:1, b:2});
         return record({a:3, b:4});
       };
-      const pd = new   utils.PivotData(functionInput, sumOverSumOpts);
+      const pd = new   utils.PivotData({data: functionInput, aggregator});
 
       return it("has the correct grand total value", () =>
         expect(pd.getAggregator([],[]).value())
@@ -84,7 +83,8 @@ describe("  utils", function() {
 
 
     return describe("with rows/cols", function() {
-      const pd = new   utils.PivotData(fixtureData, {
+      const pd = new   utils.PivotData({
+        data:fixtureData,
         rows: ["name", "colour"],
         cols: ["trials", "successes"]
       });
@@ -143,7 +143,7 @@ describe("  utils", function() {
   describe(".aggregatorTemplates", function() {
 
     const getVal = function(aggregator) {
-      const pd = new   utils.PivotData(fixtureData, {aggregator});
+      const pd = new   utils.PivotData({data: fixtureData, aggregator});
       return pd.getAggregator([],[]).value();
     };
     const tpl =   utils.aggregatorTemplates;

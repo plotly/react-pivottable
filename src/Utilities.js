@@ -359,14 +359,13 @@ Data Model class
 */
 
 class PivotData {
-  constructor(input, opts) {
+  constructor(opts = {}) {
     this.arrSort = this.arrSort.bind(this);
     this.sortKeys = this.sortKeys.bind(this);
     this.getColKeys = this.getColKeys.bind(this);
     this.getRowKeys = this.getRowKeys.bind(this);
     this.getAggregator = this.getAggregator.bind(this);
-    if (opts == null) { opts = {}; }
-    this.input = input;
+    this.input = opts.data;
     this.aggregator = opts.aggregator != null ? opts.aggregator : aggregatorTemplates.count()();
     this.aggregatorName = opts.aggregatorName != null ? opts.aggregatorName : "Count";
     this.colAttrs = opts.cols != null ? opts.cols : [];
