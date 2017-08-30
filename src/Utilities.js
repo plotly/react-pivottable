@@ -11,8 +11,7 @@
  */
 
 const addSeparators = function(nStr, thousandsSep, decimalSep) {
-  nStr += '';
-  const x = nStr.split('.');
+  const x = String(nStr).split('.');
   let x1 = x[0];
   const x2 = x.length > 1 ?  decimalSep + x[1] : '';
   const rgx = /(\d+)(\d{3})/;
@@ -40,145 +39,179 @@ const usFmtInt = numberFormat({digitsAfterDecimal: 0});
 const usFmtPct = numberFormat({digitsAfterDecimal:1, scaler: 100, suffix: "%"});
 
 const aggregatorTemplates = {
-  count(formatter) { if (formatter == null) { formatter = usFmtInt; } return () => function(data, rowKey, colKey) {
-    return {
-      count: 0,
-      push() { return this.count++; },
-      value() { return this.count; },
-      format: formatter
+  count(formatter = usFmtInt) {
+    return () => function(data, rowKey, colKey) {
+      return {
+        count: 0,
+        push() { return this.count++; },
+        value() { return this.count; },
+        format: formatter
+      };
     };
-  } ; },
+  },
 
-  uniques(fn, formatter) { if (formatter == null) { formatter = usFmtInt; } return function(...args) { const [attr] = Array.from(args[0]); return function(data, rowKey, colKey) {
-    return {
-      uniq: [],
-      push(record) { if (!Array.from(this.uniq).includes(record[attr])) { return this.uniq.push(record[attr]); } },
-      value() { return fn(this.uniq); },
-      format: formatter,
-      numInputs: (attr != null) ? 0 : 1
+  uniques(fn, formatter = usFmtInt) {
+    return function([attr]) {
+      return function(data, rowKey, colKey) {
+        return {
+          uniq: [],
+          push(record) { if (!Array.from(this.uniq).includes(record[attr])) { return this.uniq.push(record[attr]); } },
+          value() { return fn(this.uniq); },
+          format: formatter,
+          numInputs: (attr !== null) ? 0 : 1
+        };
+      };
     };
-  }; }; },
+  },
 
-  sum(formatter) { if (formatter == null) { formatter = usFmt; } return function(...args) { const [attr] = Array.from(args[0]); return function(data, rowKey, colKey) {
-    return {
-      sum: 0,
-      push(record) { if (!isNaN(parseFloat(record[attr]))) { return this.sum += parseFloat(record[attr]); } },
-      value() { return this.sum; },
-      format: formatter,
-      numInputs: (attr != null) ? 0 : 1
+  sum(formatter = usFmt) {
+    return function([attr]) {
+      return function(data, rowKey, colKey) {
+        return {
+          sum: 0,
+          push(record) {
+            if (!isNaN(parseFloat(record[attr]))) { return this.sum += parseFloat(record[attr]); }
+          },
+          value() { return this.sum; },
+          format: formatter,
+          numInputs: (attr !== null) ? 0 : 1
+        };
+      };
     };
-  }; }; },
+  },
 
-  extremes(mode, formatter) { if (formatter == null) { formatter = usFmt; } return function(...args) { const [attr] = Array.from(args[0]); return function(data, rowKey, colKey) {
-    return {
-      val: null,
-      sorter: getSort(data != null ? data.sorters : undefined, attr),
-      push(record) {
-        let x = record[attr];
-        if (["min", "max"].includes(mode)) {
-          x = parseFloat(x);
-          if (!isNaN(x)) { this.val = Math[mode](x, this.val != null ? this.val : x); }
-        }
-        if (mode === "first") { if (this.sorter(x, this.val != null ? this.val : x) <= 0) { this.val = x; } }
-        if (mode === "last") {  if (this.sorter(x, this.val != null ? this.val : x) >= 0) { return this.val = x; } }
-      },
-      value() { return this.val; },
-      format(x) { if (isNaN(x)) { return x; } else { return formatter(x); } },
-      numInputs: (attr != null) ? 0 : 1
+  extremes(mode, formatter = usFmt) {
+    return function([attr]) {
+      return function(data, rowKey, colKey) {
+        return {
+          val: null,
+          sorter: getSort(data.sorters, attr),
+          push(record) {
+            let x = record[attr];
+            if (["min", "max"].includes(mode)) {
+              x = parseFloat(x);
+              if (!isNaN(x)) { this.val = Math[mode](x, this.val !== null ? this.val : x); }
+            }
+            if (mode === "first") { if (this.sorter(x, this.val !== null ? this.val : x) <= 0) { this.val = x; } }
+            if (mode === "last") {  if (this.sorter(x, this.val !== null ? this.val : x) >= 0) { return this.val = x; } }
+          },
+          value() { return this.val; },
+          format(x) { if (isNaN(x)) { return x; } else { return formatter(x); } },
+          numInputs: (attr !== null) ? 0 : 1
+        };
+      };
     };
-  }; }; },
+  },
 
-  quantile(q, formatter) { if (formatter == null) { formatter = usFmt; } return function(...args) { const [attr] = Array.from(args[0]); return function(data, rowKey, colKey) {
-    return {
-      vals: [],
-      push(record) {
-        const x = parseFloat(record[attr]);
-        if (!isNaN(x)) { return this.vals.push(x); }
-      },
-      value() {
-        if (this.vals.length === 0) { return null; }
-        this.vals.sort((a,b) => a-b);
-        const i = (this.vals.length-1)*q;
-        return (this.vals[Math.floor(i)] + this.vals[Math.ceil(i)])/2.0;
-      },
-      format: formatter,
-      numInputs: (attr != null) ? 0 : 1
+  quantile(q, formatter = usFmt) {
+    return function([attr]) {
+      return function(data, rowKey, colKey) {
+        return {
+          vals: [],
+          push(record) {
+            const x = parseFloat(record[attr]);
+            if (!isNaN(x)) { return this.vals.push(x); }
+          },
+          value() {
+            if (this.vals.length === 0) { return null; }
+            this.vals.sort((a,b) => a-b);
+            const i = (this.vals.length-1)*q;
+            return (this.vals[Math.floor(i)] + this.vals[Math.ceil(i)])/2.0;
+          },
+          format: formatter,
+          numInputs: (attr !== null) ? 0 : 1
+        };
+      };
     };
-  }; }; },
+  },
 
-  runningStat(mode, ddof, formatter) { if (mode == null) { mode = "mean"; } if (ddof == null) { ddof = 1; } if (formatter == null) { formatter = usFmt; } return function(...args) { const [attr] = Array.from(args[0]); return function(data, rowKey, colKey) {
-    return {
-      n: 0.0, m: 0.0, s: 0.0,
-      push(record) {
-        const x = parseFloat(record[attr]);
-        if (isNaN(x)) { return; }
-        this.n += 1.0;
-        if (this.n === 1.0) {
-          return this.m = x;
-        } else {
-          const m_new = this.m + ((x - this.m)/this.n);
-          this.s = this.s + ((x - this.m)*(x - m_new));
-          return this.m = m_new;
-        }
-      },
-      value() {
-        if (mode === "mean") {
-          if (this.n === 0) { return 0/0; } else { return this.m; }
-        }
-        if (this.n <= ddof) { return 0; }
-        switch (mode) {
-          case "var":   return this.s/(this.n-ddof);
-          case "stdev": return Math.sqrt(this.s/(this.n-ddof));
-        }
-      },
-      format: formatter,
-      numInputs: (attr != null) ? 0 : 1
+  runningStat(mode="mean", ddof=1, formatter = usFmt) {
+    return function([attr]) {
+      return function(data, rowKey, colKey) {
+        return {
+          n: 0.0, m: 0.0, s: 0.0,
+          push(record) {
+            const x = parseFloat(record[attr]);
+            if (isNaN(x)) { return; }
+            this.n += 1.0;
+            if (this.n === 1.0) {
+              return this.m = x;
+            } else {
+              const m_new = this.m + ((x - this.m)/this.n);
+              this.s = this.s + ((x - this.m)*(x - m_new));
+              return this.m = m_new;
+            }
+          },
+          value() {
+            if (mode === "mean") {
+              if (this.n === 0) { return 0/0; } else { return this.m; }
+            }
+            if (this.n <= ddof) { return 0; }
+            switch (mode) {
+              case "var":   return this.s/(this.n-ddof);
+              case "stdev": return Math.sqrt(this.s/(this.n-ddof));
+            }
+          },
+          format: formatter,
+          numInputs: (attr !== null) ? 0 : 1
+        };
+      };
     };
-  }; }; },
+  },
 
-  sumOverSum(formatter) { if (formatter == null) { formatter = usFmt; } return function(...args) { const [num, denom] = Array.from(args[0]); return function(data, rowKey, colKey) {
-    return {
-      sumNum: 0,
-      sumDenom: 0,
-      push(record) {
-        if (!isNaN(parseFloat(record[num]))) { this.sumNum   += parseFloat(record[num]); }
-        if (!isNaN(parseFloat(record[denom]))) { return this.sumDenom += parseFloat(record[denom]); }
-      },
-      value() { return this.sumNum/this.sumDenom; },
-      format: formatter,
-      numInputs: (num != null) && (denom != null) ? 0 : 2
+  sumOverSum(formatter = usFmt) {
+    return function([num, denom]) {
+      return function(data, rowKey, colKey) {
+        return {
+          sumNum: 0,
+          sumDenom: 0,
+          push(record) {
+            if (!isNaN(parseFloat(record[num]))) { this.sumNum   += parseFloat(record[num]); }
+            if (!isNaN(parseFloat(record[denom]))) { return this.sumDenom += parseFloat(record[denom]); }
+          },
+          value() { return this.sumNum/this.sumDenom; },
+          format: formatter,
+          numInputs: (num !== null) && (denom !== null) ? 0 : 2
+        };
+      };
     };
-  }; }; },
+  },
 
-  sumOverSumBound80(upper, formatter) { if (upper == null) { upper = true; } if (formatter == null) { formatter = usFmt; } return function(...args) { const [num, denom] = Array.from(args[0]); return function(data, rowKey, colKey) {
-    return {
-      sumNum: 0,
-      sumDenom: 0,
-      push(record) {
-        if (!isNaN(parseFloat(record[num]))) { this.sumNum   += parseFloat(record[num]); }
-        if (!isNaN(parseFloat(record[denom]))) { return this.sumDenom += parseFloat(record[denom]); }
-      },
-      value() {
-        const sign = upper ? 1 : -1;
-        return ((0.821187207574908/this.sumDenom) + (this.sumNum/this.sumDenom) + (1.2815515655446004*sign*
-          Math.sqrt((0.410593603787454/ (this.sumDenom*this.sumDenom)) + ((this.sumNum*(1 - (this.sumNum/ this.sumDenom)))/ (this.sumDenom*this.sumDenom)))))/
-          (1 + (1.642374415149816/this.sumDenom));
-      },
-      format: formatter,
-      numInputs: (num != null) && (denom != null) ? 0 : 2
+  sumOverSumBound80(upper=true, formatter = usFmt) {
+    return function([num, denom]) {
+      return function(data, rowKey, colKey) {
+        return {
+          sumNum: 0,
+          sumDenom: 0,
+          push(record) {
+            if (!isNaN(parseFloat(record[num]))) { this.sumNum   += parseFloat(record[num]); }
+            if (!isNaN(parseFloat(record[denom]))) { return this.sumDenom += parseFloat(record[denom]); }
+          },
+          value() {
+            const sign = upper ? 1 : -1;
+            return ((0.821187207574908/this.sumDenom) + (this.sumNum/this.sumDenom) + (1.2815515655446004*sign*
+              Math.sqrt((0.410593603787454/ (this.sumDenom*this.sumDenom)) + ((this.sumNum*(1 - (this.sumNum/ this.sumDenom)))/ (this.sumDenom*this.sumDenom)))))/
+              (1 + (1.642374415149816/this.sumDenom));
+          },
+          format: formatter,
+          numInputs: (num !== null) && (denom !== null) ? 0 : 2
+        };
+      };
     };
-  }; }; },
+  },
 
-  fractionOf(wrapped, type, formatter) { if (type == null) { type = "total"; } if (formatter == null) { formatter = usFmtPct; } return (...x) => function(data, rowKey, colKey) {
-    return {
-      selector: {total:[[],[]],row:[rowKey,[]],col:[[],colKey]}[type],
-      inner: wrapped(...Array.from(x || []))(data, rowKey, colKey),
-      push(record) { return this.inner.push(record); },
-      format: formatter,
-      value() { return this.inner.value() / data.getAggregator(...Array.from(this.selector || [])).inner.value(); },
-      numInputs: wrapped(...Array.from(x || []))().numInputs
+  fractionOf(wrapped, type="total", formatter= usFmtPct) {
+    return (...x) => function(data, rowKey, colKey) {
+      return {
+        selector: {total:[[],[]],row:[rowKey,[]],col:[[],colKey]}[type],
+        inner: wrapped(...Array.from(x || []))(data, rowKey, colKey),
+        push(record) { return this.inner.push(record); },
+        format: formatter,
+        value() { return this.inner.value() / data.getAggregator(...Array.from(this.selector || [])).inner.value(); },
+        numInputs: wrapped(...Array.from(x || []))().numInputs
+      };
     };
-  } ; }
+  }
 };
 
 aggregatorTemplates.countUnique = f => aggregatorTemplates.uniques((x => x.length), f);
@@ -278,8 +311,8 @@ const rd = /\d/;
 const rz = /^0/;
 const naturalSort = (as, bs) => {
   //nulls first
-  if ((bs != null) && (as == null)) { return -1; }
-  if ((as != null) && (bs == null)) { return  1; }
+  if ((bs !== null) && (as === null)) { return -1; }
+  if ((as !== null) && (bs === null)) { return  1; }
 
   //then raw NaNs
   if ((typeof as === "number") && isNaN(as)) { return -1; }
@@ -332,22 +365,22 @@ const sortAs = function(order) {
     if (typeof x === "string") { l_mapping[x.toLowerCase()] = i; }
   }
   return function(a, b) {
-    if ((mapping[a] != null) && (mapping[b] != null)) { return mapping[a] - mapping[b];
-    } else if (mapping[a] != null) { return -1;
-    } else if (mapping[b] != null) { return 1;
-    } else if ((l_mapping[a] != null) && (l_mapping[b] != null)) { return l_mapping[a] - l_mapping[b];
-    } else if (l_mapping[a] != null) { return -1;
-    } else if (l_mapping[b] != null) { return 1;
+    if ((a in mapping) && (b in mapping)) { return mapping[a] - mapping[b];
+    } else if (a in mapping) { return -1;
+    } else if (b in mapping) { return 1;
+    } else if ((a in l_mapping) && (b in l_mapping)) { return l_mapping[a] - l_mapping[b];
+    } else if (a in l_mapping) { return -1;
+    } else if (b in l_mapping) { return 1;
     } else { return naturalSort(a,b); }
   };
 };
 
-var getSort = function(sorters, attr) {
-  if (sorters != null) {
+const getSort = function(sorters, attr) {
+  if (sorters) {
     if (typeof sorters === "function") {
       const sort = sorters(attr);
       if (typeof sort === "function") { return sort; }
-    } else if (sorters[attr] != null) {
+    } else if (attr in sorters) {
       return sorters[attr];
     }
   }
@@ -360,22 +393,17 @@ Data Model class
 
 class PivotData {
   constructor(opts = {}) {
-    this.arrSort = this.arrSort.bind(this);
-    this.sortKeys = this.sortKeys.bind(this);
-    this.getColKeys = this.getColKeys.bind(this);
-    this.getRowKeys = this.getRowKeys.bind(this);
-    this.getAggregator = this.getAggregator.bind(this);
-    this.input = opts.data;
-    this.aggregator = opts.aggregator != null ? opts.aggregator : aggregatorTemplates.count()();
-    this.aggregatorName = opts.aggregatorName != null ? opts.aggregatorName : "Count";
-    this.colAttrs = opts.cols != null ? opts.cols : [];
-    this.rowAttrs = opts.rows != null ? opts.rows : [];
-    this.valAttrs = opts.vals != null ? opts.vals : [];
-    this.sorters = opts.sorters != null ? opts.sorters : {};
-    this.rowOrder = opts.rowOrder != null ? opts.rowOrder : "key_a_to_z";
-    this.colOrder = opts.colOrder != null ? opts.colOrder : "key_a_to_z";
-    this.derivedAttributes = opts.derivedAttributes != null ? opts.derivedAttributes : {};
-    this.filter = opts.filter != null ? opts.filter : (() => true);
+    this.input = opts.data || [];
+    this.aggregator = opts.aggregator || aggregatorTemplates.count()();
+    this.aggregatorName = opts.aggregatorName || "Count";
+    this.colAttrs = opts.cols || [];
+    this.rowAttrs = opts.rows || [];
+    this.valAttrs = opts.vals || [];
+    this.sorters = opts.sorters || {};
+    this.rowOrder = opts.rowOrder || "key_a_to_z";
+    this.colOrder = opts.colOrder || "key_a_to_z";
+    this.derivedAttributes = opts.derivedAttributes || {};
+    this.filter = opts.filter || (() => true);
     this.tree = {};
     this.rowKeys = [];
     this.colKeys = [];
@@ -397,8 +425,12 @@ class PivotData {
       addRecord = f;
     } else {
       addRecord = function(record) {
-        for (let k in derivedAttributes) { var left;
-        const v = derivedAttributes[k]; record[k] = (left = v(record)) != null ? left : record[k]; }
+        for (let k in derivedAttributes) {
+          let derived = derivedAttributes[k](record);
+          if(derived !== null) {
+            record[k] = derived;
+          }
+        }
         return f(record);
       };
     }
@@ -438,7 +470,7 @@ class PivotData {
       if (!this.filter(record)) { return; }
       for (let k in criteria) {
         const v = criteria[k];
-        if (v !== (record[k] != null ? record[k] : "null")) { return; }
+        if (v !== (k in record ? record[k] : "null")) { return; }
       }
       return callback(record);
     });
@@ -492,8 +524,8 @@ class PivotData {
   processRecord(record) { //this code is called in a tight loop
     const colKey = [];
     const rowKey = [];
-    for (var x of Array.from(this.colAttrs)) { colKey.push(record[x] != null ? record[x] : "null"); }
-    for (x of Array.from(this.rowAttrs)) { rowKey.push(record[x] != null ? record[x] : "null"); }
+    for (let x of Array.from(this.colAttrs)) { colKey.push(x in record ? record[x] : "null"); }
+    for (let x of Array.from(this.rowAttrs)) { rowKey.push(x in record ? record[x] : "null"); }
     const flatRowKey = rowKey.join(String.fromCharCode(0));
     const flatColKey = colKey.join(String.fromCharCode(0));
 
@@ -539,7 +571,7 @@ class PivotData {
     } else {
       agg = this.tree[flatRowKey][flatColKey];
     }
-    return agg != null ? agg : {value() { return null; }, format() { return ""; }};
+    return agg || {value() { return null; }, format() { return ""; }};
   }
 }
 
