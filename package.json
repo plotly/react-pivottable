@@ -4,7 +4,9 @@
   "description": "A React-based pivot table",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/babel-node --presets=es2015 spec/run.js",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "repository": {
     "type": "git",
@@ -19,5 +21,18 @@
   "bugs": {
     "url": "https://github.com/plotly/react-pivottable/issues"
   },
-  "homepage": "https://github.com/plotly/react-pivottable#readme"
+  "homepage": "https://github.com/plotly/react-pivottable#readme",
+  "dependencies": {
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1"
+  },
+  "devDependencies": {
+    "@storybook/addon-actions": "^3.2.6",
+    "@storybook/addon-links": "^3.2.6",
+    "@storybook/addon-options": "^3.2.6",
+    "@storybook/react": "^3.2.7",
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "jasmine": "^2.8.0"
+  }
 }
