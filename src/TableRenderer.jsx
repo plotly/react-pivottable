@@ -1,5 +1,7 @@
-import React, {Component} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import './pivottable.css';
+
 
 // helper function for setting row/col-span in pivotTableRenderer
 const spanSize = function(arr, i, j) {
@@ -29,7 +31,7 @@ const spanSize = function(arr, i, j) {
     return len;
 };
 
-export default class TableRenderer extends Component {
+class TableRenderer extends React.Component {
     render() {
         const pivotData = this.props.pivotData;
         const colAttrs = pivotData.colAttrs;
@@ -41,7 +43,7 @@ export default class TableRenderer extends Component {
             <table className="pvtTable">
                 <thead>
                     {colAttrs.map(function(c, j) { return (
-                        <tr>
+                        <tr key={`colAttr${j}`}>
                             {(j === 0 && rowAttrs.length !== 0) &&
                             <th colSpan={rowAttrs.length} rowSpan={colAttrs.length} />
                             }
@@ -49,7 +51,7 @@ export default class TableRenderer extends Component {
                             {colKeys.map(function(colKey, i) {
                                 const x = spanSize(colKeys, i, j);
                                 if (x === -1) {return null;}
-                                return <th className="pvtColLabel"
+                                return <th className="pvtColLabel" key={`colKey${i}`}
                                     colSpan={x} rowSpan={j === colAttrs.length - 1 && rowAttrs.length !== 0 ? 2 : 1}
                                 >
                                     {colKey[j]}
@@ -66,8 +68,8 @@ export default class TableRenderer extends Component {
 
                     {(rowAttrs.length !== 0) &&
           <tr>
-              {rowAttrs.map(function(r) {
-                  return <th className="pvtAxisLabel">{r}</th>;
+              {rowAttrs.map(function(r, i) {
+                  return <th className="pvtAxisLabel" key={`rowAttr${i}`}>{r}</th>;
               })}
               <th className="pvtTotalLabel">{colAttrs.length === 0 ? 'Totals' : null}</th>
           </tr>
@@ -78,17 +80,18 @@ export default class TableRenderer extends Component {
                     {rowKeys.map(function(rowKey, i) {
                         const totalAggregator = pivotData.getAggregator(rowKey, []);
                         return (
-                            <tr>
+                            <tr key={`rowKeyRow${i}`}>
                                 {rowKey.map(function(txt, j) {
                                     const x = spanSize(rowKeys, i, j);
                                     if (x === -1) {return null;}
-                                    return <th className="pvtRowLabel"
+                                    return <th key={`rowKeyLabel${i}-${j}`} className="pvtRowLabel"
                                         rowSpan={x} colSpan={j === rowAttrs.length - 1 && colAttrs.length !== 0 ? 2 : 1}
                                     >{txt}</th>;
                                 })}
-                                {colKeys.map(function(colKey) {
+                                {colKeys.map(function(colKey, j) {
                                     const aggregator = pivotData.getAggregator(rowKey, colKey);
-                                    return <td className="pvtVal">{aggregator.format(aggregator.value())}</td>;
+                                    return <td className="pvtVal" key={`pvtVal${i}-${j}`}>
+                                        {aggregator.format(aggregator.value())}</td>;
                                 })}
                                 <td className="pvtTotal">{totalAggregator.format(totalAggregator.value())}</td>
                             </tr>
@@ -100,9 +103,11 @@ export default class TableRenderer extends Component {
                             colSpan={rowAttrs.length + (colAttrs.length === 0 ? 0 : 1)}
                         >Totals</th>
 
-                        {colKeys.map(function(colKey) {
+                        {colKeys.map(function(colKey, i) {
                             const totalAggregator = pivotData.getAggregator([], colKey);
-                            return <td className="pvtTotal">{totalAggregator.format(totalAggregator.value())}</td>;
+                            return <td className="pvtTotal" key={`total${i}`}>
+                                {totalAggregator.format(totalAggregator.value())}
+                            </td>;
                         })}
 
                         <td className="pvtGrandTotal">{grandTotalAggregator.format(grandTotalAggregator.value())}</td>
@@ -112,3 +117,9 @@ export default class TableRenderer extends Component {
         );
     }
 }
+
+TableRenderer.propTypes = {
+    pivotData: PropTypes.object.isRequired
+};
+
+export default TableRenderer;

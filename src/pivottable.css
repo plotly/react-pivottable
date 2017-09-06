@@ -1,4 +1,4 @@
-.pvtUi { color: #333; }
+.pvtUi { color: #333; font-family: Verdana; }
 
 
 table.pvtTable {
@@ -55,6 +55,9 @@ table.pvtTable tbody tr td {
     border-radius: 5px;
     border: 1px dashed #aaa;
 }
+.pvtAxisContainer li.pvtPlaceholder span.pvtAttr {
+    display: none;
+}
 
 .pvtAxisContainer li span.pvtAttr {
     -webkit-text-size-adjust: 100%;
@@ -72,7 +75,7 @@ table.pvtTable tbody tr td {
     color: grey;
 }
 
-.pvtHorizList li { display: inline; }
+.pvtHorizList li { display: inline-block; }
 .pvtVertList { vertical-align: top; }
 
 .pvtFilteredAttribute { font-style: italic }
