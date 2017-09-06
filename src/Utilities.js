@@ -147,7 +147,7 @@ const aggregatorTemplates = {
                     },
                     value() { return fn(this.uniq); },
                     format: formatter,
-                    numInputs: (attr !== null) ? 0 : 1
+                    numInputs: (typeof attr !== 'undefined') ? 0 : 1
                 };
             };
         };
@@ -163,7 +163,7 @@ const aggregatorTemplates = {
                     },
                     value() { return this.sum; },
                     format: formatter,
-                    numInputs: (attr !== null) ? 0 : 1
+                    numInputs: (typeof attr !== 'undefined') ? 0 : 1
                 };
             };
         };
@@ -174,7 +174,7 @@ const aggregatorTemplates = {
             return function(data) {
                 return {
                     val: null,
-                    sorter: getSort(data.sorters, attr),
+                    sorter: getSort(typeof data !== 'undefined' ? data.sorters : null, attr),
                     push(record) {
                         let x = record[attr];
                         if (['min', 'max'].includes(mode)) {
@@ -190,7 +190,7 @@ const aggregatorTemplates = {
                     },
                     value() { return this.val; },
                     format(x) { if (isNaN(x)) { return x; } return formatter(x); },
-                    numInputs: (attr !== null) ? 0 : 1
+                    numInputs: (typeof attr !== 'undefined') ? 0 : 1
                 };
             };
         };
@@ -212,7 +212,7 @@ const aggregatorTemplates = {
                         return (this.vals[Math.floor(i)] + this.vals[Math.ceil(i)]) / 2.0;
                     },
                     format: formatter,
-                    numInputs: (attr !== null) ? 0 : 1
+                    numInputs: (typeof attr !== 'undefined') ? 0 : 1
                 };
             };
         };
@@ -246,7 +246,7 @@ const aggregatorTemplates = {
                         }
                     },
                     format: formatter,
-                    numInputs: (attr !== null) ? 0 : 1
+                    numInputs: (typeof attr !== 'undefined') ? 0 : 1
                 };
             };
         };
@@ -264,7 +264,7 @@ const aggregatorTemplates = {
                     },
                     value() { return this.sumNum / this.sumDenom; },
                     format: formatter,
-                    numInputs: (num !== null) && (denom !== null) ? 0 : 2
+                    numInputs: (typeof num !== 'undefined') && (typeof denom !== 'undefined') ? 0 : 2
                 };
             };
         };
