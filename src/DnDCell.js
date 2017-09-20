@@ -7,22 +7,35 @@ class DnDCell extends React.Component {
     render() {
         return <Sortable
             options={{
-                group: 'shared',
-                ghostClass: 'pvtPlaceholder'
+                group: 'shared', ghostClass: 'pvtPlaceholder', filter: '.pvtFilterBox',
+                preventOnFilter: false
             }}
             tag="td"
             className={this.props.classes}
             onChange={this.props.onChange}
         >
-            {this.props.items.map(x => <DraggableAttribute name={x} key={x} />)}
+            {this.props.items.map(x => <DraggableAttribute name={x} key={x}
+                attrValues={this.props.attrValues[x]}
+                valueFilter={this.props.valueFilter[x]}
+                addValueToFilter={this.props.addValueToFilter}
+                removeValueFromFilter={this.props.removeValueFromFilter}
+            />)}
         </Sortable>;
     }
 }
 
+DnDCell.defaultProps = {
+    valueFilter: {}, attrValues: {}
+};
+
 DnDCell.propTypes = {
     items: PropTypes.arrayOf(PropTypes.string).isRequired,
     classes: PropTypes.string.isRequired,
-    onChange: PropTypes.func.isRequired
+    onChange: PropTypes.func.isRequired,
+    addValueToFilter: PropTypes.func.isRequired,
+    removeValueFromFilter: PropTypes.func.isRequired,
+    attrValues: PropTypes.objectOf(PropTypes.objectOf(PropTypes.number)),
+    valueFilter: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool))
 };
 
 export default DnDCell;

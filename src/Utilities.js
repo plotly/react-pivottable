@@ -1,3 +1,7 @@
+import PropTypes from 'prop-types';
+
+
+
 /*
  * decaffeinate suggestions:
  * DS101: Remove unnecessary use of Array.from
@@ -377,19 +381,31 @@ const derivers = {
 Data Model class
 */
 
+const PivotDataDefaultProps = {
+    aggregators: aggregators,
+    cols: [], rows: [], vals: [],
+    aggregatorName: 'Count',
+    sorters: {},
+    valueFilter: {},
+    rowOrder: 'key_a_to_z', colOrder: 'key_a_to_z',
+    derivedAttributes: {}
+};
+
+const PivotDataPropTypes = {
+    data: PropTypes.oneOfType([PropTypes.array, PropTypes.object, PropTypes.func]).isRequired,
+    aggregatorName: PropTypes.string,
+    cols: PropTypes.arrayOf(PropTypes.string),
+    rows: PropTypes.arrayOf(PropTypes.string),
+    vals: PropTypes.arrayOf(PropTypes.string),
+    valueFilter: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool))
+};
+
 class PivotData {
-    constructor(opts = {}) {
-        this.input = opts.data || [];
-        this.aggregator = opts.aggregator || aggregatorTemplates.count()();
-        this.aggregatorName = opts.aggregatorName || 'Count';
-        this.colAttrs = opts.cols || [];
-        this.rowAttrs = opts.rows || [];
-        this.valAttrs = opts.vals || [];
-        this.sorters = opts.sorters || {};
-        this.rowOrder = opts.rowOrder || 'key_a_to_z';
-        this.colOrder = opts.colOrder || 'key_a_to_z';
-        this.derivedAttributes = opts.derivedAttributes || {};
-        this.filter = opts.filter || (() => true);
+    constructor(inputProps = {}) {
+        this.props = Object.assign({}, PivotDataDefaultProps, inputProps);
+        PropTypes.checkPropTypes(PivotDataPropTypes, this.props, 'prop', 'PivotData');
+
+        this.aggregator = this.props.aggregators[this.props.aggregatorName](this.props.vals);
         this.tree = {};
         this.rowKeys = [];
         this.colKeys = [];
@@ -399,9 +415,18 @@ class PivotData {
         this.sorted = false;
 
         // iterate through input, accumulating data for cells
-        PivotData.forEachRecord(this.input, this.derivedAttributes, record => {
+        PivotData.forEachRecord(this.props.data, this.props.derivedAttributes, record => {
             if (this.filter(record)) { this.processRecord(record); }
         });
+    }
+
+    filter(record) {
+        for (const k in this.props.valueFilter) {
+            if (record[k] in this.props.valueFilter[k]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // can handle arrays or jQuery selections of tables
@@ -458,7 +483,7 @@ class PivotData {
     }
 
     forEachMatchingRecord(criteria, callback) {
-        return PivotData.forEachRecord(this.input, this.derivedAttributes, record => {
+        return PivotData.forEachRecord(this.props.data, this.props.derivedAttributes, record => {
             if (!this.filter(record)) { return; }
             for (const k in criteria) {
                 const v = criteria[k];
@@ -472,7 +497,7 @@ class PivotData {
         let a;
         const sortersArr = ((() => {
             const result = [];
-            for (a of Array.from(attrs)) { result.push(getSort(this.sorters, a));
+            for (a of Array.from(attrs)) { result.push(getSort(this.props.sorters, a));
             }
             return result;
         })());
@@ -490,15 +515,15 @@ class PivotData {
         if (!this.sorted) {
             this.sorted = true;
             const v = (r, c) => this.getAggregator(r, c).value();
-            switch (this.rowOrder) {
+            switch (this.props.rowOrder) {
                 case 'value_a_to_z': this.rowKeys.sort((a, b) => naturalSort(v(a, []), v(b, []))); break;
                 case 'value_z_to_a': this.rowKeys.sort((a, b) => -naturalSort(v(a, []), v(b, []))); break;
-                default: this.rowKeys.sort(this.arrSort(this.rowAttrs));
+                default: this.rowKeys.sort(this.arrSort(this.props.rows));
             }
-            switch (this.colOrder) {
+            switch (this.props.colOrder) {
                 case 'value_a_to_z': this.colKeys.sort((a, b) => naturalSort(v([], a), v([], b))); break;
                 case 'value_z_to_a': this.colKeys.sort((a, b) => -naturalSort(v([], a), v([], b))); break;
-                default: this.colKeys.sort(this.arrSort(this.colAttrs));
+                default: this.colKeys.sort(this.arrSort(this.props.cols));
             }
         }
     }
@@ -517,8 +542,8 @@ class PivotData {
         // this code is called in a tight loop
         const colKey = [];
         const rowKey = [];
-        for (const x of Array.from(this.colAttrs)) { colKey.push(x in record ? record[x] : 'null'); }
-        for (const x of Array.from(this.rowAttrs)) { rowKey.push(x in record ? record[x] : 'null'); }
+        for (const x of Array.from(this.props.cols)) { colKey.push(x in record ? record[x] : 'null'); }
+        for (const x of Array.from(this.props.rows)) { rowKey.push(x in record ? record[x] : 'null'); }
         const flatRowKey = rowKey.join(String.fromCharCode(0));
         const flatColKey = colKey.join(String.fromCharCode(0));
 

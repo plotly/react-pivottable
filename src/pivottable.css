@@ -80,6 +80,8 @@ table.pvtTable tbody tr td {
 
 .pvtFilteredAttribute { font-style: italic }
 
+.sortable-chosen .pvtFilterBox { display: none !important; }
+
 .pvtFilterBox{
     z-index: 100;
     width: 300px;

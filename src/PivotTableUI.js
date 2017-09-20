@@ -48,8 +48,21 @@ class PivotTableUI extends React.Component {
         this.props.onChange(update(this.props, command));
     }
 
-    updateProps(key) {
+    updateSingleProp(key) {
         return value => this.sendPropUpdate({[key]: {$set: value}});
+    }
+
+    addValueToFilter(attribute, value) {
+        if (attribute in this.props.valueFilter) {
+            this.sendPropUpdate({valueFilter: {[attribute]: {[value]: {$set: true}}}});
+        }
+        else {
+            this.sendPropUpdate({valueFilter: {[attribute]: {$set: {[value]: true}}}});
+        }
+    }
+
+    removeValueFromFilter(attribute, value) {
+        this.sendPropUpdate({valueFilter: {[attribute]: {$unset: [value]}}});
     }
 
     render() {
@@ -63,12 +76,16 @@ class PivotTableUI extends React.Component {
                             .filter(e => !this.props.rows.includes(e) && !this.props.cols.includes(e))}
                         classes="pvtAxisContainer pvtUnused pvtHorizList"
                         onChange={function() {}}
+                        attrValues={this.attrValues}
+                        valueFilter={this.props.valueFilter}
+                        addValueToFilter={this.addValueToFilter.bind(this)}
+                        removeValueFromFilter={this.removeValueFromFilter.bind(this)}
                     />
                 </tr>
                 <tr>
                     <td className="pvtVals">
                         <select value={this.props.aggregatorName}
-                            onChange={({target: {value}}) => this.updateProps('aggregatorName')(value)}
+                            onChange={({target: {value}}) => this.updateSingleProp('aggregatorName')(value)}
                         >
                             {Object.keys(aggregators).map(n => <option key={`agg${n}`} value={n}>{n}</option>)}
                         </select>
@@ -86,20 +103,25 @@ class PivotTableUI extends React.Component {
                     </td>
                     <DnDCell
                         items={this.props.cols} classes="pvtAxisContainer pvtHorizList pvtCols"
-                        onChange={this.updateProps('cols')}
+                        onChange={this.updateSingleProp('cols')}
+                        attrValues={this.attrValues}
+                        valueFilter={this.props.valueFilter}
+                        addValueToFilter={this.addValueToFilter.bind(this)}
+                        removeValueFromFilter={this.removeValueFromFilter.bind(this)}
                     />
                 </tr>
                 <tr>
                     <DnDCell
                         items={this.props.rows} classes="pvtAxisContainer pvtVertList pvtRows"
-                        onChange={this.updateProps('rows')}
+                        onChange={this.updateSingleProp('rows')}
+                        attrValues={this.attrValues}
+                        valueFilter={this.props.valueFilter}
+                        addValueToFilter={this.addValueToFilter.bind(this)}
+                        removeValueFromFilter={this.removeValueFromFilter.bind(this)}
                     />
                     <td>
                         <TableRenderer pivotData={new PivotData(
-                            update(this.props, {
-                                data: {$set: this.materializedInput},
-                                aggregator: {$set: aggregators[this.props.aggregatorName](this.props.vals)}
-                            }))}
+                            update(this.props, {data: {$set: this.materializedInput}}))}
                         />
                     </td>
                 </tr>
@@ -110,7 +132,9 @@ class PivotTableUI extends React.Component {
 }
 
 PivotTableUI.defaultProps = {
-    rows: [], cols: [], vals: [], aggregatorName: 'Count'
+    rows: [], cols: [], vals: [],
+    aggregatorName: 'Count',
+    valueFilter: {}
 };
 
 PivotTableUI.propTypes = {
@@ -119,7 +143,8 @@ PivotTableUI.propTypes = {
     aggregatorName: PropTypes.string,
     cols: PropTypes.arrayOf(PropTypes.string),
     rows: PropTypes.arrayOf(PropTypes.string),
-    vals: PropTypes.arrayOf(PropTypes.string)
+    vals: PropTypes.arrayOf(PropTypes.string),
+    valueFilter: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool))
 };
 
 

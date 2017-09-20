@@ -34,8 +34,8 @@ const spanSize = function(arr, i, j) {
 class TableRenderer extends React.Component {
     render() {
         const pivotData = this.props.pivotData;
-        const colAttrs = pivotData.colAttrs;
-        const rowAttrs = pivotData.rowAttrs;
+        const colAttrs = pivotData.props.cols;
+        const rowAttrs = pivotData.props.rows;
         const rowKeys = pivotData.getRowKeys();
         const colKeys = pivotData.getColKeys();
         const grandTotalAggregator = pivotData.getAggregator([], []);
