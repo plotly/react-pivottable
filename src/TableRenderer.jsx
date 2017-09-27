@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import {PivotData} from './Utilities';
 import './pivottable.css';
 
 
@@ -33,7 +33,7 @@ const spanSize = function(arr, i, j) {
 
 class TableRenderer extends React.Component {
     render() {
-        const pivotData = this.props.pivotData;
+        const pivotData = new PivotData(this.props);
         const colAttrs = pivotData.props.cols;
         const rowAttrs = pivotData.props.rows;
         const rowKeys = pivotData.getRowKeys();
@@ -118,8 +118,8 @@ class TableRenderer extends React.Component {
     }
 }
 
-TableRenderer.propTypes = {
-    pivotData: PropTypes.object.isRequired
-};
+TableRenderer.defaultProps = PivotData.defaultProps;
+
+TableRenderer.propTypes = PivotData.propTypes;
 
 export default TableRenderer;

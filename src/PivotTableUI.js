@@ -1,9 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import update from 'immutability-helper';
-import {PivotData, aggregators} from './Utilities';
+import {PivotData} from './Utilities';
 import DnDCell from './DnDCell';
-import TableRenderer from './TableRenderer';
+import PivotTable from './PivotTable';
 import './pivottable.css';
 
 
@@ -66,11 +65,35 @@ class PivotTableUI extends React.Component {
     }
 
     render() {
-        const numValsAllowed = aggregators[this.props.aggregatorName]([])().numInputs || 0;
+        const numValsAllowed = this.props.aggregators[this.props.aggregatorName]([])().numInputs || 0;
+
+        const renderers = Object.keys(this.props.renderers)
+            .filter(r => !('dependenciesAreMet' in this.props.renderers[r])
+                || this.props.renderers[r].dependenciesAreMet(this.props))
+            .reduce((result, r) => {
+                result[r] = this.props.renderers[r];
+                return result;
+            }, {});
+
+        let rendererName = this.props.rendererName;
+
+        if (!(rendererName in renderers)) {
+            rendererName = Object.keys(renderers)[0];
+        }
+
         return (
             <table className="pvtUi"><tbody>
                 <tr>
-                    <td><select><option>Table</option></select></td>
+                    <td>
+                        <select value={rendererName}
+                            onChange={({target: {value}}) => this.updateSingleProp('rendererName')(value)}
+                        >
+                            {Object.keys(renderers)
+                                .map(r =>
+                                    <option value={r} key={r}>{r}</option>
+                                )}
+                        </select>
+                    </td>
                     <DnDCell
                         items={Object.keys(this.attrValues)
                             .filter(e => !this.props.rows.includes(e) && !this.props.cols.includes(e))}
@@ -87,7 +110,8 @@ class PivotTableUI extends React.Component {
                         <select value={this.props.aggregatorName}
                             onChange={({target: {value}}) => this.updateSingleProp('aggregatorName')(value)}
                         >
-                            {Object.keys(aggregators).map(n => <option key={`agg${n}`} value={n}>{n}</option>)}
+                            {Object.keys(this.props.aggregators).map(n =>
+                                <option key={`agg${n}`} value={n}>{n}</option>)}
                         </select>
                         {(numValsAllowed > 0) && <br />}
                         {new Array(numValsAllowed).fill().map((n, i) =>
@@ -120,8 +144,8 @@ class PivotTableUI extends React.Component {
                         removeValueFromFilter={this.removeValueFromFilter.bind(this)}
                     />
                     <td>
-                        <TableRenderer pivotData={new PivotData(
-                            update(this.props, {data: {$set: this.materializedInput}}))}
+                        <PivotTable
+                            {...update(this.props, {data: {$set: this.materializedInput}})}
                         />
                     </td>
                 </tr>
@@ -131,21 +155,8 @@ class PivotTableUI extends React.Component {
     }
 }
 
-PivotTableUI.defaultProps = {
-    rows: [], cols: [], vals: [],
-    aggregatorName: 'Count',
-    valueFilter: {}
-};
+PivotTableUI.defaultProps = PivotTable.defaultProps;
 
-PivotTableUI.propTypes = {
-    data: PropTypes.oneOfType([PropTypes.array, PropTypes.object, PropTypes.func]).isRequired,
-    onChange: PropTypes.func.isRequired,
-    aggregatorName: PropTypes.string,
-    cols: PropTypes.arrayOf(PropTypes.string),
-    rows: PropTypes.arrayOf(PropTypes.string),
-    vals: PropTypes.arrayOf(PropTypes.string),
-    valueFilter: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool))
-};
-
+PivotTableUI.propTypes = PivotTable.propTypes;
 
 export default PivotTableUI;

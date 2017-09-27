@@ -381,29 +381,10 @@ const derivers = {
 Data Model class
 */
 
-const PivotDataDefaultProps = {
-    aggregators: aggregators,
-    cols: [], rows: [], vals: [],
-    aggregatorName: 'Count',
-    sorters: {},
-    valueFilter: {},
-    rowOrder: 'key_a_to_z', colOrder: 'key_a_to_z',
-    derivedAttributes: {}
-};
-
-const PivotDataPropTypes = {
-    data: PropTypes.oneOfType([PropTypes.array, PropTypes.object, PropTypes.func]).isRequired,
-    aggregatorName: PropTypes.string,
-    cols: PropTypes.arrayOf(PropTypes.string),
-    rows: PropTypes.arrayOf(PropTypes.string),
-    vals: PropTypes.arrayOf(PropTypes.string),
-    valueFilter: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool))
-};
-
 class PivotData {
     constructor(inputProps = {}) {
-        this.props = Object.assign({}, PivotDataDefaultProps, inputProps);
-        PropTypes.checkPropTypes(PivotDataPropTypes, this.props, 'prop', 'PivotData');
+        this.props = Object.assign({}, PivotData.defaultProps, inputProps);
+        PropTypes.checkPropTypes(PivotData.propTypes, this.props, 'prop', 'PivotData');
 
         this.aggregator = this.props.aggregators[this.props.aggregatorName](this.props.vals);
         this.tree = {};
@@ -593,4 +574,25 @@ class PivotData {
     }
 }
 
-export {aggregatorTemplates, aggregators, derivers, locales, naturalSort, numberFormat, sortAs, PivotData};
+PivotData.defaultProps = {
+    aggregators: aggregators,
+    cols: [], rows: [], vals: [],
+    aggregatorName: 'Count',
+    sorters: {},
+    valueFilter: {},
+    rowOrder: 'key_a_to_z', colOrder: 'key_a_to_z',
+    derivedAttributes: {}
+};
+
+PivotData.propTypes = {
+    data: PropTypes.oneOfType([PropTypes.array, PropTypes.object, PropTypes.func]).isRequired,
+    aggregatorName: PropTypes.string,
+    cols: PropTypes.arrayOf(PropTypes.string),
+    rows: PropTypes.arrayOf(PropTypes.string),
+    vals: PropTypes.arrayOf(PropTypes.string),
+    valueFilter: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool))
+};
+
+
+export {aggregatorTemplates, aggregators, derivers, locales,
+    naturalSort, numberFormat, sortAs, PivotData};
