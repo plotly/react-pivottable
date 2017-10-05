@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {PivotData} from './Utilities';
 import TableRenderer from './TableRenderer';
-import PlotlyBarChartRenderer from './PlotlyBarChartRenderer';
+import PlotlyRenderers from './PlotlyRenderers';
 
 
 class PivotTable extends React.Component {
@@ -29,10 +29,11 @@ class PivotTable extends React.Component {
 
 PivotTable.defaultProps = PivotData.defaultProps;
 
-PivotTable.defaultProps.renderers = {
-    'Table': TableRenderer,
-    'Bar Chart': PlotlyBarChartRenderer
-};
+PivotTable.defaultProps.renderers = [TableRenderer].concat(PlotlyRenderers)
+    .reduce((result, r) => {
+        result[r.defaultRendererName()] = r;
+        return result;
+    }, {});
 
 PivotTable.propTypes = PivotData.propTypes;
 

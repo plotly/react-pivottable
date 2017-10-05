@@ -32,6 +32,9 @@ const spanSize = function(arr, i, j) {
 };
 
 class TableRenderer extends React.Component {
+
+    static defaultRendererName = () => 'Table';
+
     render() {
         const pivotData = new PivotData(this.props);
         const colAttrs = pivotData.props.cols;
