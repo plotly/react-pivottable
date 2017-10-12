@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {getSort} from '../src/Utilities';
 
 class DraggableAttribute extends React.Component {
     constructor(props) {
@@ -35,6 +36,7 @@ class DraggableAttribute extends React.Component {
 
                 <div className="pvtCheckContainer">
                     {Object.keys(this.props.attrValues)
+                        .sort(getSort(this.props.sorters, this.props.name))
                         .filter(x => x.toLowerCase().trim().includes(this.state.filterText.toLowerCase().trim()))
                         .map(x =>
                             <p key={x}>
@@ -68,7 +70,7 @@ class DraggableAttribute extends React.Component {
 
 
 DraggableAttribute.defaultProps = {
-    valueFilter: {}
+    valueFilter: {}, sorters: {}
 };
 
 DraggableAttribute.propTypes = {
@@ -76,7 +78,8 @@ DraggableAttribute.propTypes = {
     addValueToFilter: PropTypes.func.isRequired,
     removeValueFromFilter: PropTypes.func.isRequired,
     attrValues: PropTypes.objectOf(PropTypes.number).isRequired,
-    valueFilter: PropTypes.objectOf(PropTypes.bool)
+    valueFilter: PropTypes.objectOf(PropTypes.bool),
+    sorters: PropTypes.oneOfType([PropTypes.func, PropTypes.objectOf(PropTypes.func)])
 };
 
 export default DraggableAttribute;

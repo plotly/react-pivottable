@@ -1,12 +1,20 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import update from 'immutability-helper';
-import {PivotData} from './Utilities';
+import {PivotData, sortAs} from './Utilities';
 import DnDCell from './DnDCell';
 import PivotTable from './PivotTable';
 import './pivottable.css';
 
+/* eslint-disable react/prop-types */
+// eslint can't see inherited propTypes!
 
 class PivotTableUI extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {unusedOrder: []};
+    }
+
     componentWillMount() {
         this.materializeInput(this.props.data);
     }
@@ -81,82 +89,139 @@ class PivotTableUI extends React.Component {
             rendererName = Object.keys(renderers)[0];
         }
 
-        return (
-            <table className="pvtUi"><tbody>
-                <tr>
-                    <td>
-                        <select value={rendererName}
-                            onChange={({target: {value}}) => this.updateSingleProp('rendererName')(value)}
-                        >
-                            {Object.keys(renderers)
-                                .map(r =>
-                                    <option value={r} key={r}>{r}</option>
-                                )}
-                        </select>
-                    </td>
-                    <DnDCell
-                        items={Object.keys(this.attrValues)
-                            .filter(e => !this.props.rows.includes(e) && !this.props.cols.includes(e))}
-                        classes="pvtAxisContainer pvtUnused pvtHorizList"
-                        onChange={function() {}}
-                        attrValues={this.attrValues}
-                        valueFilter={this.props.valueFilter}
-                        addValueToFilter={this.addValueToFilter.bind(this)}
-                        removeValueFromFilter={this.removeValueFromFilter.bind(this)}
-                    />
-                </tr>
-                <tr>
-                    <td className="pvtVals">
-                        <select value={this.props.aggregatorName}
-                            onChange={({target: {value}}) => this.updateSingleProp('aggregatorName')(value)}
-                        >
-                            {Object.keys(this.props.aggregators).map(n =>
-                                <option key={`agg${n}`} value={n}>{n}</option>)}
-                        </select>
-                        {(numValsAllowed > 0) && <br />}
-                        {new Array(numValsAllowed).fill().map((n, i) =>
-                            <select value={this.props.vals[i]} key={`val${i}`}
-                                onChange={({target: {value}}) =>
-                                    this.sendPropUpdate({vals: {$splice: [[i, 1, value]]}})}
-                            >
-                                <option key={`none${i}`} value=""></option>
-                                {Object.keys(this.attrValues).map((v, j) =>
-                                    <option key={`${i}-${j}`} value={v}>{v}</option>)}
-                            </select>
-                        )}
-                    </td>
-                    <DnDCell
-                        items={this.props.cols} classes="pvtAxisContainer pvtHorizList pvtCols"
-                        onChange={this.updateSingleProp('cols')}
-                        attrValues={this.attrValues}
-                        valueFilter={this.props.valueFilter}
-                        addValueToFilter={this.addValueToFilter.bind(this)}
-                        removeValueFromFilter={this.removeValueFromFilter.bind(this)}
-                    />
-                </tr>
-                <tr>
-                    <DnDCell
-                        items={this.props.rows} classes="pvtAxisContainer pvtVertList pvtRows"
-                        onChange={this.updateSingleProp('rows')}
-                        attrValues={this.attrValues}
-                        valueFilter={this.props.valueFilter}
-                        addValueToFilter={this.addValueToFilter.bind(this)}
-                        removeValueFromFilter={this.removeValueFromFilter.bind(this)}
-                    />
-                    <td>
-                        <PivotTable
-                            {...update(this.props, {data: {$set: this.materializedInput}})}
-                        />
-                    </td>
-                </tr>
+        const rendererCell = <td>
+            <select value={rendererName}
+                onChange={({target: {value}}) =>
+                    this.updateSingleProp('rendererName')(value)}
+            >
+                {Object.keys(renderers)
+                    .map(r =>
+                        <option value={r} key={r}>{r}</option>
+                    )}
+            </select>
+        </td>;
 
-            </tbody></table>
-        );
+        const sortIcons = {
+            key_a_to_z: {rowSymbol: '↕', colSymbol: '↔', next: 'value_a_to_z'},
+            value_a_to_z: {rowSymbol: '↓', colSymbol: '→', next: 'value_z_to_a'},
+            value_z_to_a: {rowSymbol: '↑', colSymbol: '←', next: 'key_a_to_z'}
+        };
+
+        const aggregatorCell = <td className="pvtVals">
+            <select value={this.props.aggregatorName}
+                onChange={({target: {value}}) =>
+                    this.updateSingleProp('aggregatorName')(value)}
+            >
+                {Object.keys(this.props.aggregators).map(n =>
+                    <option key={`agg${n}`} value={n}>{n}</option>)}
+            </select>
+            {(numValsAllowed > 0) && <br />}
+            {new Array(numValsAllowed).fill().map((n, i) =>
+                <select value={this.props.vals[i]} key={`val${i}`}
+                    onChange={({target: {value}}) =>
+                        this.sendPropUpdate({vals: {$splice: [[i, 1, value]]}})}
+                >
+                    <option key={`none${i}`} value=""></option>
+                    {Object.keys(this.attrValues).filter(e =>
+                        !this.props.hiddenAttributes.includes(e) &&
+                    !this.props.hiddenFromAggregators.includes(e)).map((v, j) =>
+                        <option key={`${i}-${j}`} value={v}>{v}</option>)}
+                </select>
+            )}
+            <a role="button" className="pvtRowOrder" onClick={() =>
+                this.updateSingleProp('rowOrder')(sortIcons[this.props.rowOrder].next)}
+            >
+                {sortIcons[this.props.rowOrder].rowSymbol}
+            </a>
+            <a role="button" className="pvtColOrder" onClick={() =>
+                this.updateSingleProp('colOrder')(sortIcons[this.props.colOrder].next)}
+            >
+                {sortIcons[this.props.colOrder].colSymbol}
+            </a>
+        </td>;
+
+        const unusedAttrs = Object.keys(this.attrValues)
+            .filter(e => !this.props.rows.includes(e) &&
+                    !this.props.cols.includes(e) &&
+                    !this.props.hiddenAttributes.includes(e) &&
+                    !this.props.hiddenFromDragDrop.includes(e));
+
+        const unusedLength = unusedAttrs.reduce(((r, e) => r + e.length), 0);
+        const horizUnused = unusedLength < this.props.horizontalUnusedAreaMaxCharLength;
+
+        const unusedAttrsCell = <DnDCell
+            items={unusedAttrs.sort(sortAs(this.state.unusedOrder))}
+            classes={`pvtAxisContainer pvtUnused ${horizUnused ? 'pvtHorizList' : 'pvtVertList'}`}
+            onChange={order => this.setState({unusedOrder: order})}
+            attrValues={this.attrValues}
+            valueFilter={this.props.valueFilter}
+            sorters={this.props.sorters}
+            addValueToFilter={this.addValueToFilter.bind(this)}
+            removeValueFromFilter={this.removeValueFromFilter.bind(this)}
+        />;
+
+        const colAttrsCell = <DnDCell
+            items={this.props.cols.filter(e =>
+                !this.props.hiddenAttributes.includes(e) &&
+                    !this.props.hiddenFromDragDrop.includes(e))}
+            classes="pvtAxisContainer pvtHorizList pvtCols"
+            onChange={this.updateSingleProp('cols')}
+            attrValues={this.attrValues}
+            valueFilter={this.props.valueFilter}
+            sorters={this.props.sorters}
+            addValueToFilter={this.addValueToFilter.bind(this)}
+            removeValueFromFilter={this.removeValueFromFilter.bind(this)}
+        />;
+
+        const rowAttrsCell = <DnDCell
+            items={this.props.rows.filter(e =>
+                !this.props.hiddenAttributes.includes(e) &&
+                    !this.props.hiddenFromDragDrop.includes(e))}
+            classes="pvtAxisContainer pvtVertList pvtRows"
+            onChange={this.updateSingleProp('rows')}
+            attrValues={this.attrValues}
+            valueFilter={this.props.valueFilter}
+            sorters={this.props.sorters}
+            addValueToFilter={this.addValueToFilter.bind(this)}
+            removeValueFromFilter={this.removeValueFromFilter.bind(this)}
+        />;
+
+        const outputCell = <td>
+            <PivotTable {...update(this.props, {data: {$set: this.materializedInput}})} />
+        </td>;
+
+        if (horizUnused) {
+            return <table className="pvtUi"><tbody>
+                <tr>{rendererCell }{ unusedAttrsCell }</tr>
+                <tr>{aggregatorCell }{ colAttrsCell }</tr>
+                <tr>{rowAttrsCell }{ outputCell }</tr>
+            </tbody></table>;
+        }
+
+        return <table className="pvtUi"><tbody>
+            <tr>{rendererCell }{ aggregatorCell }{ colAttrsCell }</tr>
+            <tr>{unusedAttrsCell }{ rowAttrsCell }{ outputCell }</tr>
+        </tbody></table>;
+
+
     }
 }
 
-PivotTableUI.defaultProps = PivotTable.defaultProps;
+PivotTableUI.propTypes = Object.assign({}, PivotTable.propTypes, {
+    hiddenAttributes: PropTypes.arrayOf(PropTypes.string),
+    hiddenFromAggregators: PropTypes.arrayOf(PropTypes.string),
+    hiddenFromDragDrop: PropTypes.arrayOf(PropTypes.string),
+    horizontalUnusedAreaMaxCharLength: PropTypes.number
+});
 
-PivotTableUI.propTypes = PivotTable.propTypes;
+PivotTableUI.defaultProps = Object.assign({}, PivotTable.defaultProps, {
+    hiddenAttributes: [],
+    hiddenFromAggregators: [],
+    hiddenFromDragDrop: [],
+    horizontalUnusedAreaMaxCharLength: 85
+});
+
+
+
 
 export default PivotTableUI;

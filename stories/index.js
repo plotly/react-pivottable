@@ -3,6 +3,7 @@ import React from 'react';
 import { setAddon, storiesOf } from '@storybook/react';
 
 import PivotTable from '../src/PivotTable'
+import {sortAs} from '../src/Utilities'
 import PivotTableUISmartWrapper from '../src/PivotTableUISmartWrapper'
 import { mps } from './SampleData'
 

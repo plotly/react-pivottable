@@ -17,6 +17,7 @@ class DnDCell extends React.Component {
             {this.props.items.map(x => <DraggableAttribute name={x} key={x}
                 attrValues={this.props.attrValues[x]}
                 valueFilter={this.props.valueFilter[x]}
+                sorters={this.props.sorters}
                 addValueToFilter={this.props.addValueToFilter}
                 removeValueFromFilter={this.props.removeValueFromFilter}
             />)}
@@ -25,7 +26,7 @@ class DnDCell extends React.Component {
 }
 
 DnDCell.defaultProps = {
-    valueFilter: {}, attrValues: {}
+    valueFilter: {}, attrValues: {}, sorters: {}
 };
 
 DnDCell.propTypes = {
@@ -35,7 +36,8 @@ DnDCell.propTypes = {
     addValueToFilter: PropTypes.func.isRequired,
     removeValueFromFilter: PropTypes.func.isRequired,
     attrValues: PropTypes.objectOf(PropTypes.objectOf(PropTypes.number)),
-    valueFilter: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool))
+    valueFilter: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool)),
+    sorters: PropTypes.oneOfType([PropTypes.func, PropTypes.objectOf(PropTypes.func)])
 };
 
 export default DnDCell;

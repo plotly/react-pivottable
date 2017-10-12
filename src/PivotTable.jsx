@@ -4,6 +4,8 @@ import {PivotData} from './Utilities';
 import TableRenderer from './TableRenderer';
 import PlotlyRenderers from './PlotlyRenderers';
 
+/* eslint-disable react/prop-types */
+// eslint can't see inherited propTypes!
 
 class PivotTable extends React.Component {
     render() {
@@ -27,18 +29,18 @@ class PivotTable extends React.Component {
     }
 }
 
-PivotTable.defaultProps = PivotData.defaultProps;
 
-PivotTable.defaultProps.renderers = [TableRenderer].concat(PlotlyRenderers)
-    .reduce((result, r) => {
-        result[r.defaultRendererName()] = r;
-        return result;
-    }, {});
+PivotTable.propTypes = Object.assign({}, PivotData.propTypes, {
+    rendererName: PropTypes.string,
+    renderers: PropTypes.objectOf(PropTypes.func)
+});
 
-PivotTable.propTypes = PivotData.propTypes;
-
-PivotTable.propTypes.rendererName = PropTypes.string;
-PivotTable.propTypes.renderers = PropTypes.objectOf(PropTypes.func);
-
+PivotTable.defaultProps = Object.assign({}, PivotData.defaultProps, {
+    renderers: [TableRenderer].concat(PlotlyRenderers)
+        .reduce((result, r) => {
+            result[r.defaultRendererName()] = r;
+            return result;
+        }, {})
+});
 
 export default PivotTable;
