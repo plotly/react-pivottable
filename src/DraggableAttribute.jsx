@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {getSort} from '../src/Utilities';
 
 class DraggableAttribute extends React.Component {
     constructor(props) {
@@ -10,11 +9,15 @@ class DraggableAttribute extends React.Component {
 
     onCheckboxChange(value, checked) {
         if (checked) {
-            this.props.removeValueFromFilter(this.props.name, value);
+            this.props.removeValuesFromFilter(this.props.name, [value]);
         }
         else {
-            this.props.addValueToFilter(this.props.name, value);
+            this.props.addValuesToFilter(this.props.name, [value]);
         }
+    }
+
+    matchesFilter(x) {
+        return x.toLowerCase().trim().includes(this.state.filterText.toLowerCase().trim())
     }
 
     getFilterBox() {
@@ -32,22 +35,33 @@ class DraggableAttribute extends React.Component {
                         value={this.state.filterText}
                         onChange={e => this.setState({filterText: e.target.value})}
                     />
+                    <br />
+                    <button type="button"
+                    onClick={() => this.props.removeValuesFromFilter(this.props.name,
+                        Object.keys(this.props.attrValues).filter(this.matchesFilter.bind(this)) )}>
+                        Select All
+                    </button>
+                    <button type="button"
+                    onClick={() => this.props.addValuesToFilter(this.props.name,
+                        Object.keys(this.props.attrValues).filter(this.matchesFilter.bind(this)) )}>
+                        Select None
+                    </button>
                 </p>
 
                 <div className="pvtCheckContainer">
                     {Object.keys(this.props.attrValues)
-                        .sort(getSort(this.props.sorters, this.props.name))
-                        .filter(x => x.toLowerCase().trim().includes(this.state.filterText.toLowerCase().trim()))
+                        .sort(this.props.sorter)
+                        .filter(this.matchesFilter.bind(this))
                         .map(x =>
-                            <p key={x}>
-                                <label>
+                            <label key={x}>
+                                <p>
                                     <input type="checkbox"
                                         onChange={e => this.onCheckboxChange(x, e.target.checked)}
                                         checked={!(x in this.props.valueFilter)}
                                     />
                                     {x}
-                                </label>
-                            </p>)}
+                                </p>
+                            </label>)}
                 </div>
             </div>);
     }
@@ -70,16 +84,16 @@ class DraggableAttribute extends React.Component {
 
 
 DraggableAttribute.defaultProps = {
-    valueFilter: {}, sorters: {}
+    valueFilter: {}
 };
 
 DraggableAttribute.propTypes = {
     name: PropTypes.string.isRequired,
-    addValueToFilter: PropTypes.func.isRequired,
-    removeValueFromFilter: PropTypes.func.isRequired,
+    addValuesToFilter: PropTypes.func.isRequired,
+    removeValuesFromFilter: PropTypes.func.isRequired,
     attrValues: PropTypes.objectOf(PropTypes.number).isRequired,
     valueFilter: PropTypes.objectOf(PropTypes.bool),
-    sorters: PropTypes.oneOfType([PropTypes.func, PropTypes.objectOf(PropTypes.func)])
+    sorter: PropTypes.func.isRequired
 };
 
 export default DraggableAttribute;

@@ -104,11 +104,11 @@ table.pvtTable tbody tr td {
     white-space: nowrap;
     overflow-y: scroll;
     width: 100%;
-    max-height: 250px;
+    max-height: 50vh;
     border-top: 1px solid lightgrey;
-    border-bottom: 1px solid lightgrey;
 }
 
-.pvtCheckContainer p{ margin: 5px; }
+.pvtCheckContainer p { margin: 0; padding: 3px; }
+.pvtCheckContainer p:hover { background: #eee; }
 
 .pvtRendererArea { padding: 5px;}

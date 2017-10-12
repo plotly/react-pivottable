@@ -59,17 +59,21 @@ class PivotTableUI extends React.Component {
         return value => this.sendPropUpdate({[key]: {$set: value}});
     }
 
-    addValueToFilter(attribute, value) {
+    addValuesToFilter(attribute, values) {
         if (attribute in this.props.valueFilter) {
-            this.sendPropUpdate({valueFilter: {[attribute]: {[value]: {$set: true}}}});
+            this.sendPropUpdate({valueFilter: {[attribute]:
+                values.reduce((r, v) => { r[v] = {$set: true}; return r; }, {})
+            }});
         }
         else {
-            this.sendPropUpdate({valueFilter: {[attribute]: {$set: {[value]: true}}}});
+            this.sendPropUpdate({valueFilter: {[attribute]:
+                {$set: values.reduce((r, v) => { r[v] = true; return r; }, {})}
+            }});
         }
     }
 
-    removeValueFromFilter(attribute, value) {
-        this.sendPropUpdate({valueFilter: {[attribute]: {$unset: [value]}}});
+    removeValuesFromFilter(attribute, values) {
+        this.sendPropUpdate({valueFilter: {[attribute]: {$unset: values}}});
     }
 
     render() {
@@ -156,8 +160,8 @@ class PivotTableUI extends React.Component {
             attrValues={this.attrValues}
             valueFilter={this.props.valueFilter}
             sorters={this.props.sorters}
-            addValueToFilter={this.addValueToFilter.bind(this)}
-            removeValueFromFilter={this.removeValueFromFilter.bind(this)}
+            addValuesToFilter={this.addValuesToFilter.bind(this)}
+            removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
         />;
 
         const colAttrsCell = <DnDCell
@@ -169,8 +173,8 @@ class PivotTableUI extends React.Component {
             attrValues={this.attrValues}
             valueFilter={this.props.valueFilter}
             sorters={this.props.sorters}
-            addValueToFilter={this.addValueToFilter.bind(this)}
-            removeValueFromFilter={this.removeValueFromFilter.bind(this)}
+            addValuesToFilter={this.addValuesToFilter.bind(this)}
+            removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
         />;
 
         const rowAttrsCell = <DnDCell
@@ -182,8 +186,8 @@ class PivotTableUI extends React.Component {
             attrValues={this.attrValues}
             valueFilter={this.props.valueFilter}
             sorters={this.props.sorters}
-            addValueToFilter={this.addValueToFilter.bind(this)}
-            removeValueFromFilter={this.removeValueFromFilter.bind(this)}
+            addValuesToFilter={this.addValuesToFilter.bind(this)}
+            removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
         />;
 
         const outputCell = <td>
@@ -202,8 +206,6 @@ class PivotTableUI extends React.Component {
             <tr>{rendererCell }{ aggregatorCell }{ colAttrsCell }</tr>
             <tr>{unusedAttrsCell }{ rowAttrsCell }{ outputCell }</tr>
         </tbody></table>;
-
-
     }
 }
 
@@ -220,8 +222,5 @@ PivotTableUI.defaultProps = Object.assign({}, PivotTable.defaultProps, {
     hiddenFromDragDrop: [],
     horizontalUnusedAreaMaxCharLength: 85
 });
-
-
-
 
 export default PivotTableUI;

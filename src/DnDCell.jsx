@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {getSort} from '../src/Utilities';
 import Sortable from 'react-sortablejs';
 import DraggableAttribute from './DraggableAttribute';
 
@@ -17,9 +18,9 @@ class DnDCell extends React.Component {
             {this.props.items.map(x => <DraggableAttribute name={x} key={x}
                 attrValues={this.props.attrValues[x]}
                 valueFilter={this.props.valueFilter[x]}
-                sorters={this.props.sorters}
-                addValueToFilter={this.props.addValueToFilter}
-                removeValueFromFilter={this.props.removeValueFromFilter}
+                sorter={getSort(this.props.sorters, x)}
+                addValuesToFilter={this.props.addValuesToFilter}
+                removeValuesFromFilter={this.props.removeValuesFromFilter}
             />)}
         </Sortable>;
     }
@@ -33,8 +34,8 @@ DnDCell.propTypes = {
     items: PropTypes.arrayOf(PropTypes.string).isRequired,
     classes: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
-    addValueToFilter: PropTypes.func.isRequired,
-    removeValueFromFilter: PropTypes.func.isRequired,
+    addValuesToFilter: PropTypes.func.isRequired,
+    removeValuesFromFilter: PropTypes.func.isRequired,
     attrValues: PropTypes.objectOf(PropTypes.objectOf(PropTypes.number)),
     valueFilter: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool)),
     sorters: PropTypes.oneOfType([PropTypes.func, PropTypes.objectOf(PropTypes.func)])
