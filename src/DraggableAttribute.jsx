@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Draggable from 'react-draggable';
 
 class DraggableAttribute extends React.Component {
     constructor(props) {
@@ -17,53 +18,61 @@ class DraggableAttribute extends React.Component {
     }
 
     matchesFilter(x) {
-        return x.toLowerCase().trim().includes(this.state.filterText.toLowerCase().trim())
+        return x.toLowerCase().trim().includes(this.state.filterText.toLowerCase().trim());
     }
 
     getFilterBox() {
         return (
-            <div className="pvtFilterBox" style={{
-                display: 'block', cursor: 'initial',
-                top: this.state.top + 'px', left: this.state.left + 'px'}}
-            >
-                <a onClick={() => this.setState({open: false})}
-                    style={{position: 'absolute', right: '5px', top: '5px', fontSize: '18px', cursor: 'pointer'}}
-                >×</a>
-                <h4>{this.props.name}</h4>
-                <p>
-                    <input type="text" placeholder="Filter values" className="pvtSearch"
-                        value={this.state.filterText}
-                        onChange={e => this.setState({filterText: e.target.value})}
-                    />
-                    <br />
-                    <button type="button"
-                    onClick={() => this.props.removeValuesFromFilter(this.props.name,
-                        Object.keys(this.props.attrValues).filter(this.matchesFilter.bind(this)) )}>
+            <Draggable handle=".handle">
+                <div className="pvtFilterBox" style={{
+                    display: 'block', cursor: 'initial',
+                    top: this.state.top + 'px', left: this.state.left + 'px'}}
+                >
+                    <a onClick={() => this.setState({open: false})}
+                        style={{position: 'absolute', right: '5px', top: '5px', fontSize: '18px', cursor: 'pointer'}}
+                    >×</a>
+                    <span className="handle"
+                        style={{position: 'absolute', left: '5px', top: '5px', fontSize: '18px',
+                            cursor: 'move', color: 'grey'}}
+                    >☰</span>
+                    <h4>{this.props.name}</h4>
+                    <p>
+                        <input type="text" placeholder="Filter values" className="pvtSearch"
+                            value={this.state.filterText}
+                            onChange={e => this.setState({filterText: e.target.value})}
+                        />
+                        <br />
+                        <button type="button"
+                            onClick={() => this.props.removeValuesFromFilter(this.props.name,
+                                Object.keys(this.props.attrValues).filter(this.matchesFilter.bind(this)))}
+                        >
                         Select All
-                    </button>
-                    <button type="button"
-                    onClick={() => this.props.addValuesToFilter(this.props.name,
-                        Object.keys(this.props.attrValues).filter(this.matchesFilter.bind(this)) )}>
+                        </button>
+                        <button type="button"
+                            onClick={() => this.props.addValuesToFilter(this.props.name,
+                                Object.keys(this.props.attrValues).filter(this.matchesFilter.bind(this)))}
+                        >
                         Select None
-                    </button>
-                </p>
+                        </button>
+                    </p>
 
-                <div className="pvtCheckContainer">
-                    {Object.keys(this.props.attrValues)
-                        .sort(this.props.sorter)
-                        .filter(this.matchesFilter.bind(this))
-                        .map(x =>
-                            <label key={x}>
-                                <p>
-                                    <input type="checkbox"
-                                        onChange={e => this.onCheckboxChange(x, e.target.checked)}
-                                        checked={!(x in this.props.valueFilter)}
-                                    />
-                                    {x}
-                                </p>
-                            </label>)}
+                    <div className="pvtCheckContainer">
+                        {Object.keys(this.props.attrValues)
+                            .sort(this.props.sorter)
+                            .filter(this.matchesFilter.bind(this))
+                            .map(x =>
+                                <label key={x}>
+                                    <p>
+                                        <input type="checkbox"
+                                            onChange={e => this.onCheckboxChange(x, e.target.checked)}
+                                            checked={!(x in this.props.valueFilter)}
+                                        />
+                                        {x}
+                                    </p>
+                                </label>)}
+                    </div>
                 </div>
-            </div>);
+            </Draggable>);
     }
 
     render() {
