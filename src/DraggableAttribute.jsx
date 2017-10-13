@@ -22,6 +22,7 @@ class DraggableAttribute extends React.Component {
     }
 
     getFilterBox() {
+        const showMenu = Object.keys(this.props.attrValues).length < this.props.menuLimit;
         return (
             <Draggable handle=".handle">
                 <div className="pvtFilterBox" style={{
@@ -36,6 +37,12 @@ class DraggableAttribute extends React.Component {
                             cursor: 'move', color: 'grey'}}
                     >☰</span>
                     <h4>{this.props.name}</h4>
+
+                    {showMenu ||
+                    <p style={{marginBottom: '20px'}}>(too many values to show)</p>
+                    }
+
+                    {showMenu &&
                     <p>
                         <input type="text" placeholder="Filter values" className="pvtSearch"
                             value={this.state.filterText}
@@ -55,7 +62,9 @@ class DraggableAttribute extends React.Component {
                         Select None
                         </button>
                     </p>
+                    }
 
+                    {showMenu &&
                     <div className="pvtCheckContainer">
                         {Object.keys(this.props.attrValues)
                             .sort(this.props.sorter)
@@ -71,6 +80,7 @@ class DraggableAttribute extends React.Component {
                                     </p>
                                 </label>)}
                     </div>
+                    }
                 </div>
             </Draggable>);
     }
@@ -102,7 +112,8 @@ DraggableAttribute.propTypes = {
     removeValuesFromFilter: PropTypes.func.isRequired,
     attrValues: PropTypes.objectOf(PropTypes.number).isRequired,
     valueFilter: PropTypes.objectOf(PropTypes.bool),
-    sorter: PropTypes.func.isRequired
+    sorter: PropTypes.func.isRequired,
+    menuLimit: PropTypes.number
 };
 
 export default DraggableAttribute;

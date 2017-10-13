@@ -19,6 +19,7 @@ class DnDCell extends React.Component {
                 attrValues={this.props.attrValues[x]}
                 valueFilter={this.props.valueFilter[x]}
                 sorter={getSort(this.props.sorters, x)}
+                menuLimit={this.props.menuLimit}
                 addValuesToFilter={this.props.addValuesToFilter}
                 removeValuesFromFilter={this.props.removeValuesFromFilter}
             />)}
@@ -38,7 +39,8 @@ DnDCell.propTypes = {
     removeValuesFromFilter: PropTypes.func.isRequired,
     attrValues: PropTypes.objectOf(PropTypes.objectOf(PropTypes.number)),
     valueFilter: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool)),
-    sorters: PropTypes.oneOfType([PropTypes.func, PropTypes.objectOf(PropTypes.func)])
+    sorters: PropTypes.oneOfType([PropTypes.func, PropTypes.objectOf(PropTypes.func)]),
+    menuLimit: PropTypes.number
 };
 
 export default DnDCell;

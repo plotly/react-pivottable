@@ -160,6 +160,7 @@ class PivotTableUI extends React.Component {
             attrValues={this.attrValues}
             valueFilter={this.props.valueFilter}
             sorters={this.props.sorters}
+            menuLimit={this.props.menuLimit}
             addValuesToFilter={this.addValuesToFilter.bind(this)}
             removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
         />;
@@ -173,6 +174,7 @@ class PivotTableUI extends React.Component {
             attrValues={this.attrValues}
             valueFilter={this.props.valueFilter}
             sorters={this.props.sorters}
+            menuLimit={this.props.menuLimit}
             addValuesToFilter={this.addValuesToFilter.bind(this)}
             removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
         />;
@@ -186,6 +188,7 @@ class PivotTableUI extends React.Component {
             attrValues={this.attrValues}
             valueFilter={this.props.valueFilter}
             sorters={this.props.sorters}
+            menuLimit={this.props.menuLimit}
             addValuesToFilter={this.addValuesToFilter.bind(this)}
             removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
         />;
@@ -213,14 +216,16 @@ PivotTableUI.propTypes = Object.assign({}, PivotTable.propTypes, {
     hiddenAttributes: PropTypes.arrayOf(PropTypes.string),
     hiddenFromAggregators: PropTypes.arrayOf(PropTypes.string),
     hiddenFromDragDrop: PropTypes.arrayOf(PropTypes.string),
-    horizontalUnusedAreaMaxCharLength: PropTypes.number
+    horizontalUnusedAreaMaxCharLength: PropTypes.number,
+    menuLimit: PropTypes.number
 });
 
 PivotTableUI.defaultProps = Object.assign({}, PivotTable.defaultProps, {
     hiddenAttributes: [],
     hiddenFromAggregators: [],
     hiddenFromDragDrop: [],
-    horizontalUnusedAreaMaxCharLength: 85
+    horizontalUnusedAreaMaxCharLength: 85,
+    menuLimit: 500
 });
 
 export default PivotTableUI;
