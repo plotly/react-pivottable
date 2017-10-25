@@ -1,7 +1,6 @@
 import React from 'react';
 import {PivotData} from './Utilities';
-import createPlotlyComponent from 'plotly.js-react';
-
+import createPlotlyComponent from 'react-plotly.js/factory';
 
 function makeRenderer(name, traceOptions = {}, layoutOptions = {}, transpose = false) {
 
