@@ -1,4 +1,4 @@
-const mps = [
+export default [
 {"Province": "Quebec", "Party": "NDP", "Age": 22, "Name": "Liu, Laurin", "Gender": "Female"},
 {"Province": "Quebec", "Party": "Bloc Quebecois", "Age": 43, "Name": "Mourani, Maria", "Gender": "Female"},
 {"Province": "Quebec", "Party": "NDP", "Age": "", "Name": "Sellah, Djaouida", "Gender": "Female"},
@@ -306,6 +306,6 @@ const mps = [
 {"Province": "Quebec", "Party": "NDP", "Age": 27, "Name": "Morin, Dany", "Gender": "Male"},
 {"Province": "Quebec", "Party": "NDP", "Age": 24, "Name": "Dubé, Matthew", "Gender": "Male"},
 {"Province": "Quebec", "Party": "NDP", "Age": 21, "Name": "Dusseault, Pierre-Luc", "Gender": "Male"},
-{"Province": "Ontario", "Party": "Conservative", "Age": "", "Name": "O'Toole, Erin", "Gender": "Male"} ];
+{"Province": "Ontario", "Party": "Conservative", "Age": "", "Name": "O'Toole, Erin", "Gender": "Male"}
+];
 
-export {mps};
