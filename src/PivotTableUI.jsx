@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
-import {PivotData, sortAs} from './Utilities';
-import DnDCell from './DnDCell';
+import {PivotData, sortAs, getSort} from './Utilities';
+import Sortable from 'react-sortablejs';
+import DraggableAttribute from './DraggableAttribute';
 import PivotTable from './PivotTable';
 import './pivottable.css';
 
@@ -74,6 +75,25 @@ class PivotTableUI extends React.Component {
 
     removeValuesFromFilter(attribute, values) {
         this.sendPropUpdate({valueFilter: {[attribute]: {$unset: values}}});
+    }
+
+    makeDnDCell(items, onChange, classes) {
+        return <Sortable
+            options={{
+                group: 'shared', ghostClass: 'pvtPlaceholder',
+                filter: '.pvtFilterBox', preventOnFilter: false
+            }}
+            tag="td" className={classes} onChange={onChange}
+        >
+            {items.map(x => <DraggableAttribute name={x} key={x}
+                attrValues={this.attrValues[x]}
+                valueFilter={this.props.valueFilter[x] || {}}
+                sorter={getSort(this.props.sorters, x)}
+                menuLimit={this.props.menuLimit}
+                addValuesToFilter={this.addValuesToFilter.bind(this)}
+                removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
+            />)}
+        </Sortable>;
     }
 
     render() {
@@ -148,50 +168,27 @@ class PivotTableUI extends React.Component {
             .filter(e => !this.props.rows.includes(e) &&
                     !this.props.cols.includes(e) &&
                     !this.props.hiddenAttributes.includes(e) &&
-                    !this.props.hiddenFromDragDrop.includes(e));
+                    !this.props.hiddenFromDragDrop.includes(e))
+            .sort(sortAs(this.state.unusedOrder));
 
         const unusedLength = unusedAttrs.reduce(((r, e) => r + e.length), 0);
         const horizUnused = unusedLength < this.props.horizontalUnusedAreaMaxCharLength;
 
-        const unusedAttrsCell = <DnDCell
-            items={unusedAttrs.sort(sortAs(this.state.unusedOrder))}
-            classes={`pvtAxisContainer pvtUnused ${horizUnused ? 'pvtHorizList' : 'pvtVertList'}`}
-            onChange={order => this.setState({unusedOrder: order})}
-            attrValues={this.attrValues}
-            valueFilter={this.props.valueFilter}
-            sorters={this.props.sorters}
-            menuLimit={this.props.menuLimit}
-            addValuesToFilter={this.addValuesToFilter.bind(this)}
-            removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
-        />;
+        const unusedAttrsCell = this.makeDnDCell(unusedAttrs, (order => this.setState({unusedOrder: order})),
+            `pvtAxisContainer pvtUnused ${horizUnused ? 'pvtHorizList' : 'pvtVertList'}`);
 
-        const colAttrsCell = <DnDCell
-            items={this.props.cols.filter(e =>
-                !this.props.hiddenAttributes.includes(e) &&
-                    !this.props.hiddenFromDragDrop.includes(e))}
-            classes="pvtAxisContainer pvtHorizList pvtCols"
-            onChange={this.updateSingleProp('cols')}
-            attrValues={this.attrValues}
-            valueFilter={this.props.valueFilter}
-            sorters={this.props.sorters}
-            menuLimit={this.props.menuLimit}
-            addValuesToFilter={this.addValuesToFilter.bind(this)}
-            removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
-        />;
+        const colAttrs = this.props.cols.filter(e =>
+            !this.props.hiddenAttributes.includes(e) &&
+                    !this.props.hiddenFromDragDrop.includes(e));
 
-        const rowAttrsCell = <DnDCell
-            items={this.props.rows.filter(e =>
-                !this.props.hiddenAttributes.includes(e) &&
-                    !this.props.hiddenFromDragDrop.includes(e))}
-            classes="pvtAxisContainer pvtVertList pvtRows"
-            onChange={this.updateSingleProp('rows')}
-            attrValues={this.attrValues}
-            valueFilter={this.props.valueFilter}
-            sorters={this.props.sorters}
-            menuLimit={this.props.menuLimit}
-            addValuesToFilter={this.addValuesToFilter.bind(this)}
-            removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
-        />;
+        const colAttrsCell = this.makeDnDCell(colAttrs, this.updateSingleProp('cols'),
+            'pvtAxisContainer pvtHorizList pvtCols');
+
+        const rowAttrs = this.props.rows.filter(e =>
+            !this.props.hiddenAttributes.includes(e) &&
+                    !this.props.hiddenFromDragDrop.includes(e));
+        const rowAttrsCell = this.makeDnDCell(rowAttrs, this.updateSingleProp('rows'),
+            'pvtAxisContainer pvtVertList pvtRows');
 
         const outputCell = <td>
             <PivotTable {...update(this.props, {data: {$set: this.materializedInput}})} />
