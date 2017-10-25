@@ -6,7 +6,7 @@ module.exports = {
     './examples/index.jsx'
   ],
   output: {
-    filename: 'examples/bundle.js'
+    filename: 'bundle.js'
   },
   module : {
     rules: [
@@ -26,6 +26,7 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin()
   ],
   devServer: {
+      contentBase: './examples',
       hot: true
     },
   resolve: {

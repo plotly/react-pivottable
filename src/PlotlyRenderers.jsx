@@ -8,13 +8,13 @@ function makeRenderer(name, traceOptions = {}, layoutOptions = {}, transpose = f
 
         static defaultRendererName = () => name;
 
-        componentWillMount() { this.computeData(this.props); }
+        componentWillMount() {
+            this.PlotlyComponent = createPlotlyComponent(this.props.Plotly);
+            this.pivotData = new PivotData(this.props);
+        }
 
-        componentWillUpdate(nextProps) { this.computeData(nextProps); }
-
-        computeData(props) {
-            this.pivotData = new PivotData(props);
-            this.PlotlyComponent = createPlotlyComponent(props.Plotly);
+        componentWillUpdate(nextProps) {
+            this.pivotData = new PivotData(nextProps);
         }
 
         static dependenciesAreMet = p => ('Plotly' in p) && ('version' in p.Plotly);

@@ -8,7 +8,7 @@
     "test": "babel-node --presets=env spec/run.js",
     "lint": "eslint src/*js*",
     "lintfix": "eslint src/*js* --fix",
-    "deploy": "webpack -p && cd examples && git init && git add . && git commit -m build && git push --force git@github.com:plotly/react-pivottable.git master:gh-pages && rm -rf .git bundle.js"
+    "deploy": "webpack -p && mv bundle.js examples && cd examples && git init && git add . && git commit -m build && git push --force git@github.com:plotly/react-pivottable.git master:gh-pages && rm -rf .git bundle.js"
   },
   "repository": {
     "type": "git",
