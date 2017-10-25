@@ -29,8 +29,9 @@ function makeRenderer(name, traceOptions = {}, layoutOptions = {}, transpose = f
             if (datumKeys.length === 0) { datumKeys.push([]); }
 
             let fullAggName = this.props.aggregatorName;
-            if (this.props.vals.length !== 0) {
-                fullAggName += `(${this.props.vals.join(', ')})`;
+            const numInputs = this.props.aggregators[this.props.aggregatorName]([])().numInputs;
+            if (numInputs !== null && numInputs !== 0 && this.props.vals.length) {
+                fullAggName += ` of ${this.props.vals.join(', ')}`;
             }
 
             const data = traceKeys.map(traceKey => {
@@ -79,12 +80,12 @@ function makeRenderer(name, traceOptions = {}, layoutOptions = {}, transpose = f
 }
 
 export default [
+    makeRenderer('Grouped Column Chart', {type: 'bar'}, {barmode: 'group'}),
+    makeRenderer('Stacked Column Chart', {type: 'bar'}, {barmode: 'stack'}),
     makeRenderer('Grouped Bar Chart',
         {type: 'bar', orientation: 'h'}, {barmode: 'group'}, true),
     makeRenderer('Stacked Bar Chart',
         {type: 'bar', orientation: 'h'}, {barmode: 'stack'}, true),
-    makeRenderer('Grouped Column Chart', {type: 'bar'}, {barmode: 'group'}),
-    makeRenderer('Stacked Column Chart', {type: 'bar'}, {barmode: 'stack'}),
     makeRenderer('Line Chart'),
     makeRenderer('Dot Chart', {mode: 'markers'}, {}, true)
 ];

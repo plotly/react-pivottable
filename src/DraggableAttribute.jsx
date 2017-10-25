@@ -24,22 +24,19 @@ class DraggableAttribute extends React.Component {
     getFilterBox() {
         const showMenu = Object.keys(this.props.attrValues).length < this.props.menuLimit;
         return (
-            <Draggable handle=".handle">
+            <Draggable handle=".pvtDragHandle">
                 <div className="pvtFilterBox" style={{
                     display: 'block', cursor: 'initial',
                     top: this.state.top + 'px', left: this.state.left + 'px'}}
                 >
                     <a onClick={() => this.setState({open: false})}
-                        style={{position: 'absolute', right: '5px', top: '5px', fontSize: '18px', cursor: 'pointer'}}
+                        className="pvtCloseX"
                     >×</a>
-                    <span className="handle"
-                        style={{position: 'absolute', left: '5px', top: '5px', fontSize: '18px',
-                            cursor: 'move', color: 'grey'}}
-                    >☰</span>
+                    <span className="pvtDragHandle">☰</span>
                     <h4>{this.props.name}</h4>
 
                     {showMenu ||
-                    <p style={{marginBottom: '20px'}}>(too many values to show)</p>
+                    <p>(too many values to show)</p>
                     }
 
                     {showMenu &&

@@ -1,4 +1,8 @@
-.pvtUi { color: #333; font-family: Verdana; }
+.pvtUi {
+    color: #2a3f5f;
+    font-family: Verdana;
+    border-collapse: collapse;
+}
 .pvtUi select {
     user-select: none;
     -webkit-user-select: none;
@@ -11,11 +15,13 @@ table.pvtTable {
     font-size: 8pt;
     text-align: left;
     border-collapse: collapse;
+    margin-top: 3px;
+    margin-left: 3px;
     font-family: Verdana;
 }
 table.pvtTable thead tr th, table.pvtTable tbody tr th {
-    background-color: #e6EEEE;
-    border: 1px solid #CDCDCD;
+    background-color: #EBF0F8;
+    border: 1px solid #C8D4E3;
     font-size: 8pt;
     padding: 5px;
 }
@@ -24,17 +30,16 @@ table.pvtTable .pvtColLabel {text-align: center;}
 table.pvtTable .pvtTotalLabel {text-align: right;}
 
 table.pvtTable tbody tr td {
-    color: #3D3D3D;
+    color: #2a3f5f;
     padding: 5px;
     background-color: #FFF;
-    border: 1px solid #CDCDCD;
+    border: 1px solid #C8D4E3;
     vertical-align: top;
     text-align: right;
 }
 
 .pvtTotal, .pvtGrandTotal { font-weight: bold; }
 
-.pvtVals { text-align: center; white-space: nowrap;}
 .pvtRowOrder, .pvtColOrder {
     cursor:pointer;
     width: 15px;
@@ -46,15 +51,32 @@ table.pvtTable tbody tr td {
     -khtml-user-select: none;
     -ms-user-select: none;
 }
-.pvtAggregator { margin-bottom: 5px ;}
 
 .pvtAxisContainer, .pvtVals {
-    border: 1px solid gray;
-    background: #EEE;
+    border: 1px solid #A2B1C6;
+    background: #f2f5fa;
     padding: 5px;
     min-width: 20px;
     min-height: 20px;
 }
+
+
+.pvtRenderers {
+    padding-left: 6px;
+    padding-top: 11px;
+    padding-bottom: 14px;
+}
+
+.pvtVals {
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: top;
+    padding-top: 10px;
+    padding-bottom: 14px;
+}
+
+.pvtRows { height: 35px; }
+
 .pvtAxisContainer li {
     padding: 8px 6px;
     list-style-type: none;
@@ -65,7 +87,7 @@ table.pvtTable tbody tr td {
     padding: 3px 15px;
     -moz-border-radius: 5px;
     border-radius: 5px;
-    border: 1px dashed #aaa;
+    border: 1px dashed #A2B1C6;
 }
 .pvtAxisContainer li.pvtPlaceholder span.pvtAttr {
     display: none;
@@ -73,8 +95,8 @@ table.pvtTable tbody tr td {
 
 .pvtAxisContainer li span.pvtAttr {
     -webkit-text-size-adjust: 100%;
-    background: #F3F3F3;
-    border: 1px solid #DEDEDE;
+    background: #F3F6FA;
+    border: 1px solid #C8D4E3;
     padding: 2px 5px;
     white-space:nowrap;
     -webkit-border-radius: 5px;
@@ -89,7 +111,7 @@ table.pvtTable tbody tr td {
 
 .pvtTriangle {
     cursor:pointer;
-    color: grey;
+    color: #506784;
 }
 
 .pvtHorizList li { display: inline-block; }
@@ -99,14 +121,32 @@ table.pvtTable tbody tr td {
 
 .sortable-chosen .pvtFilterBox { display: none !important; }
 
+.pvtCloseX {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.pvtDragHandle {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    font-size: 18px;
+    cursor: move;
+    color: #A2B1C6;
+}
+
 .pvtFilterBox{
     z-index: 100;
     width: 300px;
-    border: 1px solid gray;
+    border: 1px solid #506784;
     background-color: #fff;
     position: absolute;
     text-align: center;
     user-select: none;
+    min-height: 100px;
     -webkit-user-select: none;
     -moz-user-select: none;
     -khtml-user-select: none;
@@ -117,8 +157,8 @@ table.pvtTable tbody tr td {
 .pvtFilterBox p { margin: 10px auto; }
 .pvtFilterBox label { font-weight: normal; }
 .pvtFilterBox input[type='checkbox'] { margin-right: 10px; margin-left: 10px; }
-.pvtFilterBox input[type='text'] { width: 230px; }
-.pvtFilterBox .count { color: gray; font-weight: normal; margin-left: 3px;}
+.pvtFilterBox button { color: #2a3f5f; }
+.pvtFilterBox input[type='text'] { width: 230px; color: #2a3f5f;}
 
 .pvtCheckContainer{
     text-align: left;
@@ -127,10 +167,11 @@ table.pvtTable tbody tr td {
     overflow-y: scroll;
     width: 100%;
     max-height: 50vh;
-    border-top: 1px solid lightgrey;
+    max-height: 50vh;
+    border-top: 1px solid #DFE8F3;
 }
 
 .pvtCheckContainer p { margin: 0; padding: 3px; }
-.pvtCheckContainer p:hover { background: #eee; }
+.pvtCheckContainer p:hover { background: #f2f5fa; }
 
 .pvtRendererArea { padding: 5px;}

@@ -93,7 +93,7 @@ class PivotTableUI extends React.Component {
             rendererName = Object.keys(renderers)[0];
         }
 
-        const rendererCell = <td>
+        const rendererCell = <td className="pvtRenderers">
             <select value={rendererName}
                 onChange={({target: {value}}) =>
                     this.updateSingleProp('rendererName')(value)}
@@ -119,6 +119,16 @@ class PivotTableUI extends React.Component {
                 {Object.keys(this.props.aggregators).map(n =>
                     <option key={`agg${n}`} value={n}>{n}</option>)}
             </select>
+            <a role="button" className="pvtRowOrder" onClick={() =>
+                this.updateSingleProp('rowOrder')(sortIcons[this.props.rowOrder].next)}
+            >
+                {sortIcons[this.props.rowOrder].rowSymbol}
+            </a>
+            <a role="button" className="pvtColOrder" onClick={() =>
+                this.updateSingleProp('colOrder')(sortIcons[this.props.colOrder].next)}
+            >
+                {sortIcons[this.props.colOrder].colSymbol}
+            </a>
             {(numValsAllowed > 0) && <br />}
             {new Array(numValsAllowed).fill().map((n, i) =>
                 <select value={this.props.vals[i]} key={`val${i}`}
@@ -132,16 +142,6 @@ class PivotTableUI extends React.Component {
                         <option key={`${i}-${j}`} value={v}>{v}</option>)}
                 </select>
             )}
-            <a role="button" className="pvtRowOrder" onClick={() =>
-                this.updateSingleProp('rowOrder')(sortIcons[this.props.rowOrder].next)}
-            >
-                {sortIcons[this.props.rowOrder].rowSymbol}
-            </a>
-            <a role="button" className="pvtColOrder" onClick={() =>
-                this.updateSingleProp('colOrder')(sortIcons[this.props.colOrder].next)}
-            >
-                {sortIcons[this.props.colOrder].colSymbol}
-            </a>
         </td>;
 
         const unusedAttrs = Object.keys(this.attrValues)
