@@ -1,15 +1,12 @@
 var webpack = require('webpack');
-var path = require('path');
-
-var APP_DIR = path.resolve(__dirname, 'examples');
 
 module.exports = {
   entry: [
     'react-hot-loader/patch',
-    APP_DIR + '/index.jsx'
+    'examples/index.jsx'
   ],
   output: {
-    filename: 'bundle.js'
+    filename: 'examples/bundle.js'
   },
   module : {
     rules: [
@@ -29,7 +26,6 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin()
   ],
   devServer: {
-      contentBase: './examples',
       hot: true
     },
   resolve: {
