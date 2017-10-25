@@ -4,12 +4,11 @@
   "description": "A React-based pivot table",
   "main": "index.js",
   "scripts": {
-    "test": "babel-node --presets=es2015 spec/run.js",
+    "start": "webpack-dev-server",
+    "test": "babel-node --presets=env spec/run.js",
     "lint": "eslint src/*js*",
     "lintfix": "eslint src/*js* --fix",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook -s public -o .out",
-    "deploy-storybook": "storybook-to-ghpages"
+    "deploy": "webpack -p && cd examples && git init && git add . && git commit -m build && git push --force git@github.com:plotly/react-pivottable.git master:gh-pages && rm -rf .git bundle.js"
   },
   "repository": {
     "type": "git",

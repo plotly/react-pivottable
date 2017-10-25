@@ -3,7 +3,7 @@ var webpack = require('webpack');
 module.exports = {
   entry: [
     'react-hot-loader/patch',
-    'examples/index.jsx'
+    './examples/index.jsx'
   ],
   output: {
     filename: 'examples/bundle.js'
