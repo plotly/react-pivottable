@@ -1,11 +1,16 @@
 import React from 'react';
-import mps from './mps'
-import PivotTableUISmartWrapper from '../src/PivotTableUISmartWrapper';
-
+import mps from './mps';
+import PivotTableUI from '../src/PivotTableUI';
+import '../src/pivottable.css';
 
 export default class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = props;
+    }
 
     render() {
-        return <PivotTableUISmartWrapper data={mps} Plotly={window.Plotly} />;
+        return <PivotTableUI data={mps} {...this.state}
+            onChange={s => this.setState(s)} />;
     }
 }
