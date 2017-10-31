@@ -30,9 +30,6 @@ const spanSize = function(arr, i, j) {
 };
 
 class TableRenderer extends React.PureComponent {
-
-    static defaultRendererName = () => 'Table';
-
     render() {
         const pivotData = new PivotData(this.props);
         const colAttrs = pivotData.props.cols;
@@ -123,4 +120,4 @@ TableRenderer.defaultProps = PivotData.defaultProps;
 
 TableRenderer.propTypes = PivotData.propTypes;
 
-export default TableRenderer;
+export default {"Table": TableRenderer};

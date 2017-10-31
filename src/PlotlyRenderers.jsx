@@ -2,22 +2,13 @@ import React from 'react';
 import {PivotData} from './Utilities';
 import createPlotlyComponent from 'react-plotly.js/factory';
 
-function makeRenderer(name, traceOptions = {}, layoutOptions = {}, transpose = false) {
+function makeRenderer(PlotlyComponent, traceOptions = {}, layoutOptions = {}, transpose = false) {
 
     class PlotlyBaseRenderer extends React.PureComponent {
 
-        static defaultRendererName = () => name;
+        componentWillMount() { this.pivotData = new PivotData(this.props); }
 
-        componentWillMount() {
-            this.PlotlyComponent = createPlotlyComponent(this.props.Plotly);
-            this.pivotData = new PivotData(this.props);
-        }
-
-        componentWillUpdate(nextProps) {
-            this.pivotData = new PivotData(nextProps);
-        }
-
-        static dependenciesAreMet = p => ('Plotly' in p) && ('version' in p.Plotly);
+        componentWillUpdate(nextProps) { this.pivotData = new PivotData(nextProps); }
 
         render() {
             const rowKeys = this.pivotData.getRowKeys();
@@ -66,7 +57,7 @@ function makeRenderer(name, traceOptions = {}, layoutOptions = {}, transpose = f
             if (transpose) { layout.xaxis = {domain: [0.1, 1.0], title: fullAggName}; }
             else { layout.yaxis = {title: fullAggName}; }
 
-            return <this.PlotlyComponent data={data}
+            return <PlotlyComponent data={data}
                 layout={Object.assign(layout, layoutOptions)}
             />;
         }
@@ -78,13 +69,16 @@ function makeRenderer(name, traceOptions = {}, layoutOptions = {}, transpose = f
     return PlotlyBaseRenderer;
 }
 
-export default [
-    makeRenderer('Grouped Column Chart', {type: 'bar'}, {barmode: 'group'}),
-    makeRenderer('Stacked Column Chart', {type: 'bar'}, {barmode: 'stack'}),
-    makeRenderer('Grouped Bar Chart',
-        {type: 'bar', orientation: 'h'}, {barmode: 'group'}, true),
-    makeRenderer('Stacked Bar Chart',
-        {type: 'bar', orientation: 'h'}, {barmode: 'stack'}, true),
-    makeRenderer('Line Chart'),
-    makeRenderer('Dot Chart', {mode: 'markers'}, {}, true)
-];
+export default function createPlotlyRenderers(Plotly) {
+    const PlotlyComponent = createPlotlyComponent(Plotly);
+    return {
+        'Grouped Column Chart': makeRenderer(PlotlyComponent, {type: 'bar'}, {barmode: 'group'}),
+        'Stacked Column Chart': makeRenderer(PlotlyComponent, {type: 'bar'}, {barmode: 'stack'}),
+        'Grouped Bar Chart': makeRenderer(PlotlyComponent, {type: 'bar', orientation: 'h'},
+            {barmode: 'group'}, true),
+        'Stacked Bar Chart': makeRenderer(PlotlyComponent, {type: 'bar', orientation: 'h'},
+            {barmode: 'stack'}, true),
+        'Line Chart': makeRenderer(PlotlyComponent, ),
+        'Dot Chart': makeRenderer(PlotlyComponent, {mode: 'markers'}, {}, true)
+    }
+}

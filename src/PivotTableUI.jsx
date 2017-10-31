@@ -211,29 +211,16 @@ class PivotTableUI extends React.PureComponent {
     render() {
         const numValsAllowed = this.props.aggregators[this.props.aggregatorName]([])().numInputs || 0;
 
-        const renderers = Object.keys(this.props.renderers)
-            .filter(r => !('dependenciesAreMet' in this.props.renderers[r])
-                || this.props.renderers[r].dependenciesAreMet(this.props))
-            .reduce((result, r) => {
-                result[r] = this.props.renderers[r];
-                return result;
-            }, {});
-
-        let rendererName = this.props.rendererName;
-
-        if (!(rendererName in renderers)) {
-            rendererName = Object.keys(renderers)[0];
-        }
+        const rendererName = this.props.rendererName in this.props.renderers ?
+                this.props.rendererName : Object.keys(this.props.renderers)[0]
 
         const rendererCell = <td className="pvtRenderers">
             <select value={rendererName}
                 onChange={({target: {value}}) =>
                     this.propUpdater('rendererName')(value)}
             >
-                {Object.keys(renderers)
-                    .map(r =>
-                        <option value={r} key={r}>{r}</option>
-                    )}
+                {Object.keys(this.props.renderers)
+                    .map(r => <option value={r} key={r}>{r}</option> )}
             </select>
         </td>;
 
