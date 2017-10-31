@@ -3,7 +3,7 @@ import {PivotData} from './Utilities';
 
 function makeRenderer(PlotlyComponent, traceOptions = {}, layoutOptions = {}, transpose = false) {
 
-    class PlotlyBaseRenderer extends React.PureComponent {
+    class Renderer extends React.PureComponent {
 
         componentWillMount() { this.pivotData = new PivotData(this.props); }
 
@@ -48,6 +48,7 @@ function makeRenderer(PlotlyComponent, traceOptions = {}, layoutOptions = {}, tr
 
             const layout = {
                 title: titleText,
+                hovermode: 'closest',
                 // eslint-disable-next-line no-magic-numbers
                 width: window.innerWidth / 1.5, height: window.innerHeight / 1.4 - 50
             };
@@ -62,10 +63,58 @@ function makeRenderer(PlotlyComponent, traceOptions = {}, layoutOptions = {}, tr
         }
     }
 
-    PlotlyBaseRenderer.defaultProps = PivotData.defaultProps;
-    PlotlyBaseRenderer.propTypes = PivotData.propTypes;
+    Renderer.defaultProps = PivotData.defaultProps;
+    Renderer.propTypes = PivotData.propTypes;
 
-    return PlotlyBaseRenderer;
+    return Renderer;
+}
+
+function makeScatterRenderer(PlotlyComponent) {
+
+    class Renderer extends React.PureComponent {
+
+        componentWillMount() { this.pivotData = new PivotData(this.props); }
+
+        componentWillUpdate(nextProps) { this.pivotData = new PivotData(nextProps); }
+
+        render() {
+            const rowKeys = this.pivotData.getRowKeys();
+            const colKeys = this.pivotData.getColKeys();
+            if (rowKeys.length === 0) { rowKeys.push([]); }
+            if (colKeys.length === 0) { colKeys.push([]); }
+
+            const data = {x: [], y:[], text: [], type: 'scatter', mode: 'markers'};
+
+            rowKeys.map(rowKey => {
+                colKeys.map(colKey => {
+                    const v = this.pivotData.getAggregator(rowKey, colKey).value();
+                    if(v !== null) {
+                        data.x.push(colKey.join("-"));
+                        data.y.push(rowKey.join("-"));
+                        data.text.push(v);
+                    }
+                });
+            });
+
+            const layout = {
+                title: this.props.rows.join("-") + " vs " + this.props.cols.join("-"),
+                hovermode: 'closest',
+                xaxis: {title: this.props.cols.join("-"), domain: [0.1, 1.0]},
+                yaxis: {title: this.props.rows.join("-")},
+                // eslint-disable-next-line no-magic-numbers
+                width: window.innerWidth / 1.5, height: window.innerHeight / 1.4 - 50
+            };
+
+            return <PlotlyComponent data={[data]}
+                layout={layout}
+            />;
+        }
+    }
+
+    Renderer.defaultProps = PivotData.defaultProps;
+    Renderer.propTypes = PivotData.propTypes;
+
+    return Renderer;
 }
 
 export default function createPlotlyRenderers(PlotlyComponent) {
@@ -77,6 +126,7 @@ export default function createPlotlyRenderers(PlotlyComponent) {
         'Stacked Bar Chart': makeRenderer(PlotlyComponent, {type: 'bar', orientation: 'h'},
             {barmode: 'stack'}, true),
         'Line Chart': makeRenderer(PlotlyComponent, ),
-        'Dot Chart': makeRenderer(PlotlyComponent, {mode: 'markers'}, {}, true)
+        'Dot Chart': makeRenderer(PlotlyComponent, {mode: 'markers'}, {}, true),
+        'Scatter Chart': makeScatterRenderer(PlotlyComponent)
     }
 }
