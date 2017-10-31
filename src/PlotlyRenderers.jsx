@@ -5,13 +5,10 @@ function makeRenderer(PlotlyComponent, traceOptions = {}, layoutOptions = {}, tr
 
     class Renderer extends React.PureComponent {
 
-        componentWillMount() { this.pivotData = new PivotData(this.props); }
-
-        componentWillUpdate(nextProps) { this.pivotData = new PivotData(nextProps); }
-
         render() {
-            const rowKeys = this.pivotData.getRowKeys();
-            const colKeys = this.pivotData.getColKeys();
+            const pivotData = new PivotData(this.props);
+            const rowKeys = pivotData.getRowKeys();
+            const colKeys = pivotData.getColKeys();
             const traceKeys = transpose ? colKeys : rowKeys;
             if (traceKeys.length === 0) { traceKeys.push([]); }
             const datumKeys = transpose ? rowKeys : colKeys;
@@ -27,7 +24,7 @@ function makeRenderer(PlotlyComponent, traceOptions = {}, layoutOptions = {}, tr
                 const values = [];
                 const labels = [];
                 for (const datumKey of datumKeys) {
-                    const val = parseFloat(this.pivotData.getAggregator(
+                    const val = parseFloat(pivotData.getAggregator(
                         transpose ? datumKey : traceKey,
                         transpose ? traceKey : datumKey
                     ).value());
@@ -73,13 +70,10 @@ function makeScatterRenderer(PlotlyComponent) {
 
     class Renderer extends React.PureComponent {
 
-        componentWillMount() { this.pivotData = new PivotData(this.props); }
-
-        componentWillUpdate(nextProps) { this.pivotData = new PivotData(nextProps); }
-
         render() {
-            const rowKeys = this.pivotData.getRowKeys();
-            const colKeys = this.pivotData.getColKeys();
+            const pivotData = new PivotData(this.props);
+            const rowKeys = pivotData.getRowKeys();
+            const colKeys = pivotData.getColKeys();
             if (rowKeys.length === 0) { rowKeys.push([]); }
             if (colKeys.length === 0) { colKeys.push([]); }
 
@@ -87,7 +81,7 @@ function makeScatterRenderer(PlotlyComponent) {
 
             rowKeys.map(rowKey => {
                 colKeys.map(colKey => {
-                    const v = this.pivotData.getAggregator(rowKey, colKey).value();
+                    const v = pivotData.getAggregator(rowKey, colKey).value();
                     if(v !== null) {
                         data.x.push(colKey.join("-"));
                         data.y.push(rowKey.join("-"));
