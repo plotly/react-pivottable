@@ -1,6 +1,6 @@
 {
   "name": "react-pivottable",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "A React-based pivot table",
   "main": "PivotTableUI.js",
   "files": [
@@ -56,7 +56,6 @@
     "babel-eslint": "^7.2.3",
     "babel-loader": "^7.1.2",
     "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "css-loader": "^0.28.7",

@@ -408,59 +408,6 @@ class PivotData {
         return true;
     }
 
-    // can handle arrays or jQuery selections of tables
-    static forEachRecord(input, derivedAttributes, f) {
-        let addRecord, record;
-        if (Object.getOwnPropertyNames(derivedAttributes).length === 0) {
-            addRecord = f;
-        } else {
-            addRecord = function(record) {
-                for (const k in derivedAttributes) {
-                    const derived = derivedAttributes[k](record);
-                    if (derived !== null) {
-                        record[k] = derived;
-                    }
-                }
-                return f(record);
-            };
-        }
-
-        // if it's a function, have it call us back
-        if (typeof input === 'function') {
-            return input(addRecord);
-        } else if (Array.isArray(input)) {
-            if (Array.isArray(input[0])) {
-            // array of arrays
-                return (() => {
-                    const result = [];
-                    for (const i of Object.keys(input || {})) {
-                        const compactRecord = input[i];
-                        if (i > 0) {
-                            record = {};
-                            for (const j of Object.keys(input[0] || {})) {
-                                const k = input[0][j];
-                                record[k] = compactRecord[j];
-                            }
-                            result.push(addRecord(record));
-                        }
-                    }
-                    return result;
-                })();
-            }
-
-            // array of objects
-            return (() => {
-                const result1 = [];
-                for (record of Array.from(input)) { result1.push(addRecord(record));
-                }
-                return result1;
-            })();
-
-        }
-        throw new Error('unknown input format');
-
-    }
-
     forEachMatchingRecord(criteria, callback) {
         return PivotData.forEachRecord(this.props.data, this.props.derivedAttributes, record => {
             if (!this.filter(record)) { return; }
@@ -570,6 +517,59 @@ class PivotData {
         }
         return agg || {value() { return null; }, format() { return ''; }};
     }
+}
+
+// can handle arrays or jQuery selections of tables
+PivotData.forEachRecord = function(input, derivedAttributes, f) {
+    let addRecord, record;
+    if (Object.getOwnPropertyNames(derivedAttributes).length === 0) {
+        addRecord = f;
+    } else {
+        addRecord = function(record) {
+            for (const k in derivedAttributes) {
+                const derived = derivedAttributes[k](record);
+                if (derived !== null) {
+                    record[k] = derived;
+                }
+            }
+            return f(record);
+        };
+    }
+
+    // if it's a function, have it call us back
+    if (typeof input === 'function') {
+        return input(addRecord);
+    } else if (Array.isArray(input)) {
+        if (Array.isArray(input[0])) {
+        // array of arrays
+            return (() => {
+                const result = [];
+                for (const i of Object.keys(input || {})) {
+                    const compactRecord = input[i];
+                    if (i > 0) {
+                        record = {};
+                        for (const j of Object.keys(input[0] || {})) {
+                            const k = input[0][j];
+                            record[k] = compactRecord[j];
+                        }
+                        result.push(addRecord(record));
+                    }
+                }
+                return result;
+            })();
+        }
+
+        // array of objects
+        return (() => {
+            const result1 = [];
+            for (record of Array.from(input)) { result1.push(addRecord(record));
+            }
+            return result1;
+        })();
+
+    }
+    throw new Error('unknown input format');
+
 }
 
 PivotData.defaultProps = {
