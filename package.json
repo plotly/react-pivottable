@@ -1,15 +1,28 @@
 {
   "name": "react-pivottable",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A React-based pivot table",
   "main": "PivotTableUI.js",
+  "files": [
+    "PivotTable.js",
+    "PivotTableUI.js",
+    "PlotlyRenderers.js",
+    "TableRenderers.js",
+    "Utilities.js",
+    "PivotTable.js.map",
+    "PivotTableUI.js.map",
+    "PlotlyRenderers.js.map",
+    "TableRenderers.js.map",
+    "Utilities.js.map",
+    "pivottable.css"
+  ],
   "scripts": {
     "start": "webpack-dev-server",
     "test": "babel-node --presets=env spec/run.js",
     "lint": "eslint src/*js*",
     "lintfix": "eslint src/*js* --fix",
     "clean": "rm -f PivotTable.js* PivotTableUI.js* PlotlyRenderers.js* TableRenderers.js* Utilities.js* pivottable.css",
-    "prepublish": "npm run clean && babel src --out-dir=. --source-maps --presets=es2015,react --plugins babel-plugin-add-module-exports ",
+    "prepublish": "npm run clean && cp src/pivottable.css . && babel src --out-dir=. --source-maps --presets=es2015,react --plugins babel-plugin-add-module-exports ",
     "deploy": "webpack -p && mv bundle.js examples && cd examples && git init && git add . && git commit -m build && git push --force git@github.com:plotly/react-pivottable.git master:gh-pages && rm -rf .git bundle.js"
   },
   "repository": {
