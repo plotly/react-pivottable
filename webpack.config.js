@@ -12,7 +12,13 @@ module.exports = {
     rules: [
       {
         test: /\.jsx?$/,
-        use: ['babel-loader'],
+        use: {
+          loader: 'babel-loader',
+          options: {
+            "presets" : [["es2015", {"modules": false}], "react"],
+            "plugins": ["react-hot-loader/babel", "transform-class-properties"]
+          }
+        },
         exclude: /node_modules/,
       },
       {
