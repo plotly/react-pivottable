@@ -1,6 +1,5 @@
 import React from 'react';
 import {PivotData} from './Utilities';
-import createPlotlyComponent from 'react-plotly.js/factory';
 
 function makeRenderer(PlotlyComponent, traceOptions = {}, layoutOptions = {}, transpose = false) {
 
@@ -69,8 +68,7 @@ function makeRenderer(PlotlyComponent, traceOptions = {}, layoutOptions = {}, tr
     return PlotlyBaseRenderer;
 }
 
-export default function createPlotlyRenderers(Plotly) {
-    const PlotlyComponent = createPlotlyComponent(Plotly);
+export default function createPlotlyRenderers(PlotlyComponent) {
     return {
         'Grouped Column Chart': makeRenderer(PlotlyComponent, {type: 'bar'}, {barmode: 'group'}),
         'Stacked Column Chart': makeRenderer(PlotlyComponent, {type: 'bar'}, {barmode: 'stack'}),
