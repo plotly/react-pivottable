@@ -4,7 +4,7 @@ import createPlotlyComponent from 'react-plotly.js/factory';
 
 function makeRenderer(name, traceOptions = {}, layoutOptions = {}, transpose = false) {
 
-    class PlotlyBaseRenderer extends React.Component {
+    class PlotlyBaseRenderer extends React.PureComponent {
 
         static defaultRendererName = () => name;
 

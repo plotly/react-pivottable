@@ -29,7 +29,7 @@ const spanSize = function(arr, i, j) {
     return len;
 };
 
-class TableRenderer extends React.Component {
+class TableRenderer extends React.PureComponent {
 
     static defaultRendererName = () => 'Table';
 

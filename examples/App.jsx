@@ -10,7 +10,8 @@ export default class App extends React.Component {
     }
 
     render() {
-        return <PivotTableUI data={mps} {...this.state}
+        return <PivotTableUI Plotly={window.Plotly}
+            data={mps} {...this.state}
             onChange={s => this.setState(s)} />;
     }
 }

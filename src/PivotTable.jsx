@@ -7,7 +7,7 @@ import PlotlyRenderers from './PlotlyRenderers';
 /* eslint-disable react/prop-types */
 // eslint can't see inherited propTypes!
 
-class PivotTable extends React.Component {
+class PivotTable extends React.PureComponent {
     render() {
         const renderers = Object.keys(this.props.renderers)
             .filter(r => !('dependenciesAreMet' in this.props.renderers[r])

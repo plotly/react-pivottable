@@ -1,7 +1,5 @@
 import PropTypes from 'prop-types';
 
-
-
 /*
  * decaffeinate suggestions:
  * DS101: Remove unnecessary use of Array.from

@@ -9,7 +9,7 @@ import Draggable from 'react-draggable';
 /* eslint-disable react/prop-types */
 // eslint can't see inherited propTypes!
 
-class DraggableAttribute extends React.Component {
+class DraggableAttribute extends React.PureComponent {
     constructor(props) {
         super(props);
         this.state = {open: false, top: 0, left: 0, filterText: ''};
@@ -122,7 +122,7 @@ DraggableAttribute.propTypes = {
 
 
 
-class PivotTableUI extends React.Component {
+class PivotTableUI extends React.PureComponent {
     constructor(props) {
         super(props);
         this.state = {unusedOrder: []};
@@ -168,7 +168,7 @@ class PivotTableUI extends React.Component {
         this.props.onChange(update(this.props, command));
     }
 
-    updateSingleProp(key) {
+    propUpdater(key) {
         return value => this.sendPropUpdate({[key]: {$set: value}});
     }
 
@@ -228,7 +228,7 @@ class PivotTableUI extends React.Component {
         const rendererCell = <td className="pvtRenderers">
             <select value={rendererName}
                 onChange={({target: {value}}) =>
-                    this.updateSingleProp('rendererName')(value)}
+                    this.propUpdater('rendererName')(value)}
             >
                 {Object.keys(renderers)
                     .map(r =>
@@ -246,18 +246,18 @@ class PivotTableUI extends React.Component {
         const aggregatorCell = <td className="pvtVals">
             <select value={this.props.aggregatorName}
                 onChange={({target: {value}}) =>
-                    this.updateSingleProp('aggregatorName')(value)}
+                    this.propUpdater('aggregatorName')(value)}
             >
                 {Object.keys(this.props.aggregators).map(n =>
                     <option key={`agg${n}`} value={n}>{n}</option>)}
             </select>
             <a role="button" className="pvtRowOrder" onClick={() =>
-                this.updateSingleProp('rowOrder')(sortIcons[this.props.rowOrder].next)}
+                this.propUpdater('rowOrder')(sortIcons[this.props.rowOrder].next)}
             >
                 {sortIcons[this.props.rowOrder].rowSymbol}
             </a>
             <a role="button" className="pvtColOrder" onClick={() =>
-                this.updateSingleProp('colOrder')(sortIcons[this.props.colOrder].next)}
+                this.propUpdater('colOrder')(sortIcons[this.props.colOrder].next)}
             >
                 {sortIcons[this.props.colOrder].colSymbol}
             </a>
@@ -293,13 +293,13 @@ class PivotTableUI extends React.Component {
             !this.props.hiddenAttributes.includes(e) &&
                     !this.props.hiddenFromDragDrop.includes(e));
 
-        const colAttrsCell = this.makeDnDCell(colAttrs, this.updateSingleProp('cols'),
+        const colAttrsCell = this.makeDnDCell(colAttrs, this.propUpdater('cols'),
             'pvtAxisContainer pvtHorizList pvtCols');
 
         const rowAttrs = this.props.rows.filter(e =>
             !this.props.hiddenAttributes.includes(e) &&
                     !this.props.hiddenFromDragDrop.includes(e));
-        const rowAttrsCell = this.makeDnDCell(rowAttrs, this.updateSingleProp('rows'),
+        const rowAttrsCell = this.makeDnDCell(rowAttrs, this.propUpdater('rows'),
             'pvtAxisContainer pvtVertList pvtRows');
 
         const outputCell = <td>
