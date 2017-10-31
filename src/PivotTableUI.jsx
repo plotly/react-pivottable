@@ -142,7 +142,7 @@ class PivotTableUI extends React.PureComponent {
         const attrValues = {};
         const materializedInput = [];
         let recordsProcessed = 0;
-        PivotData.forEachRecord(this.data, {}, function(record) {
+        PivotData.forEachRecord(this.data, this.props.derivedAttributes, function(record) {
             materializedInput.push(record);
             for (const attr of Object.keys(record)) {
                 if (!(attr in attrValues)) {
