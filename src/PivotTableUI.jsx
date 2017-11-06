@@ -271,7 +271,7 @@ class PivotTableUI extends React.PureComponent {
             .sort(sortAs(this.state.unusedOrder));
 
         const unusedLength = unusedAttrs.reduce(((r, e) => r + e.length), 0);
-        const horizUnused = unusedLength < this.props.horizontalUnusedAreaMaxCharLength;
+        const horizUnused = unusedLength < this.props.unusedOrientationCutoff;
 
         const unusedAttrsCell = this.makeDnDCell(unusedAttrs, (order => this.setState({unusedOrder: order})),
             `pvtAxisContainer pvtUnused ${horizUnused ? 'pvtHorizList' : 'pvtVertList'}`);
@@ -309,10 +309,11 @@ class PivotTableUI extends React.PureComponent {
 }
 
 PivotTableUI.propTypes = Object.assign({}, PivotTable.propTypes, {
+    onChange: PropTypes.func.isRequired,
     hiddenAttributes: PropTypes.arrayOf(PropTypes.string),
     hiddenFromAggregators: PropTypes.arrayOf(PropTypes.string),
     hiddenFromDragDrop: PropTypes.arrayOf(PropTypes.string),
-    horizontalUnusedAreaMaxCharLength: PropTypes.number,
+    unusedOrientationCutoff: PropTypes.number,
     menuLimit: PropTypes.number
 });
 
@@ -320,7 +321,7 @@ PivotTableUI.defaultProps = Object.assign({}, PivotTable.defaultProps, {
     hiddenAttributes: [],
     hiddenFromAggregators: [],
     hiddenFromDragDrop: [],
-    horizontalUnusedAreaMaxCharLength: 85,
+    unusedOrientationCutoff: 85,
     menuLimit: 500
 });
 
