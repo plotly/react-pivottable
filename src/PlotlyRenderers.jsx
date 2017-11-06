@@ -55,7 +55,7 @@ function makeRenderer(PlotlyComponent, traceOptions = {}, layoutOptions = {}, tr
             else { layout.yaxis = {title: fullAggName}; }
 
             return <PlotlyComponent data={data}
-                layout={Object.assign(layout, layoutOptions)}
+                layout={Object.assign(layout, layoutOptions, this.props.plotlyOptions)}
             />;
         }
     }
@@ -77,24 +77,25 @@ function makeScatterRenderer(PlotlyComponent) {
             if (rowKeys.length === 0) { rowKeys.push([]); }
             if (colKeys.length === 0) { colKeys.push([]); }
 
-            const data = {x: [], y:[], text: [], type: 'scatter', mode: 'markers'};
+            const data = {x: [], y: [], text: [], type: 'scatter', mode: 'markers'};
 
             rowKeys.map(rowKey => {
                 colKeys.map(colKey => {
                     const v = pivotData.getAggregator(rowKey, colKey).value();
-                    if(v !== null) {
-                        data.x.push(colKey.join("-"));
-                        data.y.push(rowKey.join("-"));
+                    if (v !== null) {
+                        data.x.push(colKey.join('-'));
+                        data.y.push(rowKey.join('-'));
                         data.text.push(v);
                     }
                 });
             });
 
             const layout = {
-                title: this.props.rows.join("-") + " vs " + this.props.cols.join("-"),
+                title: this.props.rows.join('-') + ' vs ' + this.props.cols.join('-'),
                 hovermode: 'closest',
-                xaxis: {title: this.props.cols.join("-"), domain: [0.1, 1.0]},
-                yaxis: {title: this.props.rows.join("-")},
+                // eslint-disable-next-line no-magic-numbers
+                xaxis: {title: this.props.cols.join('-'), domain: [0.1, 1.0]},
+                yaxis: {title: this.props.rows.join('-')},
                 // eslint-disable-next-line no-magic-numbers
                 width: window.innerWidth / 1.5, height: window.innerHeight / 1.4 - 50
             };
@@ -119,8 +120,8 @@ export default function createPlotlyRenderers(PlotlyComponent) {
             {barmode: 'group'}, true),
         'Stacked Bar Chart': makeRenderer(PlotlyComponent, {type: 'bar', orientation: 'h'},
             {barmode: 'stack'}, true),
-        'Line Chart': makeRenderer(PlotlyComponent, ),
+        'Line Chart': makeRenderer(PlotlyComponent),
         'Dot Chart': makeRenderer(PlotlyComponent, {mode: 'markers'}, {}, true),
         'Scatter Chart': makeScatterRenderer(PlotlyComponent)
-    }
+    };
 }

@@ -570,7 +570,7 @@ PivotData.forEachRecord = function(input, derivedAttributes, f) {
     }
     throw new Error('unknown input format');
 
-}
+};
 
 PivotData.defaultProps = {
     aggregators: aggregators,

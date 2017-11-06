@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {PivotData} from './Utilities';
 import TableRenderers from './TableRenderers';
-import PlotlyRenderers from './PlotlyRenderers';
 
 /* eslint-disable react/prop-types */
 // eslint can't see inherited propTypes!
@@ -23,7 +22,7 @@ PivotTable.propTypes = Object.assign({}, PivotData.propTypes, {
 });
 
 PivotTable.defaultProps = Object.assign({}, PivotData.defaultProps, {
-    rendererName: "Table",
+    rendererName: 'Table',
     renderers: TableRenderers
 });
 

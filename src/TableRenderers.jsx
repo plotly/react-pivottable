@@ -120,4 +120,4 @@ TableRenderer.defaultProps = PivotData.defaultProps;
 
 TableRenderer.propTypes = PivotData.propTypes;
 
-export default {"Table": TableRenderer};
+export default {'Table': TableRenderer};
