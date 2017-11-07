@@ -9,14 +9,14 @@ import Draggable from 'react-draggable';
 /* eslint-disable react/prop-types */
 // eslint can't see inherited propTypes!
 
-class DraggableAttribute extends React.PureComponent {
+class DraggableAttribute extends React.Component {
     constructor(props) {
         super(props);
         this.state = {open: false, top: 0, left: 0, filterText: ''};
     }
 
-    onCheckboxChange(value, checked) {
-        if (checked) {
+    toggleValue(value) {
+        if ((value in this.props.valueFilter)) {
             this.props.removeValuesFromFilter(this.props.name, [value]);
         }
         else {
@@ -28,8 +28,19 @@ class DraggableAttribute extends React.PureComponent {
         return x.toLowerCase().trim().includes(this.state.filterText.toLowerCase().trim());
     }
 
+    selectOnly(e, value) {
+        e.stopPropagation();
+        this.props.setValuesInFilter(this.props.name,
+            Object.keys(this.props.attrValues).filter(y => y !== value));
+    }
+
     getFilterBox() {
         const showMenu = Object.keys(this.props.attrValues).length < this.props.menuLimit;
+
+        const values = Object.keys(this.props.attrValues);
+        const shown = values.filter(this.matchesFilter.bind(this))
+            .sort(this.props.sorter);
+
         return (
             <Draggable handle=".pvtDragHandle">
                 <div className="pvtFilterBox" style={{
@@ -57,36 +68,44 @@ class DraggableAttribute extends React.PureComponent {
                             onClick={() => this.props.removeValuesFromFilter(this.props.name,
                                 Object.keys(this.props.attrValues).filter(this.matchesFilter.bind(this)))}
                         >
-                        Select All
-                        </button>
-                        <button type="button"
+                        Select {values.length === shown.length ? 'All' : shown.length}
+                        </button> <button type="button"
                             onClick={() => this.props.addValuesToFilter(this.props.name,
                                 Object.keys(this.props.attrValues).filter(this.matchesFilter.bind(this)))}
                         >
-                        Select None
+                        Deselect {values.length === shown.length ? 'All' : shown.length}
                         </button>
                     </p>
                     }
 
                     {showMenu &&
                     <div className="pvtCheckContainer">
-                        {Object.keys(this.props.attrValues)
-                            .sort(this.props.sorter)
-                            .filter(this.matchesFilter.bind(this))
-                            .map(x =>
-                                <label key={x}>
-                                    <p>
-                                        <input type="checkbox"
-                                            onChange={e => this.onCheckboxChange(x, e.target.checked)}
-                                            checked={!(x in this.props.valueFilter)}
-                                        />
-                                        {x}
-                                    </p>
-                                </label>)}
+                        {shown.map(x =>
+                            <p key={x} onClick={() => this.toggleValue(x)}
+                                className={(x in this.props.valueFilter) ? '' : 'selected'}
+                            >
+
+                                <a className="pvtOnly"
+                                    onClick={e => this.selectOnly(e, x)}
+                                >only</a>
+                                <a className="pvtOnlySpacer">&nbsp;</a>
+
+                                {x === '' ? <em>null</em> : x}
+
+                            </p>)}
                     </div>
                     }
                 </div>
             </Draggable>);
+    }
+
+    toggleFilterBox(event) {
+        const bodyRect = document.body.getBoundingClientRect();
+        const rect = event.nativeEvent.target.getBoundingClientRect();
+        this.setState({
+            open: !this.state.open,
+            top: 10 + rect.top - bodyRect.top,
+            left: 10 + rect.left - bodyRect.left});
     }
 
     render() {
@@ -94,9 +113,7 @@ class DraggableAttribute extends React.PureComponent {
         return <li data-id={this.props.name}>
             <span className={'pvtAttr ' + filtered}>
                 {this.props.name}
-                <span className="pvtTriangle"
-                    onClick={e => this.setState({open: !this.state.open, top: e.clientY, left: e.clientX})}
-                > ▾</span>
+                <span className="pvtTriangle" onClick={this.toggleFilterBox.bind(this)}> ▾</span>
             </span>
 
             {this.state.open ? this.getFilterBox() : null}
@@ -172,6 +189,12 @@ class PivotTableUI extends React.PureComponent {
         return value => this.sendPropUpdate({[key]: {$set: value}});
     }
 
+    setValuesInFilter(attribute, values) {
+        this.sendPropUpdate({valueFilter: {[attribute]:
+                {$set: values.reduce((r, v) => { r[v] = true; return r; }, {})}
+        }});
+    }
+
     addValuesToFilter(attribute, values) {
         if (attribute in this.props.valueFilter) {
             this.sendPropUpdate({valueFilter: {[attribute]:
@@ -179,9 +202,7 @@ class PivotTableUI extends React.PureComponent {
             }});
         }
         else {
-            this.sendPropUpdate({valueFilter: {[attribute]:
-                {$set: values.reduce((r, v) => { r[v] = true; return r; }, {})}
-            }});
+            this.setValuesInFilter(attribute, values);
         }
     }
 
@@ -202,6 +223,7 @@ class PivotTableUI extends React.PureComponent {
                 valueFilter={this.props.valueFilter[x] || {}}
                 sorter={getSort(this.props.sorters, x)}
                 menuLimit={this.props.menuLimit}
+                setValuesInFilter={this.setValuesInFilter.bind(this)}
                 addValuesToFilter={this.addValuesToFilter.bind(this)}
                 removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
             />)}
@@ -289,7 +311,7 @@ class PivotTableUI extends React.PureComponent {
         const rowAttrsCell = this.makeDnDCell(rowAttrs, this.propUpdater('rows'),
             'pvtAxisContainer pvtVertList pvtRows');
 
-        const outputCell = <td>
+        const outputCell = <td valign="top">
             <PivotTable {...update(this.props, {data: {$set: this.materializedInput}})} />
         </td>;
 

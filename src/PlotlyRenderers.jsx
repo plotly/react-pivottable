@@ -101,7 +101,7 @@ function makeScatterRenderer(PlotlyComponent) {
             };
 
             return <PlotlyComponent data={[data]}
-                layout={layout}
+                layout={Object.assign(layout, this.props.plotlyOptions)}
             />;
         }
     }

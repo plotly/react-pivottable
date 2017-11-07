@@ -155,10 +155,8 @@ table.pvtTable tbody tr td {
 
 .pvtFilterBox h4{ margin: 15px; }
 .pvtFilterBox p { margin: 10px auto; }
-.pvtFilterBox label { font-weight: normal; }
-.pvtFilterBox input[type='checkbox'] { margin-right: 10px; margin-left: 10px; }
 .pvtFilterBox button { color: #2a3f5f; }
-.pvtFilterBox input[type='text'] { width: 230px; color: #2a3f5f;}
+.pvtFilterBox input[type='text'] { width: 230px; color: #2a3f5f; margin-bottom: 5px;}
 
 .pvtCheckContainer{
     text-align: left;
@@ -166,12 +164,41 @@ table.pvtTable tbody tr td {
     white-space: nowrap;
     overflow-y: scroll;
     width: 100%;
-    max-height: 50vh;
-    max-height: 50vh;
+    max-height: 30vh;
     border-top: 1px solid #DFE8F3;
 }
 
-.pvtCheckContainer p { margin: 0; padding: 3px; }
-.pvtCheckContainer p:hover { background: #f2f5fa; }
+.pvtCheckContainer p {
+    margin: 0;
+    margin-bottom: 1px;
+    padding: 3px;
+    cursor: default;
+}
+
+.pvtCheckContainer p.selected {
+    background: #EBF0F8;
+}
+
+.pvtOnly {
+    display: none;
+    width: 35px;
+    float: left;
+    font-size: 12px;
+    padding-left: 5px;
+    cursor: pointer;
+}
+
+.pvtOnlySpacer {
+    display: block;
+    width: 35px;
+    float: left;
+}
+
+.pvtCheckContainer p:hover .pvtOnly {
+    display: block;
+}
+.pvtCheckContainer p:hover .pvtOnlySpacer {
+    display: none;
+}
 
 .pvtRendererArea { padding: 5px;}
