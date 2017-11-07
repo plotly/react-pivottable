@@ -26,6 +26,7 @@ class PivotTableUISmartWrapper extends React.PureComponent {
         return <PivotTableUI
             renderers={Object.assign({}, TableRenderers, createPlotlyRenderers(Plot))}
             {...this.state.pivotState} onChange={s => this.setState({pivotState: s})}
+            unusedOrientationCutoff={Infinity}
              />;
     }
 }
@@ -91,7 +92,7 @@ export default class App extends React.Component {
                 </div>
             </div>
             <div className="row text-center">
-                <p><em>note: the data never leaves your browser!</em></p>
+                <p><em>Note: the data never leaves your browser!</em></p>
                 <br />
             </div>
             <div className="row">
