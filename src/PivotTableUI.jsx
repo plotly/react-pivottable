@@ -310,8 +310,7 @@ class PivotTableUI extends React.PureComponent {
                     !this.props.hiddenFromDragDrop.includes(e));
         const rowAttrsCell = this.makeDnDCell(rowAttrs, this.propUpdater('rows'),
             'pvtAxisContainer pvtVertList pvtRows');
-
-        const outputCell = <td valign="top">
+        const outputCell = <td className="pvtOutput">
             <PivotTable {...update(this.props, {data: {$set: this.materializedInput}})} />
         </td>;
 
