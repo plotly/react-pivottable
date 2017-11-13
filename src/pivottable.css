@@ -11,6 +11,10 @@
     -ms-user-select: none;
 }
 
+.pvtUi td.pvtOutput {
+    vertical-align: top;
+}
+
 table.pvtTable {
     font-size: 8pt;
     text-align: left;
