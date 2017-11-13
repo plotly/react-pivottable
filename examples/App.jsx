@@ -88,7 +88,7 @@ export default class App extends React.Component {
                 <div className="col-md-3 text-center">
                 <p>...or type or paste some data:</p>
                 <textarea value={this.state.textarea} onChange={this.onType.bind(this)}
-                    placeholder="CSV or similary-delimited data accepted"/>
+                    placeholder="Paste from a spreadsheet or CSV-like file"/>
                 </div>
             </div>
             <div className="row text-center">
