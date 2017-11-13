@@ -22,7 +22,7 @@
     "lint": "eslint src/*js*",
     "lintfix": "eslint src/*js* --fix",
     "clean": "rm -f PivotTable.js* PivotTableUI.js* PlotlyRenderers.js* TableRenderers.js* Utilities.js* pivottable.css",
-    "doPublish": "npm run clean && cp src/pivottable.css . && babel src --out-dir=. --source-maps --presets=es2015,react --plugins babel-plugin-add-module-exports && npm publish",
+    "doPublish": "npm run clean && cp src/pivottable.css . && babel src --out-dir=. --source-maps --presets=env,react --plugins babel-plugin-add-module-exports && npm publish",
     "postpublish": "npm run clean",
     "deploy": "webpack -p && mv bundle.js examples && cd examples && git init && git add . && git commit -m build && git push --force git@github.com:plotly/react-pivottable.git master:gh-pages && rm -rf .git bundle.js"
   },
@@ -57,7 +57,6 @@
     "babel-loader": "^7.1.2",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-preset-env": "^1.6.1",
-    "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "css-loader": "^0.28.7",
     "eslint": "^4.5.0",
