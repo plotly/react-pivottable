@@ -46,7 +46,7 @@ class DraggableAttribute extends React.Component {
                 <div className="pvtFilterBox" style={{
                     display: 'block', cursor: 'initial', zIndex: this.props.zIndex,
                     top: this.state.top + 'px', left: this.state.left + 'px'}}
-                    onClick={() => this.props.moveFilterBoxToTop(this.props.name)}
+                onClick={() => this.props.moveFilterBoxToTop(this.props.name)}
                 >
                     <a onClick={() => this.setState({open: false})}
                         className="pvtCloseX"
@@ -216,8 +216,8 @@ class PivotTableUI extends React.PureComponent {
 
     moveFilterBoxToTop(attribute) {
         this.setState(update(this.state, {
-            maxZIndex: {$set: this.state.maxZIndex+1},
-            zIndices: {[attribute]: {$set: this.state.maxZIndex+1}}
+            maxZIndex: {$set: this.state.maxZIndex + 1},
+            zIndices: {[attribute]: {$set: this.state.maxZIndex + 1}}
         }));
     }
 
