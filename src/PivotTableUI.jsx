@@ -44,8 +44,9 @@ class DraggableAttribute extends React.Component {
         return (
             <Draggable handle=".pvtDragHandle">
                 <div className="pvtFilterBox" style={{
-                    display: 'block', cursor: 'initial',
+                    display: 'block', cursor: 'initial', zIndex: this.props.zIndex,
                     top: this.state.top + 'px', left: this.state.left + 'px'}}
+                    onClick={() => this.props.moveFilterBoxToTop(this.props.name)}
                 >
                     <a onClick={() => this.setState({open: false})}
                         className="pvtCloseX"
@@ -106,6 +107,7 @@ class DraggableAttribute extends React.Component {
             open: !this.state.open,
             top: 10 + rect.top - bodyRect.top,
             left: 10 + rect.left - bodyRect.left});
+        this.props.moveFilterBoxToTop(this.props.name);
     }
 
     render() {
@@ -133,8 +135,10 @@ DraggableAttribute.propTypes = {
     removeValuesFromFilter: PropTypes.func.isRequired,
     attrValues: PropTypes.objectOf(PropTypes.number).isRequired,
     valueFilter: PropTypes.objectOf(PropTypes.bool),
+    moveFilterBoxToTop: PropTypes.func.isRequired,
     sorter: PropTypes.func.isRequired,
-    menuLimit: PropTypes.number
+    menuLimit: PropTypes.number,
+    zIndex: PropTypes.number
 };
 
 
@@ -142,7 +146,7 @@ DraggableAttribute.propTypes = {
 class PivotTableUI extends React.PureComponent {
     constructor(props) {
         super(props);
-        this.state = {unusedOrder: []};
+        this.state = {unusedOrder: [], zIndices: {}, maxZIndex: 1000};
     }
 
     componentWillMount() {
@@ -210,6 +214,13 @@ class PivotTableUI extends React.PureComponent {
         this.sendPropUpdate({valueFilter: {[attribute]: {$unset: values}}});
     }
 
+    moveFilterBoxToTop(attribute) {
+        this.setState(update(this.state, {
+            maxZIndex: {$set: this.state.maxZIndex+1},
+            zIndices: {[attribute]: {$set: this.state.maxZIndex+1}}
+        }));
+    }
+
     makeDnDCell(items, onChange, classes) {
         return <Sortable
             options={{
@@ -225,7 +236,9 @@ class PivotTableUI extends React.PureComponent {
                 menuLimit={this.props.menuLimit}
                 setValuesInFilter={this.setValuesInFilter.bind(this)}
                 addValuesToFilter={this.addValuesToFilter.bind(this)}
+                moveFilterBoxToTop={this.moveFilterBoxToTop.bind(this)}
                 removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
+                zIndex={this.state.zIndices[x] || this.state.maxZIndex}
             />)}
         </Sortable>;
     }
