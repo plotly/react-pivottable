@@ -1,6 +1,6 @@
 import React from 'react';
-import mps from './mps';
-import {derivers} from '../src/Utilities';
+import tips from './tips';
+import {sortAs} from '../src/Utilities';
 import TableRenderers from '../src/TableRenderers';
 import createPlotlyComponent from 'react-plotly.js/factory';
 import createPlotlyRenderers from '../src/PlotlyRenderers';
@@ -35,11 +35,15 @@ export default class App extends React.Component {
     componentWillMount() {
         this.setState({
             mode: "demo",
-            filename: "Sample Dataset: Canadian Members of Parliament 2012",
+            filename: "Sample Dataset: Tips",
             pivotState: {
-                data: mps,
-                rows: ["Gender"], cols: ["Age"],
-                rendererName: "Stacked Column Chart",
+                data: tips,
+                rows: ["Payer Gender"], cols: ["Party Size"],
+                aggregatorName: "Sum over Sum", vals: ["Tip", "Total Bill"],
+                rendererName: "Grouped Column Chart",
+                sorters: {
+                    "Meal": sortAs(["Lunch", "Dinner"]),
+                    "Day of Week": sortAs(["Thursday", "Friday", "Saturday", "Sunday"])},
                 plotlyOptions: {width: 900, height: 500}
             }
         });
