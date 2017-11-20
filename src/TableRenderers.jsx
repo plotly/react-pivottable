@@ -212,6 +212,7 @@ class TSVExportRenderer extends React.PureComponent {
 
         return (<textarea value={result.map(r => r.join('\t')).join('\n')}
             style={{width: window.innerWidth / 2, height: window.innerHeight / 2}}
+            readOnly={true}
         />);
     }
 }
