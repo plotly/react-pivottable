@@ -90,7 +90,7 @@ export default class App extends React.Component {
                 </Dropzone>
                 </div>
                 <div className="col-md-3 text-center">
-                <p>...or type or paste some data:</p>
+                <p>...or paste some data:</p>
                 <textarea value={this.state.textarea} onChange={this.onType.bind(this)}
                     placeholder="Paste from a spreadsheet or CSV-like file"/>
                 </div>
