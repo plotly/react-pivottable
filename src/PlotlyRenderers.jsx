@@ -15,9 +15,9 @@ function makeRenderer(PlotlyComponent, traceOptions = {}, layoutOptions = {}, tr
             if (datumKeys.length === 0) { datumKeys.push([]); }
 
             let fullAggName = this.props.aggregatorName;
-            const numInputs = this.props.aggregators[this.props.aggregatorName]([])().numInputs;
-            if (numInputs !== null && numInputs !== 0 && this.props.vals.length) {
-                fullAggName += ` of ${this.props.vals.join(', ')}`;
+            const numInputs = this.props.aggregators[fullAggName]([])().numInputs || 0;
+            if (numInputs !== 0) {
+                fullAggName += ` of ${this.props.vals.slice(0, numInputs).join(', ')}`;
             }
 
             const data = traceKeys.map(traceKey => {
