@@ -141,12 +141,51 @@ DraggableAttribute.propTypes = {
     zIndex: PropTypes.number
 };
 
+class Dropdown extends React.PureComponent {
+
+    render() {
+        return <div className="pvtDropdown" style={{zIndex: this.props.zIndex}}>
+            <div onClick={e => {
+                e.stopPropagation();
+                this.props.toggle();
+            }}
+            className={'pvtDropdownValue pvtDropdownCurrent ' +
+                        (this.props.open ? 'pvtDropdownCurrentOpen' : '') }
+            role="button"
+            >
+                <div className="pvtDropdownIcon">
+                    {this.props.open ? '×' : '▾'}
+                </div>
+                {this.props.current || <span>&nbsp;</span> }
+            </div>
+
+            {this.props.open &&
+                <div className="pvtDropdownMenu">
+                    {this.props.values.map(r => <div key={r} role="button"
+                        onClick={e => {
+                            e.stopPropagation();
+                            if (this.props.current === r) {
+                                this.props.toggle();
+                            }
+                            else { this.props.setValue(r); }
+                        }}
+                        className={'pvtDropdownValue ' +
+                                 (r === this.props.current ? 'pvtDropdownActiveValue' : '')}
+                    >{r}</div>
+                    )}
+                </div> }
+        </div>;
+    }
+}
 
 
 class PivotTableUI extends React.PureComponent {
     constructor(props) {
         super(props);
-        this.state = {unusedOrder: [], zIndices: {}, maxZIndex: 1000};
+        this.state = {
+            unusedOrder: [], zIndices: {}, maxZIndex: 1000,
+            openDropdown: false
+        };
     }
 
     componentWillMount() {
@@ -221,6 +260,10 @@ class PivotTableUI extends React.PureComponent {
         }));
     }
 
+    isOpen(dropdown) {
+        return this.state.openDropdown === dropdown;
+    }
+
     makeDnDCell(items, onChange, classes) {
         return <Sortable
             options={{
@@ -250,13 +293,15 @@ class PivotTableUI extends React.PureComponent {
             this.props.rendererName : Object.keys(this.props.renderers)[0];
 
         const rendererCell = <td className="pvtRenderers">
-            <select value={rendererName}
-                onChange={({target: {value}}) =>
-                    this.propUpdater('rendererName')(value)}
-            >
-                {Object.keys(this.props.renderers)
-                    .map(r => <option value={r} key={r}>{r}</option>)}
-            </select>
+            <Dropdown
+                current={rendererName}
+                values={Object.keys(this.props.renderers)}
+                open={this.isOpen('renderer')}
+                zIndex={this.isOpen('renderer') ? this.state.maxZIndex + 1 : 1}
+                toggle={() => this.setState({openDropdown:
+                     this.isOpen('renderer') ? false : 'renderer'})}
+                setValue={this.propUpdater('rendererName')}
+            />
         </td>;
 
         const sortIcons = {
@@ -266,13 +311,16 @@ class PivotTableUI extends React.PureComponent {
         };
 
         const aggregatorCell = <td className="pvtVals">
-            <select value={this.props.aggregatorName}
-                onChange={({target: {value}}) =>
-                    this.propUpdater('aggregatorName')(value)}
-            >
-                {Object.keys(this.props.aggregators).map(n =>
-                    <option key={`agg${n}`} value={n}>{n}</option>)}
-            </select>
+
+            <Dropdown
+                current={this.props.aggregatorName}
+                values={Object.keys(this.props.aggregators)}
+                open={this.isOpen('aggregators')}
+                zIndex={this.isOpen('aggregators') ? this.state.maxZIndex + 1 : 1}
+                toggle={() => this.setState({openDropdown:
+                    this.isOpen('aggregators') ? false : 'aggregators'})}
+                setValue={this.propUpdater('aggregatorName')}
+            />
             <a role="button" className="pvtRowOrder" onClick={() =>
                 this.propUpdater('rowOrder')(sortIcons[this.props.rowOrder].next)}
             >
@@ -285,16 +333,21 @@ class PivotTableUI extends React.PureComponent {
             </a>
             {(numValsAllowed > 0) && <br />}
             {new Array(numValsAllowed).fill().map((n, i) =>
-                <select value={this.props.vals[i]} key={`val${i}`}
-                    onChange={({target: {value}}) =>
-                        this.sendPropUpdate({vals: {$splice: [[i, 1, value]]}})}
-                >
-                    <option key={`none${i}`} value=""></option>
-                    {Object.keys(this.attrValues).filter(e =>
-                        !this.props.hiddenAttributes.includes(e) &&
-                    !this.props.hiddenFromAggregators.includes(e)).map((v, j) =>
-                        <option key={`${i}-${j}`} value={v}>{v}</option>)}
-                </select>
+                [
+                    <Dropdown
+                        current={this.props.vals[i]}
+                        values={Object.keys(this.attrValues).filter(e =>
+                            !this.props.hiddenAttributes.includes(e) &&
+                        !this.props.hiddenFromAggregators.includes(e))}
+                        open={this.isOpen(`val${i}`)}
+                        zIndex={this.isOpen(`val${i}`) ? this.state.maxZIndex + 1 : 1}
+                        toggle={() => this.setState({openDropdown:
+                            this.isOpen(`val${i}`) ? false : `val${i}`})}
+                        setValue={value =>
+                            this.sendPropUpdate({vals: {$splice: [[i, 1, value]]}})}
+                    />,
+                    i + 1 !== numValsAllowed ? <br /> : null
+                ]
             )}
         </td>;
 
@@ -328,14 +381,18 @@ class PivotTableUI extends React.PureComponent {
         </td>;
 
         if (horizUnused) {
-            return <table className="pvtUi"><tbody>
+            return <table className="pvtUi"><tbody
+                onClick={() => this.setState({openDropdown: false})}
+            >
                 <tr>{rendererCell }{ unusedAttrsCell }</tr>
                 <tr>{aggregatorCell }{ colAttrsCell }</tr>
                 <tr>{rowAttrsCell }{ outputCell }</tr>
             </tbody></table>;
         }
 
-        return <table className="pvtUi"><tbody>
+        return <table className="pvtUi"><tbody
+            onClick={() => this.setState({openDropdown: false})}
+        >
             <tr>{rendererCell }{ aggregatorCell }{ colAttrsCell }</tr>
             <tr>{unusedAttrsCell }{ rowAttrsCell }{ outputCell }</tr>
         </tbody></table>;

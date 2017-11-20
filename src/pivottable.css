@@ -50,6 +50,7 @@ table.pvtTable tbody tr td {
     margin-left: 5px;
     display: inline-block;
     user-select: none;
+    text-decoration: none !important;
     -webkit-user-select: none;
     -moz-user-select: none;
     -khtml-user-select: none;
@@ -66,17 +67,64 @@ table.pvtTable tbody tr td {
 
 
 .pvtRenderers {
-    padding-left: 6px;
-    padding-top: 11px;
-    padding-bottom: 14px;
+    padding-left: 5px;
+    user-select: none;
+}
+
+.pvtDropdown {
+    display: inline-block;
+    position: relative;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -ms-user-select: none;
+    margin: 3px;
+}
+
+.pvtDropdownIcon {
+    float: right;
+    color: #A2B1C6;
+}
+.pvtDropdownCurrent {
+    text-align: left;
+    border: 1px solid #A2B1C6;
+    border-radius: 4px;
+    display: inline-block;
+    position: relative;
+    width: 210px;
+    box-sizing: border-box;
+    background: white;
+}
+
+.pvtDropdownCurrentOpen {
+    border-radius:  4px 4px 0 0;
+}
+
+.pvtDropdownMenu {
+    background: white;
+    position: absolute;
+    width: 100%;
+    margin-top: -1px;
+    border-radius:  0 0 4px 4px;
+    border: 1px solid  #A2B1C6;
+    border-top: 1px solid #DFE8F3;
+    box-sizing: border-box;
+}
+
+.pvtDropdownValue {
+    padding: 2px 5px;
+    font-size: 12px;
+    text-align: left;
+}
+.pvtDropdownActiveValue {
+    background: #EBF0F8;
 }
 
 .pvtVals {
     text-align: center;
     white-space: nowrap;
     vertical-align: top;
-    padding-top: 10px;
-    padding-bottom: 14px;
+    padding-bottom: 12px;
 }
 
 .pvtRows { height: 35px; }
