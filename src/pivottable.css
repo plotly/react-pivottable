@@ -179,6 +179,7 @@ table.pvtTable tbody tr td {
     top: 5px;
     font-size: 18px;
     cursor: pointer;
+    text-decoration: none !important;
 }
 
 .pvtDragHandle {
@@ -188,6 +189,41 @@ table.pvtTable tbody tr td {
     font-size: 18px;
     cursor: move;
     color: #A2B1C6;
+}
+
+.pvtButton {
+    color: #506784;
+    border-radius: 5px;
+    padding: 3px 6px;
+    background: #F2F5FA;
+    border: 1px solid;
+    border-color: #C8D4E3;
+    font-size: 14px;
+    margin: 3px;
+    transition: 0.34s all cubic-bezier(0.19,1,0.22,1);
+    text-decoration: none !important;
+}
+
+.pvtButton:hover {
+    background: #E2E8F0;
+    border-color: #A2B1C6;
+}
+
+.pvtButton:active {
+    background: #D1DAE6;
+}
+
+.pvtFilterBox input {
+    border: 1px solid #C8D4E3;
+    border-radius: 5px;
+    color: #506784;
+    padding: 0 3px;
+    font-size: 14px;
+}
+
+.pvtFilterBox input:focus {
+    border-color: #119DFF;
+    outline: none;
 }
 
 .pvtFilterBox{

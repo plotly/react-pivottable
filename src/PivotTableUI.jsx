@@ -65,17 +65,17 @@ class DraggableAttribute extends React.Component {
                             onChange={e => this.setState({filterText: e.target.value})}
                         />
                         <br />
-                        <button type="button"
+                        <a role="button" className="pvtButton"
                             onClick={() => this.props.removeValuesFromFilter(this.props.name,
                                 Object.keys(this.props.attrValues).filter(this.matchesFilter.bind(this)))}
                         >
                         Select {values.length === shown.length ? 'All' : shown.length}
-                        </button> <button type="button"
+                        </a> <a role="button" className="pvtButton"
                             onClick={() => this.props.addValuesToFilter(this.props.name,
                                 Object.keys(this.props.attrValues).filter(this.matchesFilter.bind(this)))}
                         >
                         Deselect {values.length === shown.length ? 'All' : shown.length}
-                        </button>
+                        </a>
                     </p>
                     }
 
