@@ -75,7 +75,11 @@ class DraggableAttribute extends React.Component {
                 placeholder="Filter values"
                 className="pvtSearch"
                 value={this.state.filterText}
-                onChange={e => this.setState({filterText: e.target.value})}
+                onChange={e =>
+                  this.setState({
+                    filterText: e.target.value,
+                  })
+                }
               />
               <br />
               <a
@@ -321,7 +325,9 @@ class PivotTableUI extends React.PureComponent {
   }
 
   removeValuesFromFilter(attribute, values) {
-    this.sendPropUpdate({valueFilter: {[attribute]: {$unset: values}}});
+    this.sendPropUpdate({
+      valueFilter: {[attribute]: {$unset: values}},
+    });
   }
 
   moveFilterBoxToTop(attribute) {
@@ -396,8 +402,16 @@ class PivotTableUI extends React.PureComponent {
     );
 
     const sortIcons = {
-      key_a_to_z: {rowSymbol: '↕', colSymbol: '↔', next: 'value_a_to_z'},
-      value_a_to_z: {rowSymbol: '↓', colSymbol: '→', next: 'value_z_to_a'},
+      key_a_to_z: {
+        rowSymbol: '↕',
+        colSymbol: '↔',
+        next: 'value_a_to_z',
+      },
+      value_a_to_z: {
+        rowSymbol: '↓',
+        colSymbol: '→',
+        next: 'value_z_to_a',
+      },
       value_z_to_a: {rowSymbol: '↑', colSymbol: '←', next: 'key_a_to_z'},
     };
 
@@ -436,6 +450,7 @@ class PivotTableUI extends React.PureComponent {
         {numValsAllowed > 0 && <br />}
         {new Array(numValsAllowed).fill().map((n, i) => [
           <Dropdown
+            key={i}
             current={this.props.vals[i]}
             values={Object.keys(this.attrValues).filter(
               e =>
@@ -450,10 +465,12 @@ class PivotTableUI extends React.PureComponent {
               })
             }
             setValue={value =>
-              this.sendPropUpdate({vals: {$splice: [[i, 1, value]]}})
+              this.sendPropUpdate({
+                vals: {$splice: [[i, 1, value]]},
+              })
             }
           />,
-          i + 1 !== numValsAllowed ? <br /> : null,
+          i + 1 !== numValsAllowed ? <br key={`br${i}`} /> : null,
         ])}
       </td>
     );
@@ -504,7 +521,9 @@ class PivotTableUI extends React.PureComponent {
     const outputCell = (
       <td className="pvtOutput">
         <PivotTable
-          {...update(this.props, {data: {$set: this.materializedInput}})}
+          {...update(this.props, {
+            data: {$set: this.materializedInput},
+          })}
         />
       </td>
     );

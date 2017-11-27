@@ -36,7 +36,8 @@ class App extends React.Component {
     }
 
     render() {
-        return <PivotTableUI data={data} onChange={s => this.setState(s)} />;
+        return <PivotTableUI data={data} onChange={s => this.setState(s)}
+            {...this.state} />;
     }
 }
 
@@ -78,9 +79,9 @@ class App extends React.Component {
 
     render() {
         return <PivotTableUI
-          data={data} onChange={s => this.setState(s)}
-          renderers={Object.assign({}, TableRenderers, PlotlyRenderers)}
-        />;
+            data={data} onChange={s => this.setState(s)}
+            renderers={Object.assign({}, TableRenderers, PlotlyRenderers)}
+            {...this.state} />;
     }
 }
 
@@ -117,9 +118,9 @@ class App extends React.Component {
 
     render() {
         return <PivotTableUI
-          data={data} onChange={s => this.setState(s)}
-          renderers={Object.assign({}, TableRenderers, PlotlyRenderers)}
-        />;
+            data={data} onChange={s => this.setState(s)}
+            renderers={Object.assign({}, TableRenderers, PlotlyRenderers)}
+            {...this.state} />;
     }
 }
 
