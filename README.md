@@ -3,8 +3,8 @@
 `react-pivottable` is a React-based pivot table library with drag'n'drop
 functionality. It is a React port of the jQuery-based
 [PivotTable.js](https://pivottable.js.org/) by the same author.
-`react-pivottable` is part of Plotly's
-[React component suite](https://react.plot.ly/).
+
+`react-pivottable` is part of Plotly's [React Component Suite](https://plot.ly/products/react/) for building data visualization Web apps and products.
 
 ## What does it do & where is the demo?
 
