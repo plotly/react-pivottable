@@ -70,14 +70,15 @@ function makeRenderer(
         width: window.innerWidth / 1.5,
         height: window.innerHeight / 1.4 - 50,
         /* eslint-enable no-magic-numbers */
+        xaxis: {
+          title: transpose ? fullAggName : null,
+          automargin: true,
+        },
+        yaxis: {
+          title: transpose ? null : fullAggName,
+          automargin: true,
+        },
       };
-
-      if (transpose) {
-        // eslint-disable-next-line no-magic-numbers
-        layout.xaxis = {domain: [0.1, 1.0], title: fullAggName};
-      } else {
-        layout.yaxis = {title: fullAggName};
-      }
 
       return (
         <PlotlyComponent
