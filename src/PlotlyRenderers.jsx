@@ -88,6 +88,7 @@ function makeRenderer(
             layoutOptions,
             this.props.plotlyOptions
           )}
+          config={this.props.plotlyConfig}
         />
       );
     }
@@ -140,6 +141,7 @@ function makeScatterRenderer(PlotlyComponent) {
         <PlotlyComponent
           data={[data]}
           layout={Object.assign(layout, this.props.plotlyOptions)}
+          config={this.props.plotlyConfig}
         />
       );
     }
