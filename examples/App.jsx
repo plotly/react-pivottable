@@ -25,6 +25,16 @@ class PivotTableUISmartWrapper extends React.PureComponent {
     render() {
         return <PivotTableUI
             renderers={Object.assign({}, TableRenderers, createPlotlyRenderers(Plot))}
+            rendererOptions = {{
+                    table: {
+                        clickCallback: function(e, value, filters, pivotData){
+                            var names = [];
+                            pivotData.forEachMatchingRecord(filters,
+                                function(record){ names.push(record.Meal); });
+                            alert(names.join("\n"));
+                        }
+                    }
+                }}
             {...this.state.pivotState} onChange={s => this.setState({pivotState: s})}
             unusedOrientationCutoff={Infinity}
              />;
