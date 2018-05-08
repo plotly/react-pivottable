@@ -161,7 +161,7 @@ export default function createPlotlyRenderers(PlotlyComponent) {
     'Stacked Column Chart': makeRenderer(
       PlotlyComponent,
       {type: 'bar'},
-      {barmode: 'stack'}
+      {barmode: 'relative'}
     ),
     'Grouped Bar Chart': makeRenderer(
       PlotlyComponent,
@@ -172,7 +172,7 @@ export default function createPlotlyRenderers(PlotlyComponent) {
     'Stacked Bar Chart': makeRenderer(
       PlotlyComponent,
       {type: 'bar', orientation: 'h'},
-      {barmode: 'stack'},
+      {barmode: 'relative'},
       true
     ),
     'Line Chart': makeRenderer(PlotlyComponent),
