@@ -106,12 +106,8 @@ function makeRenderer(opts = {}) {
         }
       }
 
-      // PutClickHandler
-      // this.props.rendererOptions.table.clickCallback
       const getClickHandler =
-        this.props.rendererOptions &&
-        this.props.rendererOptions.table &&
-        this.props.rendererOptions.table.clickCallback
+        this.props.tableOptions && this.props.tableOptions.clickCallback
           ? (value, rowValues, colValues) => {
               const filters = {};
               for (const i of Object.keys(colAttrs || {})) {
@@ -127,7 +123,7 @@ function makeRenderer(opts = {}) {
                 }
               }
               return e =>
-                this.props.rendererOptions.table.clickCallback(
+                this.props.tableOptions.clickCallback(
                   e,
                   value,
                   filters,
@@ -301,8 +297,9 @@ function makeRenderer(opts = {}) {
   TableRenderer.defaultProps = PivotData.defaultProps;
   TableRenderer.propTypes = PivotData.propTypes;
   TableRenderer.defaultProps.tableColorScaleGenerator = redColorScaleGenerator;
+  TableRenderer.defaultProps.tableOptions = {};
   TableRenderer.propTypes.tableColorScaleGenerator = PropTypes.func;
-  TableRenderer.propTypes.rendererOptions = PropTypes.object;
+  TableRenderer.propTypes.tableOptions = PropTypes.object;
   return TableRenderer;
 }
 

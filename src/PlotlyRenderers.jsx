@@ -1,5 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {PivotData} from './Utilities';
+
+/* eslint-disable react/prop-types */
+// eslint can't see inherited propTypes!
 
 function makeRenderer(
   PlotlyComponent,
@@ -94,8 +98,14 @@ function makeRenderer(
     }
   }
 
-  Renderer.defaultProps = PivotData.defaultProps;
-  Renderer.propTypes = PivotData.propTypes;
+  Renderer.defaultProps = Object.assign({}, PivotData.defaultProps, {
+    plotlyOptions: {},
+    plotlyConfig: {},
+  });
+  Renderer.propTypes = Object.assign({}, PivotData.propTypes, {
+    plotlyOptions: PropTypes.object,
+    plotlyConfig: PropTypes.object,
+  });
 
   return Renderer;
 }
@@ -147,8 +157,14 @@ function makeScatterRenderer(PlotlyComponent) {
     }
   }
 
-  Renderer.defaultProps = PivotData.defaultProps;
-  Renderer.propTypes = PivotData.propTypes;
+  Renderer.defaultProps = Object.assign({}, PivotData.defaultProps, {
+    plotlyOptions: {},
+    plotlyConfig: {},
+  });
+  Renderer.propTypes = Object.assign({}, PivotData.propTypes, {
+    plotlyOptions: PropTypes.object,
+    plotlyConfig: PropTypes.object,
+  });
 
   return Renderer;
 }
