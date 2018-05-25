@@ -32,6 +32,7 @@ maintains essentially no state of its own.
 
 ```js
 import React from 'react';
+import ReactDOM from 'react-dom';
 import PivotTableUI from 'react-pivottable/PivotTableUI';
 import 'react-pivottable/pivottable.css';
 
