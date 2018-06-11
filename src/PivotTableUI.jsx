@@ -9,7 +9,7 @@ import Draggable from 'react-draggable';
 /* eslint-disable react/prop-types */
 // eslint can't see inherited propTypes!
 
-class DraggableAttribute extends React.Component {
+export class DraggableAttribute extends React.Component {
   constructor(props) {
     super(props);
     this.state = {open: false, top: 0, left: 0, filterText: ''};
@@ -187,7 +187,7 @@ DraggableAttribute.propTypes = {
   zIndex: PropTypes.number,
 };
 
-class Dropdown extends React.PureComponent {
+export class Dropdown extends React.PureComponent {
   render() {
     return (
       <div className="pvtDropdown" style={{zIndex: this.props.zIndex}}>
