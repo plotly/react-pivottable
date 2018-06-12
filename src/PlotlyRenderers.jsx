@@ -92,6 +92,7 @@ function makeRenderer(
             layoutOptions,
             this.props.plotlyOptions
           )}
+          onUpdate={this.props.onRendererUpdate}
           config={this.props.plotlyConfig}
         />
       );

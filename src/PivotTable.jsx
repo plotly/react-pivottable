@@ -20,6 +20,7 @@ class PivotTable extends React.PureComponent {
 PivotTable.propTypes = Object.assign({}, PivotData.propTypes, {
   rendererName: PropTypes.string,
   renderers: PropTypes.objectOf(PropTypes.func),
+  onRendererUpdate: PropTypes.func,
 });
 
 PivotTable.defaultProps = Object.assign({}, PivotData.defaultProps, {
