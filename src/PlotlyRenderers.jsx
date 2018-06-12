@@ -93,6 +93,7 @@ function makeRenderer(
             this.props.plotlyOptions
           )}
           config={this.props.plotlyConfig}
+          onUpdate={this.props.onRendererUpdate}
         />
       );
     }
@@ -105,6 +106,7 @@ function makeRenderer(
   Renderer.propTypes = Object.assign({}, PivotData.propTypes, {
     plotlyOptions: PropTypes.object,
     plotlyConfig: PropTypes.object,
+    onRendererUpdate: PropTypes.func,
   });
 
   return Renderer;
@@ -152,6 +154,7 @@ function makeScatterRenderer(PlotlyComponent) {
           data={[data]}
           layout={Object.assign(layout, this.props.plotlyOptions)}
           config={this.props.plotlyConfig}
+          onUpdate={this.props.onRendererUpdate}
         />
       );
     }
@@ -164,6 +167,7 @@ function makeScatterRenderer(PlotlyComponent) {
   Renderer.propTypes = Object.assign({}, PivotData.propTypes, {
     plotlyOptions: PropTypes.object,
     plotlyConfig: PropTypes.object,
+    onRendererUpdate: PropTypes.func,
   });
 
   return Renderer;
