@@ -199,6 +199,7 @@ export default function createPlotlyRenderers(PlotlyComponent) {
     ),
     'Line Chart': makeRenderer(PlotlyComponent),
     'Dot Chart': makeRenderer(PlotlyComponent, {mode: 'markers'}, {}, true),
+    'Area Chart': makeRenderer(PlotlyComponent, {stackgroup: 1}),
     'Scatter Chart': makeScatterRenderer(PlotlyComponent),
   };
 }
