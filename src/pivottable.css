@@ -2,6 +2,7 @@
     color: #2a3f5f;
     font-family: Verdana;
     border-collapse: collapse;
+    position: relative;
 }
 .pvtUi select {
     user-select: none;
