@@ -12,7 +12,7 @@ import Draggable from 'react-draggable';
 export class DraggableAttribute extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {open: false, top: 0, left: 0, filterText: ''};
+    this.state = {open: false, filterText: ''};
   }
 
   toggleValue(value) {
@@ -54,9 +54,7 @@ export class DraggableAttribute extends React.Component {
           style={{
             display: 'block',
             cursor: 'initial',
-            zIndex: this.props.zIndex,
-            top: this.state.top + 'px',
-            left: this.state.left + 'px',
+            zIndex: this.props.zIndex
           }}
           onClick={() => this.props.moveFilterBoxToTop(this.props.name)}
         >
@@ -136,14 +134,8 @@ export class DraggableAttribute extends React.Component {
     );
   }
 
-  toggleFilterBox(event) {
-    const bodyRect = document.body.getBoundingClientRect();
-    const rect = event.nativeEvent.target.getBoundingClientRect();
-    this.setState({
-      open: !this.state.open,
-      top: 10 + rect.top - bodyRect.top,
-      left: 10 + rect.left - bodyRect.left,
-    });
+  toggleFilterBox() {
+    this.setState({ open: !this.state.open});
     this.props.moveFilterBoxToTop(this.props.name);
   }
 
