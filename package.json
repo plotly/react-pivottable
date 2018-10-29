@@ -1,6 +1,6 @@
 {
   "name": "react-pivottable",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "A React-based pivot table",
   "main": "PivotTableUI.js",
   "files": [
@@ -24,7 +24,7 @@
     "test:prettier:fix": "prettier  --write \"src/*.js*\"",
     "test:jest": "jest",
     "test": "npm run test:eslint && npm run test:prettier && npm run test:jest",
-    "clean": "rm -f PivotTable.js* PivotTableUI.js* PlotlyRenderers.js* TableRenderers.js* Utilities.js* pivottable.css",
+    "clean": "rm -rf __tests__ PivotTable.js* PivotTableUI.js* PlotlyRenderers.js* TableRenderers.js* Utilities.js* pivottable.css",
     "doPublish": "npm run clean && cp src/pivottable.css . && babel src --out-dir=. --source-maps --presets=env,react --plugins babel-plugin-add-module-exports && npm publish",
     "postpublish": "npm run clean",
     "deploy": "webpack -p && mv bundle.js examples && cd examples && git init && git add . && git commit -m build && git push --force git@github.com:plotly/react-pivottable.git master:gh-pages && rm -rf .git bundle.js"
