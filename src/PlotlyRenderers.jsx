@@ -142,8 +142,8 @@ function makeScatterRenderer(PlotlyComponent) {
         title: this.props.rows.join('-') + ' vs ' + this.props.cols.join('-'),
         hovermode: 'closest',
         /* eslint-disable no-magic-numbers */
-        xaxis: {title: this.props.cols.join('-'), domain: [0.1, 1.0]},
-        yaxis: {title: this.props.rows.join('-')},
+        xaxis: {title: this.props.cols.join('-'), automargin: true},
+        yaxis: {title: this.props.rows.join('-'), automargin: true},
         width: window.innerWidth / 1.5,
         height: window.innerHeight / 1.4 - 50,
         /* eslint-enable no-magic-numbers */
