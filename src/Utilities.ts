@@ -1,5 +1,3 @@
-import PropTypes from 'prop-types';
-
 /*
  * decaffeinate suggestions:
  * DS101: Remove unnecessary use of Array.from
@@ -23,7 +21,7 @@ const addSeparators = function(nStr, thousandsSep, decimalSep) {
   return x1 + x2;
 };
 
-const numberFormat = function(opts_in) {
+const numberFormat = function(opts_in?: any) {
   const defaults = {
     digitsAfterDecimal: 2,
     scaler: 1,
@@ -106,16 +104,16 @@ const naturalSort = (as, bs) => {
   }
 
   // special treatment for strings containing digits
-  a = a.match(rx);
-  b = b.match(rx);
+  let aArray = a.match(rx);
+  let bArray = b.match(rx);
   while (a.length && b.length) {
-    const a1 = a.shift();
-    const b1 = b.shift();
+    const a1 = aArray!.shift();
+    const b1 = bArray!.shift();
     if (a1 !== b1) {
-      if (rd.test(a1) && rd.test(b1)) {
-        return a1.replace(rz, '.0') - b1.replace(rz, '.0');
+      if (rd.test(a1 as string) && rd.test(b1 as string)) {
+        return parseInt((a1 as string).replace(rz, '.0')) - parseInt((b1 as string).replace(rz, '.0'))
       }
-      return a1 > b1 ? 1 : -1;
+      return (a1 as string) > (b1 as string) ? 1 : -1;
     }
   }
   return a.length - b.length;
@@ -151,7 +149,7 @@ const sortAs = function(order) {
   };
 };
 
-const getSort = function(sorters, attr) {
+const getSort = function(sorters, attr: any) {
   if (sorters) {
     if (typeof sorters === 'function') {
       const sort = sorters(attr);
@@ -174,7 +172,27 @@ const usFmtPct = numberFormat({
   suffix: '%',
 });
 
-const aggregatorTemplates = {
+
+const aggregatorTemplates: {
+  count: (formatter?: Function) => any
+  uniques: (fn: Function, formatter: Function) => any
+  sum: (formatter?: Function) => any
+  extremes: (mode: string, formatter: Function) => any
+  quantile: (q: number, formatter: Function) => any
+  runningStat: (mode: string, ddof: number, formatter: Function) => any
+  sumOverSum: (formatter: Function) => any
+  fractionOf: (wrapped: Function, type: string, formatter: Function) => any
+  countUnique?: (f: Function) => (fn: Function, formatter: Function) => any
+  listUnique?: (s: string) => (fn: Function, formatter: Function) => any
+  max?: (f: Function) => (mode: string, formatter: Function) => any
+  min?: (f: Function) => (mode: string, formatter: Function) => any
+  first?: (f: Function) => (mode: string, formatter: Function) => any
+  last?: (f: Function) => (mode: string, formatter: Function) => any
+  median?: (f: Function) => (q: number, formatter: Function) => any
+  average?: (f: Function) => (mode: string, ddof: number, formatter: Function) => any
+  var?: (ddof: number, f: Function) => (mode: string, ddof: number, formatter: Function) => any
+  stdev?: (ddof: number, f: Function) => (mode: string, ddof: number, formatter: Function) => any
+} = {
   count(formatter = usFmtInt) {
     return () =>
       function() {
@@ -397,42 +415,37 @@ const aggregatorTemplates = {
         };
       };
   },
-};
+}
 
-aggregatorTemplates.countUnique = f =>
-  aggregatorTemplates.uniques(x => x.length, f);
-aggregatorTemplates.listUnique = s =>
-  aggregatorTemplates.uniques(x => x.join(s), x => x);
+aggregatorTemplates.countUnique = f => aggregatorTemplates.uniques(x => x.length, f);
+aggregatorTemplates.listUnique = s => aggregatorTemplates.uniques(x => x.join(s), x => x);
 aggregatorTemplates.max = f => aggregatorTemplates.extremes('max', f);
 aggregatorTemplates.min = f => aggregatorTemplates.extremes('min', f);
 aggregatorTemplates.first = f => aggregatorTemplates.extremes('first', f);
 aggregatorTemplates.last = f => aggregatorTemplates.extremes('last', f);
 aggregatorTemplates.median = f => aggregatorTemplates.quantile(0.5, f);
-aggregatorTemplates.average = f =>
-  aggregatorTemplates.runningStat('mean', 1, f);
-aggregatorTemplates.var = (ddof, f) =>
-  aggregatorTemplates.runningStat('var', ddof, f);
-aggregatorTemplates.stdev = (ddof, f) =>
-  aggregatorTemplates.runningStat('stdev', ddof, f);
+aggregatorTemplates.average = f => aggregatorTemplates.runningStat('mean', 1, f);
+aggregatorTemplates.var = (ddof, f) => aggregatorTemplates.runningStat('var', ddof, f);
+aggregatorTemplates.stdev = (ddof, f) => aggregatorTemplates.runningStat('stdev', ddof, f);
 
 // default aggregators & renderers use US naming and number formatting
 const aggregators = (tpl => ({
   Count: tpl.count(usFmtInt),
-  'Count Unique Values': tpl.countUnique(usFmtInt),
-  'List Unique Values': tpl.listUnique(', '),
+  'Count Unique Values': tpl.countUnique!(usFmtInt),
+  'List Unique Values': tpl.listUnique!(', '),
   Sum: tpl.sum(usFmt),
   'Integer Sum': tpl.sum(usFmtInt),
-  Average: tpl.average(usFmt),
-  Median: tpl.median(usFmt),
-  'Sample Variance': tpl.var(1, usFmt),
-  'Sample Standard Deviation': tpl.stdev(1, usFmt),
-  Minimum: tpl.min(usFmt),
-  Maximum: tpl.max(usFmt),
-  First: tpl.first(usFmt),
-  Last: tpl.last(usFmt),
+  Average: tpl.average!(usFmt),
+  Median: tpl.median!(usFmt),
+  'Sample Variance': tpl.var!(1, usFmt),
+  'Sample Standard Deviation': tpl.stdev!(1, usFmt),
+  Minimum: tpl.min!(usFmt),
+  Maximum: tpl.max!(usFmt),
+  First: tpl.first!(usFmt),
+  Last: tpl.last!(usFmt),
   'Sum over Sum': tpl.sumOverSum(usFmt),
-  'Sum as Fraction of Total': tpl.fractionOf(tpl.sum(), 'total', usFmtPct),
-  'Sum as Fraction of Rows': tpl.fractionOf(tpl.sum(), 'row', usFmtPct),
+  'Sum as Fraction of Total': tpl.fractionOf(tpl.sum!(), 'total', usFmtPct),
+  'Sum as Fraction of Rows': tpl.fractionOf(tpl.sum!(), 'row', usFmtPct),
   'Sum as Fraction of Columns': tpl.fractionOf(tpl.sum(), 'col', usFmtPct),
   'Count as Fraction of Total': tpl.fractionOf(tpl.count(), 'total', usFmtPct),
   'Count as Fraction of Rows': tpl.fractionOf(tpl.count(), 'row', usFmtPct),
@@ -491,7 +504,7 @@ const derivers = {
     const utc = utcOutput ? 'UTC' : '';
     return function(record) {
       const date = new Date(Date.parse(record[col]));
-      if (isNaN(date)) {
+      if (isNaN(parseInt(date.toUTCString()))) {
         return '';
       }
       return formatString.replace(/%(.)/g, function(m, p) {
@@ -525,18 +538,92 @@ const derivers = {
 /*
 Data Model class
 */
+export type inputData = any[] | Object | Function
+export type ObjectOfBooleans = {[b: string]: boolean}
+export type ObjectOfFunctions = {[f: string]: Function}
+export type ObjectOfNumbers = {[n: string]: number}
+export type ObjectOfStringArrays = {[a: string]: string[]}
+export enum OrderEnum {
+  'key_a_to_z' = 'key_a_to_z',
+  'value_a_to_z' = 'value_a_to_z',
+  'value_z_to_a' = 'value_z_to_a',
+}
 
+
+// interface ITableTemplate {
+//   name: string
+//   rows: string[]                      // Attribute Names for pivot rows, in order
+//   cols: string[]                      // Attribute Names for pivot columns, in order
+//   vals: string[]                      // Attribute Names used as arguments for Aggregator.
+//                                       //  Mostly looks like (string | <string,string> | null)
+//                                       //  (Ex:
+//                                       //    AggregatorName='Count', vals=[]
+//                                       //    AggregatorName='Distinct Count', vals=['CBO#']
+//                                       //    AggregatorName='Sum over Sum', vals=['visit_Date', 'reference_Date']
+//                                       //  )
+//   aggregatorName: string              // Name of Aggregator
+//   valueFilter: ObjectOfStringArrays   // Object where keys are attribute names, and values are records
+//                                       //  to include or exclude from computation and rendering
+//   rendererName: string                // Name of Renderer(Ex: 'Tables', 'Pie Chart', 'Heat Map', etc.)
+//   hiddenAttributes: string[]          // Attributes to Omit from UI
+//   rowOrder: OrderEnum                 // Enum declaring which way to order the rows of the table
+//   colOrder: OrderEnum                 // Enum declaring which way to order the rows of the table
+//   serverValueFilter: ObjectOfStringArrays
+// }
+
+// valueFilter = {
+//   "site_Name": ['Indiana','California']
+// }
+
+// serverValueFilter = {
+  
+// }
+
+// res.body = {
+//   "": {}
+// }
+
+
+export interface IPivotDataProps {
+  data?: inputData
+  aggregators?: ObjectOfFunctions
+  aggregatorName?: string
+  cols?: string[]
+  rows?: string[]
+  vals?: string[]
+  valueFilter?: {[o: string]: ObjectOfBooleans}
+  sorters?: Function | ObjectOfFunctions
+  derivedAttributes?: ObjectOfFunctions
+  rowOrder?: OrderEnum
+  colOrder?: OrderEnum
+}
+export const PivotDataDefaultProps = {
+  data: [],
+  aggregators: aggregators,
+  cols: [],
+  rows: [],
+  vals: [],
+  aggregatorName: 'Count',
+  sorters: {},
+  valueFilter: {},
+  rowOrder: OrderEnum.key_a_to_z,
+  colOrder: OrderEnum.key_a_to_z,
+  derivedAttributes: {},
+}
 class PivotData {
-  constructor(inputProps = {}) {
-    this.props = Object.assign({}, PivotData.defaultProps, inputProps);
-    PropTypes.checkPropTypes(
-      PivotData.propTypes,
-      this.props,
-      'prop',
-      'PivotData'
-    );
-
-    this.aggregator = this.props.aggregators[this.props.aggregatorName](
+  public defaultProps = PivotDataDefaultProps
+  private aggregator: any
+  private tree: any
+  private rowKeys: string[]
+  private colKeys: string[]
+  private rowTotals: any
+  private colTotals: any
+  private allTotal: any
+  private sorted: boolean
+  public props: IPivotDataProps
+  constructor(inputProps: { data: inputData } & any = {}) {
+    this.props = Object.assign({}, this.defaultProps, inputProps)
+    this.aggregator = this.props.aggregators![this.props.aggregatorName!](
       this.props.vals
     );
     this.tree = {};
@@ -548,7 +635,7 @@ class PivotData {
     this.sorted = false;
 
     // iterate through input, accumulating data for cells
-    PivotData.forEachRecord(
+    this.forEachRecord(
       this.props.data,
       this.props.derivedAttributes,
       record => {
@@ -569,7 +656,7 @@ class PivotData {
   }
 
   forEachMatchingRecord(criteria, callback) {
-    return PivotData.forEachRecord(
+    return this.forEachRecord(
       this.props.data,
       this.props.derivedAttributes,
       record => {
@@ -590,7 +677,7 @@ class PivotData {
   arrSort(attrs) {
     let a;
     const sortersArr = (() => {
-      const result = [];
+      const result: any[] = [];
       for (a of Array.from(attrs)) {
         result.push(getSort(this.props.sorters, a));
       }
@@ -647,12 +734,12 @@ class PivotData {
 
   processRecord(record) {
     // this code is called in a tight loop
-    const colKey = [];
-    const rowKey = [];
-    for (const x of Array.from(this.props.cols)) {
+    const colKey: any = [];
+    const rowKey: any = [];
+    for (const x of Array.from(this.props.cols as ArrayLike<string>)) {
       colKey.push(x in record ? record[x] : 'null');
     }
-    for (const x of Array.from(this.props.rows)) {
+    for (const x of Array.from(this.props.rows as ArrayLike<string>)) {
       rowKey.push(x in record ? record[x] : 'null');
     }
     const flatRowKey = rowKey.join(String.fromCharCode(0));
@@ -715,89 +802,59 @@ class PivotData {
       }
     );
   }
-}
 
-// can handle arrays or jQuery selections of tables
-PivotData.forEachRecord = function(input, derivedAttributes, f) {
-  let addRecord, record;
-  if (Object.getOwnPropertyNames(derivedAttributes).length === 0) {
-    addRecord = f;
-  } else {
-    addRecord = function(record) {
-      for (const k in derivedAttributes) {
-        const derived = derivedAttributes[k](record);
-        if (derived !== null) {
-          record[k] = derived;
-        }
-      }
-      return f(record);
-    };
-  }
-
-  // if it's a function, have it call us back
-  if (typeof input === 'function') {
-    return input(addRecord);
-  } else if (Array.isArray(input)) {
-    if (Array.isArray(input[0])) {
-      // array of arrays
-      return (() => {
-        const result = [];
-        for (const i of Object.keys(input || {})) {
-          const compactRecord = input[i];
-          if (i > 0) {
-            record = {};
-            for (const j of Object.keys(input[0] || {})) {
-              const k = input[0][j];
-              record[k] = compactRecord[j];
-            }
-            result.push(addRecord(record));
+  // can handle arrays or jQuery selections of tables
+  public forEachRecord(input, derivedAttributes, f) {
+    let addRecord, record;
+    if (Object.getOwnPropertyNames(derivedAttributes).length === 0) {
+      addRecord = f;
+    } else {
+      addRecord = function(record) {
+        for (const k in derivedAttributes) {
+          const derived = derivedAttributes[k](record);
+          if (derived !== null) {
+            record[k] = derived;
           }
         }
-        return result;
+        return f(record);
+      };
+    }
+  
+    // if it's a function, have it call us back
+    if (typeof input === 'function') {
+      return input(addRecord);
+    } else if (Array.isArray(input)) {
+      if (Array.isArray(input[0])) {
+        // array of arrays
+        return (() => {
+          const result: any[] = [];
+          for (const i of Object.keys(input || {})) {
+            const compactRecord = input[i];
+            if (parseInt(i) > 0) {
+              record = {};
+              for (const j of Object.keys(input[0] || {})) {
+                const k = input[0][j];
+                record[k] = compactRecord[j];
+              }
+              result.push(addRecord(record));
+            }
+          }
+          return result;
+        })();
+      }
+  
+      // array of objects
+      return (() => {
+        const result1: any[] = [];
+        for (record of Array.from(input)) {
+          result1.push(addRecord(record));
+        }
+        return result1;
       })();
     }
-
-    // array of objects
-    return (() => {
-      const result1 = [];
-      for (record of Array.from(input)) {
-        result1.push(addRecord(record));
-      }
-      return result1;
-    })();
+    throw new Error('unknown input format');
   }
-  throw new Error('unknown input format');
-};
-
-PivotData.defaultProps = {
-  aggregators: aggregators,
-  cols: [],
-  rows: [],
-  vals: [],
-  aggregatorName: 'Count',
-  sorters: {},
-  valueFilter: {},
-  rowOrder: 'key_a_to_z',
-  colOrder: 'key_a_to_z',
-  derivedAttributes: {},
-};
-
-PivotData.propTypes = {
-  data: PropTypes.oneOfType([PropTypes.array, PropTypes.object, PropTypes.func])
-    .isRequired,
-  aggregatorName: PropTypes.string,
-  cols: PropTypes.arrayOf(PropTypes.string),
-  rows: PropTypes.arrayOf(PropTypes.string),
-  vals: PropTypes.arrayOf(PropTypes.string),
-  valueFilter: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool)),
-  sorters: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.objectOf(PropTypes.func),
-  ]),
-  derivedAttributes: PropTypes.objectOf(PropTypes.func),
-  rowOrder: PropTypes.oneOf(['key_a_to_z', 'value_a_to_z', 'value_z_to_a']),
-  colOrder: PropTypes.oneOf(['key_a_to_z', 'value_a_to_z', 'value_z_to_a']),
-};
+}
 
 export {
   aggregatorTemplates,

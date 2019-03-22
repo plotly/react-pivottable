@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 export default [
 ["Total Bill","Tip","Payer Gender","Payer Smoker","Day of Week","Meal","Party Size"],
 [16.99,1.01,"Female","Non-Smoker","Sunday","Dinner",2],

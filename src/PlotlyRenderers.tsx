@@ -1,40 +1,49 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import {PivotData} from './Utilities';
+import * as React from 'react'  
+import {PivotData, IPivotDataProps, PivotDataDefaultProps} from './Utilities'  
 
 /* eslint-disable react/prop-types */
 // eslint can't see inherited propTypes!
 
+interface IRendererProps extends IPivotDataProps {
+  plotlyOptions?: any
+  plotlyConfig?: any
+  onRendererUpdate?: Function
+}
 function makeRenderer(
   PlotlyComponent,
-  traceOptions = {},
+  traceOptions: any = {},
   layoutOptions = {},
   transpose = false
 ) {
-  class Renderer extends React.PureComponent {
+  class Renderer extends React.PureComponent<IRendererProps,{}> {
+    static defaultProps = {
+      ...PivotDataDefaultProps,
+      plotlyOptions: {},
+      plotlyConfig: {},
+    }
     render() {
-      const pivotData = new PivotData(this.props);
-      const rowKeys = pivotData.getRowKeys();
-      const colKeys = pivotData.getColKeys();
-      const traceKeys = transpose ? colKeys : rowKeys;
+      const pivotData = new PivotData(this.props)  
+      const rowKeys = pivotData.getRowKeys()  
+      const colKeys = pivotData.getColKeys()  
+      const traceKeys: any[] = transpose ? colKeys : rowKeys  
       if (traceKeys.length === 0) {
-        traceKeys.push([]);
+        traceKeys.push([])  
       }
-      const datumKeys = transpose ? rowKeys : colKeys;
+      const datumKeys: any[] = transpose ? rowKeys : colKeys  
       if (datumKeys.length === 0) {
-        datumKeys.push([]);
+        datumKeys.push([])  
       }
 
-      let fullAggName = this.props.aggregatorName;
+      let fullAggName = this.props.aggregatorName!  
       const numInputs =
-        this.props.aggregators[fullAggName]([])().numInputs || 0;
+        this.props.aggregators![fullAggName]([])().numInputs || 0  
       if (numInputs !== 0) {
-        fullAggName += ` of ${this.props.vals.slice(0, numInputs).join(', ')}`;
+        fullAggName += ` of ${this.props.vals!.slice(0, numInputs).join(', ')}`  
       }
 
       const data = traceKeys.map(traceKey => {
-        const values = [];
-        const labels = [];
+        const values: any[] = []  
+        const labels: any[] = []  
         for (const datumKey of datumKeys) {
           const val = parseFloat(
             pivotData
@@ -43,69 +52,69 @@ function makeRenderer(
                 transpose ? traceKey : datumKey
               )
               .value()
-          );
-          values.push(isFinite(val) ? val : null);
-          labels.push(datumKey.join('-') || ' ');
+          )  
+          values.push(isFinite(val) ? val : null)  
+          labels.push(datumKey.join('-') || ' ')  
         }
-        const trace = {name: traceKey.join('-') || fullAggName};
+        const trace: any = {name: traceKey.join('-') || fullAggName}  
         if (traceOptions.type === 'pie') {
-          trace.values = values;
-          trace.labels = labels.length > 1 ? labels : [fullAggName];
+          trace.values = values  
+          trace.labels = labels.length > 1 ? labels : [fullAggName]  
         } else {
-          trace.x = transpose ? values : labels;
-          trace.y = transpose ? labels : values;
+          trace.x = transpose ? values : labels  
+          trace.y = transpose ? labels : values  
         }
-        return Object.assign(trace, traceOptions);
-      });
+        return Object.assign(trace, traceOptions)  
+      })  
 
-      let titleText = fullAggName;
+      let titleText = fullAggName  
       const hAxisTitle = transpose
-        ? this.props.rows.join('-')
-        : this.props.cols.join('-');
+        ? this.props.rows!.join('-')
+        : this.props.cols!.join('-')  
       const groupByTitle = transpose
-        ? this.props.cols.join('-')
-        : this.props.rows.join('-');
+        ? this.props.cols!.join('-')
+        : this.props.rows!.join('-')  
       if (hAxisTitle !== '') {
-        titleText += ` vs ${hAxisTitle}`;
+        titleText += ` vs ${hAxisTitle}`  
       }
       if (groupByTitle !== '') {
-        titleText += ` by ${groupByTitle}`;
+        titleText += ` by ${groupByTitle}`  
       }
 
-      const layout = {
+      const layout: any = {
         title: titleText,
         hovermode: 'closest',
         /* eslint-disable no-magic-numbers */
         width: window.innerWidth / 1.5,
         height: window.innerHeight / 1.4 - 50,
         /* eslint-enable no-magic-numbers */
-      };
+      }  
 
       if (traceOptions.type === 'pie') {
-        const columns = Math.ceil(Math.sqrt(data.length));
-        const rows = Math.ceil(data.length / columns);
-        layout.grid = {columns, rows};
+        const columns = Math.ceil(Math.sqrt(data.length))  
+        const rows = Math.ceil(data.length / columns)  
+        layout.grid = {columns, rows}  
         data.forEach((d, i) => {
           d.domain = {
             row: Math.floor(i / columns),
             column: i - columns * Math.floor(i / columns),
-          };
+          }  
           if (data.length > 1) {
-            d.title = d.name;
+            d.title = d.name  
           }
-        });
+        })  
         if (data[0].labels.length === 1) {
-          layout.showlegend = false;
+          layout.showlegend = false  
         }
       } else {
         layout.xaxis = {
           title: transpose ? fullAggName : null,
           automargin: true,
-        };
+        }  
         layout.yaxis = {
           title: transpose ? null : fullAggName,
           automargin: true,
-        };
+        }  
       }
 
       return (
@@ -119,59 +128,54 @@ function makeRenderer(
           config={this.props.plotlyConfig}
           onUpdate={this.props.onRendererUpdate}
         />
-      );
+      )  
     }
   }
 
-  Renderer.defaultProps = Object.assign({}, PivotData.defaultProps, {
-    plotlyOptions: {},
-    plotlyConfig: {},
-  });
-  Renderer.propTypes = Object.assign({}, PivotData.propTypes, {
-    plotlyOptions: PropTypes.object,
-    plotlyConfig: PropTypes.object,
-    onRendererUpdate: PropTypes.func,
-  });
-
-  return Renderer;
+  return Renderer  
 }
 
 function makeScatterRenderer(PlotlyComponent) {
-  class Renderer extends React.PureComponent {
+  class Renderer extends React.PureComponent<IRendererProps,{}> {
+    static defaultProps = {
+      ...PivotDataDefaultProps,
+      plotlyOptions: {},
+      plotlyConfig: {},
+    }
     render() {
-      const pivotData = new PivotData(this.props);
-      const rowKeys = pivotData.getRowKeys();
-      const colKeys = pivotData.getColKeys();
+      const pivotData = new PivotData(this.props)  
+      const rowKeys: any[] = pivotData.getRowKeys()  
+      const colKeys: any[] = pivotData.getColKeys()  
       if (rowKeys.length === 0) {
-        rowKeys.push([]);
+        rowKeys.push([])  
       }
       if (colKeys.length === 0) {
-        colKeys.push([]);
+        colKeys.push([])  
       }
 
-      const data = {x: [], y: [], text: [], type: 'scatter', mode: 'markers'};
+      const data: any = {x: [], y: [], text: [], type: 'scatter', mode: 'markers'}  
 
       rowKeys.map(rowKey => {
         colKeys.map(colKey => {
-          const v = pivotData.getAggregator(rowKey, colKey).value();
+          const v = pivotData.getAggregator(rowKey, colKey).value()  
           if (v !== null) {
-            data.x.push(colKey.join('-'));
-            data.y.push(rowKey.join('-'));
-            data.text.push(v);
+            data.x.push(colKey.join('-'))  
+            data.y.push(rowKey.join('-'))  
+            data.text.push(v)  
           }
-        });
-      });
+        })  
+      })  
 
       const layout = {
-        title: this.props.rows.join('-') + ' vs ' + this.props.cols.join('-'),
+        title: this.props.rows!.join('-') + ' vs ' + this.props.cols!.join('-'),
         hovermode: 'closest',
         /* eslint-disable no-magic-numbers */
-        xaxis: {title: this.props.cols.join('-'), automargin: true},
-        yaxis: {title: this.props.rows.join('-'), automargin: true},
+        xaxis: {title: this.props.cols!.join('-'), automargin: true},
+        yaxis: {title: this.props.rows!.join('-'), automargin: true},
         width: window.innerWidth / 1.5,
         height: window.innerHeight / 1.4 - 50,
         /* eslint-enable no-magic-numbers */
-      };
+      }  
 
       return (
         <PlotlyComponent
@@ -180,21 +184,10 @@ function makeScatterRenderer(PlotlyComponent) {
           config={this.props.plotlyConfig}
           onUpdate={this.props.onRendererUpdate}
         />
-      );
+      )  
     }
   }
-
-  Renderer.defaultProps = Object.assign({}, PivotData.defaultProps, {
-    plotlyOptions: {},
-    plotlyConfig: {},
-  });
-  Renderer.propTypes = Object.assign({}, PivotData.propTypes, {
-    plotlyOptions: PropTypes.object,
-    plotlyConfig: PropTypes.object,
-    onRendererUpdate: PropTypes.func,
-  });
-
-  return Renderer;
+  return Renderer  
 }
 
 export default function createPlotlyRenderers(PlotlyComponent) {
@@ -231,5 +224,5 @@ export default function createPlotlyRenderers(PlotlyComponent) {
       {},
       true
     ),
-  };
+  }  
 }

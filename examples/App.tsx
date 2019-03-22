@@ -1,17 +1,21 @@
-import React from 'react';
+import * as React from 'react';
 import tips from './tips';
 import {sortAs} from '../src/Utilities';
 import TableRenderers from '../src/TableRenderers';
 import createPlotlyComponent from 'react-plotly.js/factory';
 import createPlotlyRenderers from '../src/PlotlyRenderers';
 import PivotTableUI from '../src/PivotTableUI';
-import '../src/pivottable.css';
+import '../src/pivottable.scss';
 import Dropzone from 'react-dropzone';
-import Papa from 'papaparse';
+import * as Papa from 'papaparse';
+import { PivotState } from '../react-pivottable';
 
-const Plot = createPlotlyComponent(window.Plotly);
+const Plot = createPlotlyComponent((window as any).Plotly);
 
-class PivotTableUISmartWrapper extends React.PureComponent {
+interface ISmartWrapperState {
+    pivotState: PivotState
+}
+class PivotTableUISmartWrapper extends React.PureComponent<PivotState, ISmartWrapperState> {
     constructor(props) {
         super(props);
         this.state = {pivotState: props};
@@ -37,7 +41,14 @@ class PivotTableUISmartWrapper extends React.PureComponent {
     }
 }
 
-export default class App extends React.Component {
+interface IState {
+    mode: string
+    filename: string
+    pivotState: PivotState
+    textarea: string
+}
+export default class App extends React.Component<{},IState> {
+    public state: IState
     componentWillMount() {
         this.setState({
             mode: 'demo',
@@ -62,7 +73,7 @@ export default class App extends React.Component {
                 plotlyConfig: {},
                 tableOptions: {
                     clickCallback: function(e, value, filters, pivotData) {
-                        var names = [];
+                        let names: any[] = [];
                         pivotData.forEachMatchingRecord(filters, function(
                             record
                         ) {
