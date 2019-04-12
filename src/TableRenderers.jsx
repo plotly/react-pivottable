@@ -56,6 +56,7 @@ function makeRenderer(opts = {}) {
   class TableRenderer extends React.PureComponent {
     render() {
       const pivotData = new PivotData(this.props);
+      const id = pivotData.props.id;
       const colAttrs = pivotData.props.cols;
       const rowAttrs = pivotData.props.rows;
       const rowKeys = pivotData.getRowKeys();
@@ -133,7 +134,7 @@ function makeRenderer(opts = {}) {
           : null;
 
       return (
-        <table className="pvtTable">
+        <table id={id} className="pvtTable">
           <thead>
             {colAttrs.map(function(c, j) {
               return (
