@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {PivotData} from './Utilities';
+import {PivotData, flatKey} from './Utilities';
 import memoize from 'memoize-one';
 
 function redColorScaleGenerator(values) {
@@ -112,7 +112,7 @@ function makeRenderer(opts = {}) {
             const rowValues = Object.values(cd).map(a => a.value());
             rowColorScales[rk] = colorScaleGenerator(rowValues);
           });
-          valueCellColors = (r, c, v) => rowColorScales[r.join(String.fromCharCode(0))](v);
+          valueCellColors = (r, c, v) => rowColorScales[flatKey(r)](v);
         } else if (opts.heatmapMode === 'col') {
           const colColorScales = {};
           const colValues = {};
@@ -127,7 +127,7 @@ function makeRenderer(opts = {}) {
           for (const k in colValues) {
             colColorScales[k] = colorScaleGenerator(colValues[k]);
           }
-          valueCellColors = (r, c, v) => colColorScales[c.join(String.fromCharCode(0))](v);
+          valueCellColors = (r, c, v) => colColorScales[flatKey(c)](v);
         }
       }
       return {valueCellColors, rowTotalColors, colTotalColors};
