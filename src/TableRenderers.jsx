@@ -3,28 +3,6 @@ import PropTypes from 'prop-types';
 import {PivotData} from './Utilities';
 import memoize from 'memoize-one';
 
-// helper function for setting row/col-span in pivotTableRenderer
-const sliceSame = function(arr, i1, i2, j) {
-  // Compare a slice of the passed in column/row attribute array up to depth j.
-  for (let x = 0; x <= j; x++) {
-    if (arr[i1][x] !== arr[i2][x]) {
-      return false;
-    }
-  }
-  return true;
-}
-
-const spanSize = function(arr, i, j) {
-  if (i !== 0 && sliceSame(arr, i, i - 1, j)) {
-    return -1;
-  }
-  let k = i + 1;
-  while (k < arr.length && sliceSame(arr, i, k, j)) {
-    k++;
-  }
-  return k - i;
-};
-
 function redColorScaleGenerator(values) {
   const min = Math.min.apply(Math, values);
   const max = Math.max.apply(Math, values);
@@ -60,6 +38,8 @@ function makeRenderer(opts = {}) {
         rowAttrs,
         colKeys,
         rowKeys,
+        colAttrSpans: this.calcAttrSpans(colKeys),
+        rowAttrSpans: this.calcAttrSpans(rowKeys),
         rowTotals,
         colTotals,
         ...this.heatmapMappers(
@@ -70,6 +50,41 @@ function makeRenderer(opts = {}) {
         ),
       };
     });
+      
+    calcAttrSpans = (attrArr) => {
+      // Given an array of attribute values (i.e. each element is another array with
+      // the value at every level), compute the spans for every attribute value at
+      // every level. The return value is a nested array of the same shape. It has
+      // -1's for repeated values and the span number otherwise.
+    
+      if (attrArr.length === 0) {
+        return []
+      }
+        
+      const spans = [];
+      const li = attrArr[0].map(() => 0);  // Index of the last new value
+      let lv = attrArr[0].map(() => null);
+      for(let i = 0;i < attrArr.length;i++) {
+        // Keep increasing span values as long as the last keys are the same. For
+        // the rest, record spans of 1. Update the indices too.
+        let cv = attrArr[i];
+        let ent = [];
+        let depth = 0;
+        while (lv[depth] === cv[depth]) {
+          ent.push(-1);
+          spans[li[depth]][depth]++;
+          depth++;
+        }
+        while (depth < cv.length) {
+          li[depth] = i;
+          ent.push(1);
+          depth++;
+        }
+        spans.push(ent);
+        lv = cv;
+      }
+      return spans;
+    }
       
     heatmapMappers = (pivotData, colorScaleGenerator, colTotals, rowTotals) => {
       let valueCellColors = () => {};
@@ -150,7 +165,7 @@ function makeRenderer(opts = {}) {
     renderColHeaderRow = (attrName, attrIdx, pivotSettings) => {
       // Render a single row in the column header at the top of the pivot table.
       
-      const {rowAttrs, colAttrs, colKeys, rowTotals} = pivotSettings;
+      const {rowAttrs, colAttrs, colKeys, colAttrSpans, rowTotals} = pivotSettings;
 
       const spaceCell = (attrIdx === 0 && rowAttrs.length !== 0)
         ? (<th colSpan={rowAttrs.length} rowSpan={colAttrs.length}/>)
@@ -158,22 +173,24 @@ function makeRenderer(opts = {}) {
     
       const attrNameCell = (<th className="pvtAxisLabel">{attrName}</th>);
     
+      const attrValueCells = [];
       const rowSpan = (attrIdx === colAttrs.length - 1 && rowAttrs.length !== 0) ? 2 : 1;
-      const attrValueCells = colKeys.map((c, i) => {
-        const colSpan = spanSize(colKeys, i, attrIdx);
-        if (colSpan !== -1) {
-          return (
-            <th
-              className="pvtColLabel"
-              key={`colKey${i}`}
-              colSpan={colSpan}
-              rowSpan={rowSpan}
-            >
-              {colKeys[i][attrIdx]}
-            </th>
-          )
-        }
-      });
+      // Iterate through columns. Jump over duplicate values.
+      let i = 0;
+      while (i < colKeys.length) {
+        const colSpan = colAttrSpans[i][attrIdx];
+        attrValueCells.push(
+          <th
+            className="pvtColLabel"
+            key={`colKey${i}`}
+            colSpan={colSpan}
+            rowSpan={rowSpan}
+          >
+            {colKeys[i][attrIdx]}
+          </th>
+        )
+        i = i + colSpan;  // The next colSpan columns will have the same value anyway...
+      };
 
       const totalCell = (attrIdx === 0 && rowTotals)
         ? (
@@ -221,6 +238,7 @@ function makeRenderer(opts = {}) {
         rowAttrs, 
         colAttrs, 
         rowKeys, 
+        rowAttrSpans,
         colKeys, 
         pivotData,
         rowTotals,
@@ -229,7 +247,7 @@ function makeRenderer(opts = {}) {
       } = pivotSettings;
         
       const attrValueCells = rowKey.map((r, i) => {
-        const rowSpan = spanSize(rowKeys, rowIdx, i);
+        const rowSpan = rowAttrSpans[rowIdx][i];
         if (rowSpan > 0) {
           const colSpan = (i === rowKey.length - 1 && colAttrs.length !== 0) ? 2 : 1;
           return (

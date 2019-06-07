@@ -522,6 +522,10 @@ const derivers = {
   },
 };
 
+// Given an array of attribute values, convert to a key that
+// can be used in objects.
+const flatKey = (attrVals) => attrVals.join(String.fromCharCode(0))
+
 /*
 Data Model class
 */
@@ -648,8 +652,8 @@ class PivotData {
     for (const x of this.props.rows) {
       rowKey.push(x in record ? record[x] : 'null');
     }
-    const flatRowKey = rowKey.join(String.fromCharCode(0));
-    const flatColKey = colKey.join(String.fromCharCode(0));
+    const flatRowKey = flatKey(rowKey);
+    const flatColKey = flatKey(colKey);
 
     this.allTotal.push(record);
 
@@ -686,8 +690,8 @@ class PivotData {
 
   getAggregator(rowKey, colKey) {
     let agg;
-    const flatRowKey = rowKey.join(String.fromCharCode(0));
-    const flatColKey = colKey.join(String.fromCharCode(0));
+    const flatRowKey = flatKey(rowKey);
+    const flatColKey = flatKey(colKey);
     if (rowKey.length === 0 && colKey.length === 0) {
       agg = this.allTotal;
     } else if (rowKey.length === 0) {
@@ -801,5 +805,6 @@ export {
   numberFormat,
   getSort,
   sortAs,
+  flatKey,
   PivotData,
 };
