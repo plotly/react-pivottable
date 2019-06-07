@@ -1,45 +1,28 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {PivotData} from './Utilities';
+import memoize from 'memoize-one';
 
 // helper function for setting row/col-span in pivotTableRenderer
+const sliceSame = function(arr, i1, i2, j) {
+  // Compare a slice of the passed in column/row attribute array up to depth j.
+  for (let x = 0; x <= j; x++) {
+    if (arr[i1][x] !== arr[i2][x]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 const spanSize = function(arr, i, j) {
-  let x;
-  if (i !== 0) {
-    let asc, end;
-    let noDraw = true;
-    for (
-      x = 0, end = j, asc = end >= 0;
-      asc ? x <= end : x >= end;
-      asc ? x++ : x--
-    ) {
-      if (arr[i - 1][x] !== arr[i][x]) {
-        noDraw = false;
-      }
-    }
-    if (noDraw) {
-      return -1;
-    }
+  if (i !== 0 && sliceSame(arr, i, i - 1, j)) {
+    return -1;
   }
-  let len = 0;
-  while (i + len < arr.length) {
-    let asc1, end1;
-    let stop = false;
-    for (
-      x = 0, end1 = j, asc1 = end1 >= 0;
-      asc1 ? x <= end1 : x >= end1;
-      asc1 ? x++ : x--
-    ) {
-      if (arr[i][x] !== arr[i + len][x]) {
-        stop = true;
-      }
-    }
-    if (stop) {
-      break;
-    }
-    len++;
+  let k = i + 1;
+  while (k < arr.length && sliceSame(arr, i, k, j)) {
+    k++;
   }
-  return len;
+  return k - i;
 };
 
 function redColorScaleGenerator(values) {
@@ -53,253 +36,328 @@ function redColorScaleGenerator(values) {
 }
 
 function makeRenderer(opts = {}) {
-  class TableRenderer extends React.PureComponent {
-    render() {
-      const pivotData = new PivotData(this.props);
+  class TableRenderer extends React.Component {
+    getPivotSettings = memoize(props => {
+      // One-time extraction of pivot settings that we'll use throughout the render.
+        
+      const pivotData = new PivotData(props);
       const colAttrs = pivotData.props.cols;
       const rowAttrs = pivotData.props.rows;
       const rowKeys = pivotData.getRowKeys();
       const colKeys = pivotData.getColKeys();
-      const grandTotalAggregator = pivotData.getAggregator([], []);
-      const tableOptions = this.props.tableOptions;
-      const rowTotals = ('rowTotals' in tableOptions ? tableOptions.rowTotals : true) || colAttrs.length === 0;
-      const colTotals = ('colTotals' in tableOptions ? tableOptions.colTotals : true) || rowAttrs.length === 0;
 
+      const tableOptions = {
+        rowTotals: true,
+        colTotals: true,
+        ...this.props.tableOptions
+      };
+      const rowTotals = tableOptions.rowTotals || colAttrs.length === 0;
+      const colTotals = tableOptions.colTotals || rowAttrs.length === 0;
+
+      return {
+        pivotData,
+        colAttrs,
+        rowAttrs,
+        colKeys,
+        rowKeys,
+        rowTotals,
+        colTotals,
+        ...this.heatmapMappers(
+          pivotData, 
+          this.props.tableColorScaleGenerator,
+          colTotals,
+          rowTotals,
+        ),
+      };
+    });
+      
+    heatmapMappers = (pivotData, colorScaleGenerator, colTotals, rowTotals) => {
       let valueCellColors = () => {};
       let rowTotalColors = () => {};
       let colTotalColors = () => {};
       if (opts.heatmapMode) {
-        const colorScaleGenerator = this.props.tableColorScaleGenerator;
         if (colTotals) {
-          const rowTotalValues = colKeys.map(x =>
-            pivotData.getAggregator([], x).value()
-          );
-          rowTotalColors = colorScaleGenerator(rowTotalValues);
+          const colTotalValues = Object.values(pivotData.colTotals).map(a => a.value());
+          colTotalColors = colorScaleGenerator(colTotalValues);
         }
         if (rowTotals) {
-          const colTotalValues = rowKeys.map(x =>
-            pivotData.getAggregator(x, []).value()
-          );
-          colTotalColors = colorScaleGenerator(colTotalValues);
+          const rowTotalValues = Object.values(pivotData.rowTotals).map(a => a.value());
+          rowTotalColors = colorScaleGenerator(rowTotalValues);
         }
         if (opts.heatmapMode === 'full') {
           const allValues = [];
-          rowKeys.map(r =>
-            colKeys.map(c =>
-              allValues.push(pivotData.getAggregator(r, c).value())
-            )
+          Object.values(pivotData.tree).map(cd =>
+            Object.values(cd).map(a => allValues.push(a.value()))
           );
           const colorScale = colorScaleGenerator(allValues);
           valueCellColors = (r, c, v) => colorScale(v);
         } else if (opts.heatmapMode === 'row') {
           const rowColorScales = {};
-          rowKeys.map(r => {
-            const rowValues = colKeys.map(x =>
-              pivotData.getAggregator(r, x).value()
-            );
-            rowColorScales[r] = colorScaleGenerator(rowValues);
+          Object.entries(pivotData.tree).map(([rk, cd]) => {
+            const rowValues = Object.values(cd).map(a => a.value());
+            rowColorScales[rk] = colorScaleGenerator(rowValues);
           });
-          valueCellColors = (r, c, v) => rowColorScales[r](v);
+          valueCellColors = (r, c, v) => rowColorScales[r.join(String.fromCharCode(0))](v);
         } else if (opts.heatmapMode === 'col') {
           const colColorScales = {};
-          colKeys.map(c => {
-            const colValues = rowKeys.map(x =>
-              pivotData.getAggregator(x, c).value()
-            );
-            colColorScales[c] = colorScaleGenerator(colValues);
-          });
-          valueCellColors = (r, c, v) => colColorScales[c](v);
+          const colValues = {};
+          Object.values(pivotData.tree).map(cd =>
+            Object.entries(cd).map(([ck, a]) => {
+              if (!(ck in colValues)) {
+                colValues[ck] = [];
+              }
+              colValues[ck].push(a.value());
+            })
+          );
+          for (const k in colValues) {
+            colColorScales[k] = colorScaleGenerator(colValues[k]);
+          }
+          valueCellColors = (r, c, v) => colColorScales[c.join(String.fromCharCode(0))](v);
         }
       }
+      return {valueCellColors, rowTotalColors, colTotalColors};
+    }
 
-      const getClickHandler =
-        this.props.tableOptions && this.props.tableOptions.clickCallback
-          ? (value, rowValues, colValues) => {
-              const filters = {};
-              for (const i of Object.keys(colAttrs || {})) {
-                const attr = colAttrs[i];
-                if (colValues[i] !== null) {
-                  filters[attr] = colValues[i];
-                }
-              }
-              for (const i of Object.keys(rowAttrs || {})) {
-                const attr = rowAttrs[i];
-                if (rowValues[i] !== null) {
-                  filters[attr] = rowValues[i];
-                }
-              }
-              return e =>
-                this.props.tableOptions.clickCallback(
-                  e,
-                  value,
-                  filters,
-                  pivotData
-                );
-            }
-          : null;
+    clickHandler = (value, rowValues, colValues) => {
+      const colAttrs = this.props.cols;
+      const rowAttrs = this.props.rows;
+      if (this.props.tableOptions && this.props.tableOptions.clickCallback ) {
+        const filters = {};
+        for (const i of Object.keys(colAttrs)) {
+          const attr = colAttrs[i];
+          if (colValues[i] !== null) {
+            filters[attr] = colValues[i];
+          }
+        }
+        for (const i of Object.keys(rowAttrs)) {
+          const attr = rowAttrs[i];
+          if (rowValues[i] !== null) {
+            filters[attr] = rowValues[i];
+          }
+        }
+        return e =>
+          tableOptions.clickCallback(
+            e,
+            value,
+            filters,
+            pivotData
+          );
+      } else {
+        return null;
+      }
+    }
 
+    renderColHeaderRow = (attrName, attrIdx, pivotSettings) => {
+      // Render a single row in the column header at the top of the pivot table.
+      
+      const {rowAttrs, colAttrs, colKeys, rowTotals} = pivotSettings;
+
+      const spaceCell = (attrIdx === 0 && rowAttrs.length !== 0)
+        ? (<th colSpan={rowAttrs.length} rowSpan={colAttrs.length}/>)
+        : null;
+    
+      const attrNameCell = (<th className="pvtAxisLabel">{attrName}</th>);
+    
+      const rowSpan = (attrIdx === colAttrs.length - 1 && rowAttrs.length !== 0) ? 2 : 1;
+      const attrValueCells = colKeys.map((c, i) => {
+        const colSpan = spanSize(colKeys, i, attrIdx);
+        if (colSpan !== -1) {
+          return (
+            <th
+              className="pvtColLabel"
+              key={`colKey${i}`}
+              colSpan={colSpan}
+              rowSpan={rowSpan}
+            >
+              {colKeys[i][attrIdx]}
+            </th>
+          )
+        }
+      });
+
+      const totalCell = (attrIdx === 0 && rowTotals)
+        ? (
+          <th
+            className="pvtTotalLabel"
+            rowSpan={colAttrs.length + Math.min(rowAttrs.length, 1)}
+          >
+            Totals
+          </th>
+        )
+        : null;
+
+      const cells = [
+          spaceCell,
+          attrNameCell,
+          ...attrValueCells,
+          totalCell,
+      ];
+      return <tr key={`colAttr${attrIdx}`}>{cells}</tr>;
+    }
+    
+    renderRowHeaderRow = (pivotSettings) => {
+      // Render just the attribute names of the rows (the actual attribute values
+      // will show up in the individual rows).
+        
+      const {rowAttrs, colAttrs} = pivotSettings;
+      return (
+        <tr>
+          {rowAttrs.map((r, i) => (
+            <th className="pvtAxisLabel" key={`rowAttr${i}`}>
+              {r}
+            </th>
+          ))}
+          <th className="pvtTotalLabel">
+            {colAttrs.length === 0 ? 'Totals' : null}
+          </th>
+        </tr>
+      );
+    }
+    
+    renderTableRow = (rowKey, rowIdx, pivotSettings) => {
+      // Render a single row in the pivot table.
+        
+      const {
+        rowAttrs, 
+        colAttrs, 
+        rowKeys, 
+        colKeys, 
+        pivotData,
+        rowTotals,
+        valueCellColors,
+        rowTotalColors,
+      } = pivotSettings;
+        
+      const attrValueCells = rowKey.map((r, i) => {
+        const rowSpan = spanSize(rowKeys, rowIdx, i);
+        if (rowSpan > 0) {
+          const colSpan = (i === rowKey.length - 1 && colAttrs.length !== 0) ? 2 : 1;
+          return (
+            <th
+              key={`rowKeyLabel${rowIdx}-${i}`}
+              className="pvtRowLabel"
+              rowSpan={rowSpan}
+              colSpan={colSpan}
+            >
+              {r}
+            </th>
+          )
+        }
+      });
+        
+      const valueCells = colKeys.map((colKey, j) => {
+        const agg = pivotData.getAggregator(rowKey, colKey);
+        const aggValue = agg.value();
+        const style = valueCellColors(rowKey, colKey, aggValue);
+        return (
+          <td
+            className="pvtVal"
+            key={`pvtVal${rowIdx}-${j}`}
+            onClick={this.clickHandler(aggValue, rowKey, colKey)}
+            style={style}
+          >
+            {agg.format(aggValue)}
+          </td>
+        );
+      });
+        
+      let totalCell = null;
+      if (rowTotals) {
+        const agg = pivotData.getAggregator(rowKey, []);
+        const aggValue = agg.value();
+        const style = rowTotalColors(aggValue);
+        totalCell = (
+          <td
+            className="pvtTotal"
+            onClick={this.clickHandler(aggValue, rowKey, [])}
+            style={style}
+          >
+            {agg.format(aggValue)}
+          </td>
+        );
+      }
+        
+      const rowCells = [
+        ...attrValueCells,
+        ...valueCells,
+        totalCell,
+      ];
+        
+      return (<tr key={`rowKeyRow${rowIdx}`}>{rowCells}</tr>);
+    }
+
+    renderTotalsRow = (pivotSettings) => {
+      // Render the final totals rows that has the totals for all the columns.
+        
+      const {
+        rowAttrs,
+        colAttrs,
+        colKeys,
+        colTotalColors,
+        rowTotals, 
+        pivotData
+      } = pivotSettings;
+        
+      const totalLabelCell = (
+        <th
+          className="pvtTotalLabel"
+          colSpan={rowAttrs.length + Math.min(colAttrs.length, 1)}
+        >
+          Totals
+        </th>
+      );
+        
+      const totalValueCells = colKeys.map((colKey, j) => {
+        const agg = pivotData.getAggregator([], colKey);
+        const aggValue = agg.value();
+        const style = colTotalColors([], colKey, aggValue);
+        return (
+          <td
+            className="pvtTotal"
+            key={`total${j}`}
+            onClick={this.clickHandler(aggValue, [], colKey)}
+            style={style}
+          >
+            {agg.format(aggValue)}
+          </td>
+        );
+      });
+        
+      let grandTotalCell = null;
+      if (rowTotals) {
+        const agg = pivotData.getAggregator([], []);
+        const aggValue = agg.value();
+        grandTotalCell = (
+          <td
+            className="pvtGrandTotal"
+            onClick={this.clickHandler(aggValue, [], [])}
+          >
+            {agg.format(aggValue)}
+          </td>
+        );
+      }
+        
+      const totalCells = [
+        totalLabelCell,
+        ...totalValueCells,
+        grandTotalCell,
+      ];
+        
+      return (<tr>{totalCells}</tr>);
+    }
+
+    render() {
+      const pivotSettings = this.getPivotSettings(this.props);
+      const {colAttrs, rowAttrs, rowKeys, colTotals} = pivotSettings;
       return (
         <table className="pvtTable">
           <thead>
-            {colAttrs.map(function(c, j) {
-              return (
-                <tr key={`colAttr${j}`}>
-                  {j === 0 &&
-                    rowAttrs.length !== 0 && (
-                      <th colSpan={rowAttrs.length} rowSpan={colAttrs.length} />
-                    )}
-                  <th className="pvtAxisLabel">{c}</th>
-                  {colKeys.map(function(colKey, i) {
-                    const x = spanSize(colKeys, i, j);
-                    if (x === -1) {
-                      return null;
-                    }
-                    return (
-                      <th
-                        className="pvtColLabel"
-                        key={`colKey${i}`}
-                        colSpan={x}
-                        rowSpan={
-                          j === colAttrs.length - 1 && rowAttrs.length !== 0
-                            ? 2
-                            : 1
-                        }
-                      >
-                        {colKey[j]}
-                      </th>
-                    );
-                  })}
-
-                  {j === 0 && rowTotals && (
-                    <th
-                      className="pvtTotalLabel"
-                      rowSpan={
-                        colAttrs.length + (rowAttrs.length === 0 ? 0 : 1)
-                      }
-                    >
-                      Totals
-                    </th>
-                  )}
-                </tr>
-              );
-            })}
-
-            {rowAttrs.length !== 0 && (
-              <tr>
-                {rowAttrs.map(function(r, i) {
-                  return (
-                    <th className="pvtAxisLabel" key={`rowAttr${i}`}>
-                      {r}
-                    </th>
-                  );
-                })}
-                <th className="pvtTotalLabel">
-                  {colAttrs.length === 0 ? 'Totals' : null}
-                </th>
-              </tr>
-            )}
+            {colAttrs.map((c, j) => this.renderColHeaderRow(c, j, pivotSettings))}
+            {rowAttrs.length !== 0 && this.renderRowHeaderRow(pivotSettings)}
           </thead>
-
           <tbody>
-            {rowKeys.map(function(rowKey, i) {
-              const totalAggregator = pivotData.getAggregator(rowKey, []);
-              return (
-                <tr key={`rowKeyRow${i}`}>
-                  {rowKey.map(function(txt, j) {
-                    const x = spanSize(rowKeys, i, j);
-                    if (x === -1) {
-                      return null;
-                    }
-                    return (
-                      <th
-                        key={`rowKeyLabel${i}-${j}`}
-                        className="pvtRowLabel"
-                        rowSpan={x}
-                        colSpan={
-                          j === rowAttrs.length - 1 && colAttrs.length !== 0
-                            ? 2
-                            : 1
-                        }
-                      >
-                        {txt}
-                      </th>
-                    );
-                  })}
-                  {colKeys.map(function(colKey, j) {
-                    const aggregator = pivotData.getAggregator(rowKey, colKey);
-                    return (
-                      <td
-                        className="pvtVal"
-                        key={`pvtVal${i}-${j}`}
-                        onClick={
-                          getClickHandler &&
-                          getClickHandler(aggregator.value(), rowKey, colKey)
-                        }
-                        style={valueCellColors(
-                          rowKey,
-                          colKey,
-                          aggregator.value()
-                        )}
-                      >
-                        {aggregator.format(aggregator.value())}
-                      </td>
-                    );
-                  })}
-                  {rowTotals && (
-                    <td
-                      className="pvtTotal"
-                      onClick={
-                        getClickHandler &&
-                        getClickHandler(totalAggregator.value(), rowKey, [null])
-                      }
-                      style={colTotalColors(totalAggregator.value())}
-                    >
-                      {totalAggregator.format(totalAggregator.value())}
-                    </td>
-                  )}
-                </tr>
-              );
-            })}
-
-            {colTotals && (
-              <tr>
-                <th
-                  className="pvtTotalLabel"
-                  colSpan={rowAttrs.length + (colAttrs.length === 0 ? 0 : 1)}
-                >
-                  Totals
-                </th>
-  
-                {colKeys.map(function(colKey, i) {
-                  const totalAggregator = pivotData.getAggregator([], colKey);
-                  return (
-                    <td
-                      className="pvtTotal"
-                      key={`total${i}`}
-                      onClick={
-                        getClickHandler &&
-                        getClickHandler(totalAggregator.value(), [null], colKey)
-                      }
-                      style={rowTotalColors(totalAggregator.value())}
-                    >
-                      {totalAggregator.format(totalAggregator.value())}
-                    </td>
-                  );
-                })}
-  
-                {rowTotals && (
-                  <td
-                    onClick={
-                      getClickHandler &&
-                      getClickHandler(grandTotalAggregator.value(), [null], [null])
-                    }
-                    className="pvtGrandTotal"
-                  >
-                    {grandTotalAggregator.format(grandTotalAggregator.value())}
-                  </td>
-                )}
-              </tr>
-            )}
+            {rowKeys.map((r, i) => this.renderTableRow(r, i, pivotSettings))}
+            {colTotals && this.renderTotalsRow(pivotSettings)}
           </tbody>
         </table>
       );
@@ -309,7 +367,7 @@ function makeRenderer(opts = {}) {
   TableRenderer.defaultProps = PivotData.defaultProps;
   TableRenderer.propTypes = PivotData.propTypes;
   TableRenderer.defaultProps.tableColorScaleGenerator = redColorScaleGenerator;
-  TableRenderer.defaultProps.tableOptions = {rowTotals: true, colTotals: true};
+  TableRenderer.defaultProps.tableOptions = {};
   TableRenderer.propTypes.tableColorScaleGenerator = PropTypes.func;
   TableRenderer.propTypes.tableOptions = PropTypes.object;
   return TableRenderer;

@@ -588,16 +588,9 @@ class PivotData {
   }
 
   arrSort(attrs) {
-    let a;
-    const sortersArr = (() => {
-      const result = [];
-      for (a of Array.from(attrs)) {
-        result.push(getSort(this.props.sorters, a));
-      }
-      return result;
-    })();
+    const sortersArr = attrs.map(a => getSort(this.props.sorters, a));
     return function(a, b) {
-      for (const i of Object.keys(sortersArr || {})) {
+      for (const i of Object.keys(sortersArr)) {
         const sorter = sortersArr[i];
         const comparison = sorter(a[i], b[i]);
         if (comparison !== 0) {
@@ -649,10 +642,10 @@ class PivotData {
     // this code is called in a tight loop
     const colKey = [];
     const rowKey = [];
-    for (const x of Array.from(this.props.cols)) {
+    for (const x of this.props.cols) {
       colKey.push(x in record ? record[x] : 'null');
     }
-    for (const x of Array.from(this.props.rows)) {
+    for (const x of this.props.rows) {
       rowKey.push(x in record ? record[x] : 'null');
     }
     const flatRowKey = rowKey.join(String.fromCharCode(0));
