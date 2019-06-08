@@ -531,7 +531,7 @@ Data Model class
 */
 
 class PivotData {
-  constructor(inputProps = {}) {
+  constructor(inputProps = {}, subtotals = {}) {
     this.props = Object.assign({}, PivotData.defaultProps, inputProps);
     PropTypes.checkPropTypes(
       PivotData.propTypes,
@@ -549,6 +549,7 @@ class PivotData {
     this.rowTotals = {};
     this.colTotals = {};
     this.allTotal = this.aggregator(this, [], []);
+    this.subtotals = subtotals;
     this.sorted = false;
 
     // iterate through input, accumulating data for cells
@@ -591,17 +592,18 @@ class PivotData {
     );
   }
 
-  arrSort(attrs) {
+  arrSort(attrs, partialOnTop) {
     const sortersArr = attrs.map(a => getSort(this.props.sorters, a));
     return function(a, b) {
-      for (const i of Object.keys(sortersArr)) {
+      const limit = Math.min(a.length, b.length);
+      for (let i = 0; i < limit; i++) {
         const sorter = sortersArr[i];
         const comparison = sorter(a[i], b[i]);
         if (comparison !== 0) {
           return comparison;
         }
       }
-      return 0;
+      return partialOnTop ? b.length - a.length : a.length - b.length;
     };
   }
 
@@ -617,7 +619,7 @@ class PivotData {
           this.rowKeys.sort((a, b) => -naturalSort(v(a, []), v(b, [])));
           break;
         default:
-          this.rowKeys.sort(this.arrSort(this.props.rows));
+          this.rowKeys.sort(this.arrSort(this.props.rows, this.subtotals.rowPartialOnTop));
       }
       switch (this.props.colOrder) {
         case 'value_a_to_z':
@@ -627,7 +629,7 @@ class PivotData {
           this.colKeys.sort((a, b) => -naturalSort(v([], a), v([], b)));
           break;
         default:
-          this.colKeys.sort(this.arrSort(this.props.cols));
+          this.colKeys.sort(this.arrSort(this.props.cols, this.subtotals.colPartialOnTop));
       }
     }
   }
@@ -657,34 +659,48 @@ class PivotData {
 
     this.allTotal.push(record);
 
-    if (rowKey.length !== 0) {
+    const rowStart = this.subtotals.colEnabled ? 1 : Math.max(1, rowKey.length);
+    const colStart = this.subtotals.rowEnabled ? 1 : Math.max(1, colKey.length);
+      
+    for (let ri = rowStart; ri <= rowKey.length; ri++) {
+      const fRowKey = rowKey.slice(0, ri);
+      const flatRowKey = flatKey(fRowKey);
       if (!this.rowTotals[flatRowKey]) {
-        this.rowKeys.push(rowKey);
-        this.rowTotals[flatRowKey] = this.aggregator(this, rowKey, []);
+        this.rowKeys.push(fRowKey);
+        this.rowTotals[flatRowKey] = this.aggregator(this, fRowKey, []);
       }
       this.rowTotals[flatRowKey].push(record);
     }
 
-    if (colKey.length !== 0) {
+    for (let ci = colStart; ci <= colKey.length; ci++) {
+      const fColKey = colKey.slice(0, ci);
+      const flatColKey = flatKey(fColKey);
       if (!this.colTotals[flatColKey]) {
-        this.colKeys.push(colKey);
-        this.colTotals[flatColKey] = this.aggregator(this, [], colKey);
+        this.colKeys.push(fColKey);
+        this.colTotals[flatColKey] = this.aggregator(this, [], fColKey);
       }
       this.colTotals[flatColKey].push(record);
     }
 
-    if (colKey.length !== 0 && rowKey.length !== 0) {
+    // And now fill in for all the sub-cells.
+    for (let ri = rowStart; ri <= rowKey.length; ri++) {
+      const fRowKey = rowKey.slice(0, ri);
+      const flatRowKey = flatKey(fRowKey);
       if (!this.tree[flatRowKey]) {
         this.tree[flatRowKey] = {};
       }
-      if (!this.tree[flatRowKey][flatColKey]) {
-        this.tree[flatRowKey][flatColKey] = this.aggregator(
-          this,
-          rowKey,
-          colKey
-        );
+      for (let ci = colStart; ci <= colKey.length; ci++) {
+        const fColKey = colKey.slice(0, ci);
+        const flatColKey = flatKey(fColKey);
+        if (!this.tree[flatRowKey][flatColKey]) {
+          this.tree[flatRowKey][flatColKey] = this.aggregator(
+            this,
+            fRowKey,
+            fColKey
+          );
+        }
+        this.tree[flatRowKey][flatColKey].push(record);
       }
-      this.tree[flatRowKey][flatColKey].push(record);
     }
   }
 
