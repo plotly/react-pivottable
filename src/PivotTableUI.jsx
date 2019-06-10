@@ -367,27 +367,29 @@ class PivotTableUI extends React.PureComponent {
     );
   }
 
-  rendererCell = () => (
-    <td className="pvtRenderers">
-      <Dropdown
-        current={this.props.rendererName in this.props.renderers
-          ? this.props.rendererName
-          : Object.keys(this.props.renderers)[0]
-        }
-        values={Object.keys(this.props.renderers)}
-        open={this.isOpen('renderer')}
-        zIndex={this.isOpen('renderer') ? this.state.maxZIndex + 1 : 1}
-        toggle={() =>
-          this.setState({
-            openDropdown: this.isOpen('renderer') ? false : 'renderer',
-          })
-        }
-        setValue={this.propUpdater('rendererName')}
-      />
-    </td>
-  );
+  rendererCell() {
+    return (
+      <td className="pvtRenderers">
+        <Dropdown
+          current={this.props.rendererName in this.props.renderers
+            ? this.props.rendererName
+            : Object.keys(this.props.renderers)[0]
+          }
+          values={Object.keys(this.props.renderers)}
+          open={this.isOpen('renderer')}
+          zIndex={this.isOpen('renderer') ? this.state.maxZIndex + 1 : 1}
+          toggle={() =>
+            this.setState({
+              openDropdown: this.isOpen('renderer') ? false : 'renderer',
+            })
+          }
+          setValue={this.propUpdater('rendererName')}
+        />
+      </td>
+    );
+  }
 
-  aggregatorCell = () => {
+  aggregatorCell() {
     const numValsAllowed =
       this.props.aggregators[this.props.aggregatorName]([])().numInputs || 0;
 

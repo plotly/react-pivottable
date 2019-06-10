@@ -654,8 +654,6 @@ class PivotData {
     for (const x of this.props.rows) {
       rowKey.push(x in record ? record[x] : 'null');
     }
-    const flatRowKey = flatKey(rowKey);
-    const flatColKey = flatKey(colKey);
 
     this.allTotal.push(record);
 
