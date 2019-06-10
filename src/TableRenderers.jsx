@@ -24,132 +24,6 @@ function makeRenderer(opts = {}) {
       this.state = {collapsedRows: {}, collapsedCols: {}};
     }
 
-    getBasePivotSettings = memoize(props => {
-      // One-time extraction of pivot settings that we'll use throughout the render.
-
-      const colAttrs = props.cols;
-      const rowAttrs = props.rows;
-
-      const tableOptions = {
-        rowTotals: true,
-        colTotals: true,
-        ...props.tableOptions
-      };
-      const rowTotals = tableOptions.rowTotals || colAttrs.length === 0;
-      const colTotals = tableOptions.colTotals || rowAttrs.length === 0;
-
-      const subtotalOptions = {
-        arrowCollapsed: "\u25B6",
-        arrowExpanded: "\u25E2",
-        ...props.subtotalOptions
-      };
-      const colSubtotalDisplay = {
-        displayOnTop: true,
-        enabled: rowTotals,
-        hideOnExpand: false,
-        ...subtotalOptions.colSubtotalDisplay
-      };
-      const rowSubtotalDisplay = {
-        displayOnTop: false,
-        enabled: colTotals,
-        hideOnExpand: false,
-        ...subtotalOptions.rowSubtotalDisplay
-      };
-
-      const pivotData = new PivotData(
-          props,
-          (!opts.subtotals) ? {} : {
-            rowEnabled: rowSubtotalDisplay.enabled,
-            colEnabled: colSubtotalDisplay.enabled,
-            rowPartialOnTop: rowSubtotalDisplay.displayOnTop,
-            colPartialOnTop: colSubtotalDisplay.displayOnTop,
-          },
-      );
-      const rowKeys = pivotData.getRowKeys();
-      const colKeys = pivotData.getColKeys();
-
-      // Also pre-calculate all the callbacks for cells, etc... This is nice to have to
-      // avoid re-calculations of the call-backs on cell expansions, etc...
-      const cellCallbacks = {};
-      const rowTotalCallbacks = {};
-      const colTotalCallbacks = {};
-      let grandTotalCallback = null;
-      if(tableOptions.clickCallback) {
-        for (const rowKey in rowKeys) {
-          const flatRowKey = flatKey(rowKey);
-          if (!(flatRowKey in cellCallbacks)) {
-            cellCallbacks[flatRowKey] = {}
-          };
-          for (const colKey in colKeys) {
-            cellCallbacks[flatRowKey][flatKey(colKey)] = TableRenderer.clickHandler(
-              props,
-              pivotData,
-              pivotData.getAggregator(rowKey, colKey).value(),
-              rowKey,
-              colKey,
-            );
-          }
-        }
-
-        // Add in totals as well.
-        if (rowTotals) {
-          for (const rowKey in rowKeys) {
-            rowTotalCallbacks[flatKey(rowKey)] = TableRenderer.clickHandler(
-              props,
-              pivotData,
-              pivotData.getAggregator(rowKey, []).value(),
-              rowKey,
-              [],
-            );
-          }
-        }
-        if (colTotals) {
-          for (const colKey in colKeys) {
-            colTotalCallbacks[flatKey(colKey)] = TableRenderer.clickHandler(
-              props,
-              pivotData,
-              pivotData.getAggregator([], colKey).value(),
-              [],
-              colKey,
-            );
-          }
-        }
-        if (rowTotals && colTotals) {
-          grandTotalCallback = TableRenderer.clickHandler(
-            props,
-            pivotData,
-            pivotData.getAggregator([], []).value(),
-            [],
-            [],
-          );
-        }
-      }
-
-      return {
-        pivotData,
-        colAttrs,
-        rowAttrs,
-        colKeys,
-        rowKeys,
-        rowTotals,
-        colTotals,
-        arrowCollapsed: subtotalOptions.arrowCollapsed,
-        arrowExpanded: subtotalOptions.arrowExpanded,
-        colSubtotalDisplay,
-        rowSubtotalDisplay,
-        cellCallbacks,
-        rowTotalCallbacks,
-        colTotalCallbacks,
-        grandTotalCallback,
-        ...TableRenderer.heatmapMappers(
-          pivotData,
-          props.tableColorScaleGenerator,
-          colTotals,
-          rowTotals,
-        ),
-      };
-    });
-
     static clickHandler(props, pivotData, value, rowValues, colValues) {
       const colAttrs = props.cols;
       const rowAttrs = props.rows;
@@ -187,9 +61,9 @@ function makeRenderer(opts = {}) {
         collapsed.forEach(k => {updates[k] = true;});
 
         if (rowOrCol) {
-          this.setState(state => ({collapsedRows: {...state.collapsedRows, ...updates}}));
+          this.setState(state => ({collapsedRows: Object.assign({}, state.collapsedRows, updates)}));
         } else {
-          this.setState(state => ({collapsedCols: {...state.collapsedCols, ...updates}}));
+          this.setState(state => ({collapsedCols: Object.assign({}, state.collapsedCols, updates)}));
         }
       }
     }
@@ -207,9 +81,9 @@ function makeRenderer(opts = {}) {
         });
 
         if (rowOrCol) {
-          this.setState(state => ({collapsedRows: {...state.collapsedRows, ...updates}}));
+          this.setState(state => ({collapsedRows: Object.assign({}, state.collapsedRows, updates)}));
         } else {
-          this.setState(state => ({collapsedCols: {...state.collapsedCols, ...updates}}));
+          this.setState(state => ({collapsedCols: Object.assign({}, state.collapsedCols, updates)}));
         }
       }
     }
@@ -217,7 +91,7 @@ function makeRenderer(opts = {}) {
     toggleRowKey(flatRowKey) {
       return () => {
         this.setState(state => (
-          {collapsedRows: {...state.collapsedRows, [flatRowKey]: !state.collapsedRows[flatRowKey]}}
+          {collapsedRows: Object.assign({}, state.collapsedRows, {[flatRowKey]: !state.collapsedRows[flatRowKey]})}
         ))
       }
     }
@@ -225,7 +99,7 @@ function makeRenderer(opts = {}) {
     toggleColKey(flatColKey) {
       return () => {
         this.setState(state => (
-          {collapsedCols: {...state.collapsedCols, [flatColKey]: !state.collapsedCols[flatColKey]}}
+          {collapsedCols: Object.assign({}, state.collapsedCols, {[flatColKey]: !state.collapsedCols[flatColKey]})}
         ))
       }
     }
@@ -670,15 +544,14 @@ function makeRenderer(opts = {}) {
             colSubtotalDisplay,
           )
         : colKeys;
-      const pivotSettings = {
+      const pivotSettings = Object.assign({
         visibleRowKeys,
         maxRowVisible: Math.max(...visibleRowKeys.map(k => k.length)),
         visibleColKeys,
         maxColVisible: Math.max(...visibleColKeys.map(k => k.length)),
         rowAttrSpans: this.calcAttrSpans(visibleRowKeys, rowAttrs.length),
         colAttrSpans: this.calcAttrSpans(visibleColKeys, colAttrs.length),
-        ...basePivotSettings,
-      };
+      }, basePivotSettings);
 
       return (
         <table className="pvtTable">
@@ -695,6 +568,132 @@ function makeRenderer(opts = {}) {
     }
   }
 
+  TableRenderer.getBasePivotSettings = memoize(props => {
+    // One-time extraction of pivot settings that we'll use throughout the render.
+
+    const colAttrs = props.cols;
+    const rowAttrs = props.rows;
+
+    const tableOptions = Object.assign({
+      rowTotals: true,
+      colTotals: true,
+    }, props.tableOptions);
+    const rowTotals = tableOptions.rowTotals || colAttrs.length === 0;
+    const colTotals = tableOptions.colTotals || rowAttrs.length === 0;
+
+    const subtotalOptions = Object.assign({
+      arrowCollapsed: "\u25B6",
+      arrowExpanded: "\u25E2",
+    }, props.subtotalOptions);
+    
+    const colSubtotalDisplay = Object.assign({
+      displayOnTop: true,
+      enabled: rowTotals,
+      hideOnExpand: false,
+    }, subtotalOptions.colSubtotalDisplay);
+
+    const rowSubtotalDisplay = Object.assign({
+      displayOnTop: false,
+      enabled: colTotals,
+      hideOnExpand: false,
+    }, subtotalOptions.rowSubtotalDisplay);
+
+    const pivotData = new PivotData(
+        props,
+        (!opts.subtotals) ? {} : {
+          rowEnabled: rowSubtotalDisplay.enabled,
+          colEnabled: colSubtotalDisplay.enabled,
+          rowPartialOnTop: rowSubtotalDisplay.displayOnTop,
+          colPartialOnTop: colSubtotalDisplay.displayOnTop,
+        },
+    );
+    const rowKeys = pivotData.getRowKeys();
+    const colKeys = pivotData.getColKeys();
+
+    // Also pre-calculate all the callbacks for cells, etc... This is nice to have to
+    // avoid re-calculations of the call-backs on cell expansions, etc...
+    const cellCallbacks = {};
+    const rowTotalCallbacks = {};
+    const colTotalCallbacks = {};
+    let grandTotalCallback = null;
+    if(tableOptions.clickCallback) {
+      for (const rowKey in rowKeys) {
+        const flatRowKey = flatKey(rowKey);
+        if (!(flatRowKey in cellCallbacks)) {
+          cellCallbacks[flatRowKey] = {}
+        };
+        for (const colKey in colKeys) {
+          cellCallbacks[flatRowKey][flatKey(colKey)] = TableRenderer.clickHandler(
+            props,
+            pivotData,
+            pivotData.getAggregator(rowKey, colKey).value(),
+            rowKey,
+            colKey,
+          );
+        }
+      }
+
+      // Add in totals as well.
+      if (rowTotals) {
+        for (const rowKey in rowKeys) {
+          rowTotalCallbacks[flatKey(rowKey)] = TableRenderer.clickHandler(
+            props,
+            pivotData,
+            pivotData.getAggregator(rowKey, []).value(),
+            rowKey,
+            [],
+          );
+        }
+      }
+      if (colTotals) {
+        for (const colKey in colKeys) {
+          colTotalCallbacks[flatKey(colKey)] = TableRenderer.clickHandler(
+            props,
+            pivotData,
+            pivotData.getAggregator([], colKey).value(),
+            [],
+            colKey,
+          );
+        }
+      }
+      if (rowTotals && colTotals) {
+        grandTotalCallback = TableRenderer.clickHandler(
+          props,
+          pivotData,
+          pivotData.getAggregator([], []).value(),
+          [],
+          [],
+        );
+      }
+    }
+
+    return Object.assign(
+      {
+        pivotData,
+        colAttrs,
+        rowAttrs,
+        colKeys,
+        rowKeys,
+        rowTotals,
+        colTotals,
+        arrowCollapsed: subtotalOptions.arrowCollapsed,
+        arrowExpanded: subtotalOptions.arrowExpanded,
+        colSubtotalDisplay,
+        rowSubtotalDisplay,
+        cellCallbacks,
+        rowTotalCallbacks,
+        colTotalCallbacks,
+        grandTotalCallback,
+      },
+      TableRenderer.heatmapMappers(
+        pivotData,
+        props.tableColorScaleGenerator,
+        colTotals,
+        rowTotals,
+      ),
+    );
+  });
+    
   TableRenderer.defaultProps = PivotData.defaultProps;
   TableRenderer.propTypes = PivotData.propTypes;
   TableRenderer.defaultProps.tableColorScaleGenerator = redColorScaleGenerator;
