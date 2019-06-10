@@ -17,7 +17,7 @@ function makeRenderer(opts = {}) {
   class TableRenderer extends React.Component {
     constructor(props) {
       super(props);
-        
+
       // We need state to record which entries are collapsed and which aren't.
       // This is an object with flat-keys indicating if the corresponding rows
       // should be collapsed.
@@ -26,7 +26,7 @@ function makeRenderer(opts = {}) {
 
     getBasePivotSettings = memoize(props => {
       // One-time extraction of pivot settings that we'll use throughout the render.
-        
+
       const colAttrs = props.cols;
       const rowAttrs = props.rows;
 
@@ -90,7 +90,7 @@ function makeRenderer(opts = {}) {
             );
           }
         }
-          
+
         // Add in totals as well.
         if (rowTotals) {
           for (const rowKey in rowKeys) {
@@ -142,7 +142,7 @@ function makeRenderer(opts = {}) {
         colTotalCallbacks,
         grandTotalCallback,
         ...TableRenderer.heatmapMappers(
-          pivotData, 
+          pivotData,
           props.tableColorScaleGenerator,
           colTotals,
           rowTotals,
@@ -176,16 +176,16 @@ function makeRenderer(opts = {}) {
       );
     }
 
-    collapseAttr(rowOrCol, attrIdx, allKeys) { 
+    collapseAttr(rowOrCol, attrIdx, allKeys) {
       return () => {
         // Collapse an entire attribute.
-        
+
         const keyLen = attrIdx + 1;
         const collapsed = allKeys.filter(k => k.length === keyLen).map(flatKey);
-          
+
         const updates = {};
         collapsed.forEach(k => {updates[k] = true;});
-          
+
         if (rowOrCol) {
           this.setState(state => ({collapsedRows: {...state.collapsedRows, ...updates}}));
         } else {
@@ -193,12 +193,12 @@ function makeRenderer(opts = {}) {
         }
       }
     }
-    
+
     expandAttr(rowOrCol, attrIdx, allKeys) {
       return () => {
         // Expand an entire attribute. This implicitly implies expanding all of the
         // parents as well. It's a bit inefficient but ah well...
-          
+
         const updates = {};
         allKeys.forEach(k => {
           for(let i = 0;i <= attrIdx;i++) {
@@ -212,7 +212,7 @@ function makeRenderer(opts = {}) {
           this.setState(state => ({collapsedCols: {...state.collapsedCols, ...updates}}));
         }
       }
-    } 
+    }
 
     toggleRowKey(flatRowKey) {
       return () => {
@@ -221,7 +221,7 @@ function makeRenderer(opts = {}) {
         ))
       }
     }
-                    
+
     toggleColKey(flatColKey) {
       return () => {
         this.setState(state => (
@@ -235,7 +235,7 @@ function makeRenderer(opts = {}) {
       // the value at every level), compute the spans for every attribute value at
       // every level. The return value is a nested array of the same shape. It has
       // -1's for repeated values and the span number otherwise.
-    
+
       const spans = [];
       // Index of the last new value
       const li = Array(numAttrs).map(() => 0);
@@ -262,7 +262,7 @@ function makeRenderer(opts = {}) {
       }
       return spans;
     }
-      
+
     static heatmapMappers(pivotData, colorScaleGenerator, colTotals, rowTotals) {
       let valueCellColors = () => {};
       let rowTotalColors = () => {};
@@ -312,9 +312,9 @@ function makeRenderer(opts = {}) {
 
     renderColHeaderRow(attrName, attrIdx, pivotSettings) {
       // Render a single row in the column header at the top of the pivot table.
-      
+
       const {
-        rowAttrs, 
+        rowAttrs,
         colAttrs,
         colKeys,
         visibleColKeys,
@@ -329,7 +329,7 @@ function makeRenderer(opts = {}) {
       const spaceCell = (attrIdx === 0 && rowAttrs.length !== 0)
         ? (<th key="padding" colSpan={rowAttrs.length} rowSpan={colAttrs.length}/>)
         : null;
-    
+
       const needToggle = (
         opts.subtotals
         && colSubtotalDisplay.enabled
@@ -344,15 +344,15 @@ function makeRenderer(opts = {}) {
         subArrow = ((attrIdx + 1 < maxColVisible) ? arrowExpanded : arrowCollapsed) + ' ';
       }
       const attrNameCell = (
-        <th 
-          key="label" 
-          className="pvtAxisLabel" 
+        <th
+          key="label"
+          className="pvtAxisLabel"
           onClick={clickHandle}
         >
           {subArrow}{attrName}
         </th>
       );
-    
+
       const attrValueCells = [];
       const rowIncrSpan = (rowAttrs.length !== 0) ? 1 : 0;
       // Iterate through columns. Jump over duplicate values.
@@ -411,11 +411,11 @@ function makeRenderer(opts = {}) {
       ];
       return <tr key={`colAttr-${attrIdx}`}>{cells}</tr>;
     }
-    
+
     renderRowHeaderRow(pivotSettings) {
       // Render just the attribute names of the rows (the actual attribute values
       // will show up in the individual rows).
-        
+
       const {
         rowAttrs,
         colAttrs,
@@ -442,8 +442,8 @@ function makeRenderer(opts = {}) {
               subArrow = ((i + 1 < maxRowVisible) ? arrowExpanded : arrowCollapsed) + ' ';
             }
             return (
-              <th 
-                className="pvtAxisLabel" 
+              <th
+                className="pvtAxisLabel"
                 key={`rowAttr-${i}`}
                 onClick={clickHandle}
               >
@@ -457,15 +457,15 @@ function makeRenderer(opts = {}) {
         </tr>
       );
     }
-    
+
     renderTableRow(rowKey, rowIdx, pivotSettings) {
       // Render a single row in the pivot table.
-        
+
       const {
-        rowAttrs, 
-        colAttrs, 
+        rowAttrs,
+        colAttrs,
         rowAttrSpans,
-        visibleColKeys, 
+        visibleColKeys,
         pivotData,
         rowTotals,
         valueCellColors,
@@ -475,9 +475,9 @@ function makeRenderer(opts = {}) {
         cellCallbacks,
         rowTotalCallbacks,
       } = pivotSettings;
-        
+
       const flatRowKey = flatKey(rowKey);
-    
+
       const colIncrSpan = (colAttrs.length !== 0) ? 1 : 0
       const attrValueCells = rowKey.map((r, i) => {
         const rowSpan = rowAttrSpans[rowIdx][i];
@@ -501,7 +501,7 @@ function makeRenderer(opts = {}) {
         }
         return null;
       });
-    
+
       const attrValuePaddingCell = (rowKey.length < rowAttrs.length)
         ? (
           <th
@@ -512,7 +512,7 @@ function makeRenderer(opts = {}) {
           />
         )
         : null;
-        
+
       const rowClickHandlers = cellCallbacks[flatRowKey] || {};
       const valueCells = visibleColKeys.map(colKey => {
         const flatColKey = flatKey(colKey);
@@ -530,7 +530,7 @@ function makeRenderer(opts = {}) {
           </td>
         );
       });
-        
+
       let totalCell = null;
       if (rowTotals) {
         const agg = pivotData.getAggregator(rowKey, []);
@@ -547,7 +547,7 @@ function makeRenderer(opts = {}) {
           </td>
         );
       }
-        
+
       const rowCells = [
         ...attrValueCells,
         attrValuePaddingCell,
@@ -560,18 +560,18 @@ function makeRenderer(opts = {}) {
 
     renderTotalsRow(pivotSettings) {
       // Render the final totals rows that has the totals for all the columns.
-        
+
       const {
         rowAttrs,
         colAttrs,
         visibleColKeys,
         colTotalColors,
-        rowTotals, 
+        rowTotals,
         pivotData,
         colTotalCallbacks,
         grandTotalCallback,
       } = pivotSettings;
-        
+
       const totalLabelCell = (
         <th
           key="label"
@@ -581,7 +581,7 @@ function makeRenderer(opts = {}) {
           Totals
         </th>
       );
-        
+
       const totalValueCells = visibleColKeys.map(colKey => {
         const flatColKey = flatKey(colKey);
         const agg = pivotData.getAggregator([], colKey);
@@ -630,28 +630,28 @@ function makeRenderer(opts = {}) {
           !key.some((k, j) => collapsed[flatKey(key.slice(0, j))])
           && (
             // Leaf key.
-            key.length === numAttrs           
+            key.length === numAttrs
             // Children hidden. Must show total.
-            || flatKey(key) in collapsed      
+            || flatKey(key) in collapsed
             // Don't hide totals.
-            || !subtotalDisplay.hideOnExpand  
+            || !subtotalDisplay.hideOnExpand
           )
         )
       )
     }
-      
+
     render() {
       const basePivotSettings = this.getBasePivotSettings(this.props);
       const {
-        colAttrs, 
-        rowAttrs, 
-        rowKeys, 
-        colKeys, 
+        colAttrs,
+        rowAttrs,
+        rowKeys,
+        colKeys,
         colTotals,
         rowSubtotalDisplay,
         colSubtotalDisplay,
       } = basePivotSettings;
-        
+
       // Need to account for exclusions to compute the effective row
       // and column keys.
       const visibleRowKeys = opts.subtotals

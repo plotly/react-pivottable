@@ -659,7 +659,7 @@ class PivotData {
 
     const rowStart = this.subtotals.rowEnabled ? 1 : Math.max(1, rowKey.length);
     const colStart = this.subtotals.colEnabled ? 1 : Math.max(1, colKey.length);
-      
+
     for (let ri = rowStart; ri <= rowKey.length; ri++) {
       const fRowKey = rowKey.slice(0, ri);
       const flatRowKey = flatKey(fRowKey);

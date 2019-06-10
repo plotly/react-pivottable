@@ -467,7 +467,7 @@ class PivotTableUI extends React.PureComponent {
       </td>
     );
   }
-    
+
   render() {
     const unusedAttrs = Object.keys(this.attrValues)
       .filter(
@@ -532,7 +532,7 @@ class PivotTableUI extends React.PureComponent {
         (<tr key="RA">{this.rendererCell()}{this.aggregatorCell()}{colAttrsCell}</tr>),
         (<tr key="O">{unusedAttrsCell}{rowAttrsCell}{outputCell}</tr>),
       ];
-      
+
     return (
       <table className="pvtUi">
         <tbody onClick={() => this.setState({openDropdown: false})}>
