@@ -367,31 +367,29 @@ class PivotTableUI extends React.PureComponent {
     );
   }
 
-  render() {
+  rendererCell = () => (
+    <td className="pvtRenderers">
+      <Dropdown
+        current={this.props.rendererName in this.props.renderers
+          ? this.props.rendererName
+          : Object.keys(this.props.renderers)[0]
+        }
+        values={Object.keys(this.props.renderers)}
+        open={this.isOpen('renderer')}
+        zIndex={this.isOpen('renderer') ? this.state.maxZIndex + 1 : 1}
+        toggle={() =>
+          this.setState({
+            openDropdown: this.isOpen('renderer') ? false : 'renderer',
+          })
+        }
+        setValue={this.propUpdater('rendererName')}
+      />
+    </td>
+  );
+
+  aggregatorCell = () => {
     const numValsAllowed =
       this.props.aggregators[this.props.aggregatorName]([])().numInputs || 0;
-
-    const rendererName =
-      this.props.rendererName in this.props.renderers
-        ? this.props.rendererName
-        : Object.keys(this.props.renderers)[0];
-
-    const rendererCell = (
-      <td className="pvtRenderers">
-        <Dropdown
-          current={rendererName}
-          values={Object.keys(this.props.renderers)}
-          open={this.isOpen('renderer')}
-          zIndex={this.isOpen('renderer') ? this.state.maxZIndex + 1 : 1}
-          toggle={() =>
-            this.setState({
-              openDropdown: this.isOpen('renderer') ? false : 'renderer',
-            })
-          }
-          setValue={this.propUpdater('rendererName')}
-        />
-      </td>
-    );
 
     const sortIcons = {
       key_a_to_z: {
@@ -407,7 +405,7 @@ class PivotTableUI extends React.PureComponent {
       value_z_to_a: {rowSymbol: '↑', colSymbol: '←', next: 'key_a_to_z'},
     };
 
-    const aggregatorCell = (
+    return (
       <td className="pvtVals">
         <Dropdown
           current={this.props.aggregatorName}
@@ -466,7 +464,9 @@ class PivotTableUI extends React.PureComponent {
         ])}
       </td>
     );
-
+  }
+    
+  render() {
     const unusedAttrs = Object.keys(this.attrValues)
       .filter(
         e =>
@@ -520,40 +520,21 @@ class PivotTableUI extends React.PureComponent {
       </td>
     );
 
-    if (horizUnused) {
-      return (
-        <table className="pvtUi">
-          <tbody onClick={() => this.setState({openDropdown: false})}>
-            <tr>
-              {rendererCell}
-              {unusedAttrsCell}
-            </tr>
-            <tr>
-              {aggregatorCell}
-              {colAttrsCell}
-            </tr>
-            <tr>
-              {rowAttrsCell}
-              {outputCell}
-            </tr>
-          </tbody>
-        </table>
-      );
-    }
-
+    const outputRows = horizUnused
+      ? [
+        (<tr key="R">{this.rendererCell()}{unusedAttrsCell}</tr>),
+        (<tr key="A">{this.aggregatorCell()}{colAttrsCell}</tr>),
+        (<tr key="O">{rowAttrsCell}{outputCell}</tr>),
+      ]
+      : [
+        (<tr key="RA">{this.rendererCell()}{this.aggregatorCell()}{colAttrsCell}</tr>),
+        (<tr key="O">{unusedAttrsCell}{rowAttrsCell}{outputCell}</tr>),
+      ];
+      
     return (
       <table className="pvtUi">
         <tbody onClick={() => this.setState({openDropdown: false})}>
-          <tr>
-            {rendererCell}
-            {aggregatorCell}
-            {colAttrsCell}
-          </tr>
-          <tr>
-            {unusedAttrsCell}
-            {rowAttrsCell}
-            {outputCell}
-          </tr>
+          {outputRows}
         </tbody>
       </table>
     );
