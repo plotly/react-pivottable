@@ -524,7 +524,7 @@ const derivers = {
 
 // Given an array of attribute values, convert to a key that
 // can be used in objects.
-const flatKey = (attrVals) => attrVals.join(String.fromCharCode(0))
+const flatKey = attrVals => attrVals.join(String.fromCharCode(0));
 
 /*
 Data Model class
@@ -619,7 +619,9 @@ class PivotData {
           this.rowKeys.sort((a, b) => -naturalSort(v(a, []), v(b, [])));
           break;
         default:
-          this.rowKeys.sort(this.arrSort(this.props.rows, this.subtotals.rowPartialOnTop));
+          this.rowKeys.sort(
+            this.arrSort(this.props.rows, this.subtotals.rowPartialOnTop)
+          );
       }
       switch (this.props.colOrder) {
         case 'value_a_to_z':
@@ -629,7 +631,9 @@ class PivotData {
           this.colKeys.sort((a, b) => -naturalSort(v([], a), v([], b)));
           break;
         default:
-          this.colKeys.sort(this.arrSort(this.props.cols, this.subtotals.colPartialOnTop));
+          this.colKeys.sort(
+            this.arrSort(this.props.cols, this.subtotals.colPartialOnTop)
+          );
       }
     }
   }

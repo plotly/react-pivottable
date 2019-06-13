@@ -54,7 +54,7 @@ export class DraggableAttribute extends React.Component {
           style={{
             display: 'block',
             cursor: 'initial',
-            zIndex: this.props.zIndex
+            zIndex: this.props.zIndex,
           }}
           onClick={() => this.props.moveFilterBoxToTop(this.props.name)}
         >
@@ -135,7 +135,7 @@ export class DraggableAttribute extends React.Component {
   }
 
   toggleFilterBox() {
-    this.setState({ open: !this.state.open});
+    this.setState({open: !this.state.open});
     this.props.moveFilterBoxToTop(this.props.name);
   }
 
@@ -371,9 +371,10 @@ class PivotTableUI extends React.PureComponent {
     return (
       <td className="pvtRenderers">
         <Dropdown
-          current={this.props.rendererName in this.props.renderers
-            ? this.props.rendererName
-            : Object.keys(this.props.renderers)[0]
+          current={
+            this.props.rendererName in this.props.renderers
+              ? this.props.rendererName
+              : Object.keys(this.props.renderers)[0]
           }
           values={Object.keys(this.props.renderers)}
           open={this.isOpen('renderer')}
@@ -524,14 +525,31 @@ class PivotTableUI extends React.PureComponent {
 
     const outputRows = horizUnused
       ? [
-        (<tr key="R">{this.rendererCell()}{unusedAttrsCell}</tr>),
-        (<tr key="A">{this.aggregatorCell()}{colAttrsCell}</tr>),
-        (<tr key="O">{rowAttrsCell}{outputCell}</tr>),
-      ]
+          <tr key="R">
+            {this.rendererCell()}
+            {unusedAttrsCell}
+          </tr>,
+          <tr key="A">
+            {this.aggregatorCell()}
+            {colAttrsCell}
+          </tr>,
+          <tr key="O">
+            {rowAttrsCell}
+            {outputCell}
+          </tr>,
+        ]
       : [
-        (<tr key="RA">{this.rendererCell()}{this.aggregatorCell()}{colAttrsCell}</tr>),
-        (<tr key="O">{unusedAttrsCell}{rowAttrsCell}{outputCell}</tr>),
-      ];
+          <tr key="RA">
+            {this.rendererCell()}
+            {this.aggregatorCell()}
+            {colAttrsCell}
+          </tr>,
+          <tr key="O">
+            {unusedAttrsCell}
+            {rowAttrsCell}
+            {outputCell}
+          </tr>,
+        ];
 
     return (
       <table className="pvtUi">
