@@ -46,13 +46,13 @@ function makeRenderer(opts = {}) {
       }, props.subtotalOptions);
       
       const colSubtotalDisplay = Object.assign({
-        displayOnTop: true,
+        displayOnTop: false,
         enabled: rowTotals,
         hideOnExpand: false,
       }, subtotalOptions.colSubtotalDisplay);
 
       const rowSubtotalDisplay = Object.assign({
-        displayOnTop: false,
+        displayOnTop: true,
         enabled: colTotals,
         hideOnExpand: false,
       }, subtotalOptions.rowSubtotalDisplay);

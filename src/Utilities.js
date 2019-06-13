@@ -603,7 +603,7 @@ class PivotData {
           return comparison;
         }
       }
-      return partialOnTop ? b.length - a.length : a.length - b.length;
+      return partialOnTop ? a.length - b.length : b.length - a.length;
     };
   }
 
