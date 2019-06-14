@@ -136,6 +136,91 @@ describe('  utils', function() {
         expect(agg.format(val)).toBe('4');
       });
     });
+
+    describe('with rows/cols and subtotals', function() {
+      const pd = new utils.PivotData(
+        {
+          data: fixtureData,
+          rows: ['name', 'colour'],
+          cols: ['trials', 'successes'],
+        },
+        // Subtotals settings.
+        {
+          rowEnabled: true,
+          colEnabled: true,
+          rowPartialOnTop: true,
+          colPartialOnTop: false,
+        },
+      );
+
+      it('has correctly-ordered row keys', () =>
+        expect(pd.getRowKeys()).toEqual([
+          ['Carol'],
+          ['Carol', 'yellow'],
+          ['Jane'],
+          ['Jane', 'red'],
+          ['John'],
+          ['John', 'blue'],
+          ['Nick'],
+          ['Nick', 'blue'],
+        ]));
+
+      it('has correctly-ordered col keys', () =>
+        expect(pd.getColKeys()).toEqual([
+          [95, 25],
+          [95],
+          [102, 14],
+          [102],
+          [103, 12],
+          [103],
+          [112, 30],
+          [112],
+        ]));
+
+      it('can be iterated over', function() {
+        let numNotNull = 0;
+        let numNull = 0;
+        for (const r of Array.from(pd.getRowKeys())) {
+          for (const c of Array.from(pd.getColKeys())) {
+            if (pd.getAggregator(r, c).value() !== null) {
+              numNotNull++;
+            } else {
+              numNull++;
+            }
+          }
+        }
+        expect(numNotNull).toBe(16);
+        expect(numNull).toBe(48);
+      });
+
+      it('has a correct spot-checked aggregator', function() {
+        const agg = pd.getAggregator(['Carol', 'yellow'], [102, 14]);
+        const val = agg.value();
+        expect(val).toBe(1);
+        expect(agg.format(val)).toBe('1');
+      });
+
+      it('has a correct spot-checked aggregator #2', function() {
+        const agg = pd.getAggregator(['John'], [112, 30]);
+        const val = agg.value();
+        expect(val).toBe(1);
+        expect(agg.format(val)).toBe('1');
+      });
+
+      it('has a correct spot-checked aggregator #3', function() {
+        const agg = pd.getAggregator(['Jane', 'red'], [102]);
+        const val = agg.value();
+        expect(val).toBe(null);
+        expect(agg.format(val)).toBe('');
+      });
+
+      it('has a correct grand total aggregator', function() {
+        const agg = pd.getAggregator([], []);
+        const val = agg.value();
+        expect(val).toBe(4);
+        expect(agg.format(val)).toBe('4');
+      });
+    });
   });
 
   describe('.aggregatorTemplates', function() {
