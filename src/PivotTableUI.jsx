@@ -54,7 +54,7 @@ export class DraggableAttribute extends React.Component {
           style={{
             display: 'block',
             cursor: 'initial',
-            zIndex: this.props.zIndex
+            zIndex: this.props.zIndex,
           }}
           onClick={() => this.props.moveFilterBoxToTop(this.props.name)}
         >
@@ -135,7 +135,7 @@ export class DraggableAttribute extends React.Component {
   }
 
   toggleFilterBox() {
-    this.setState({ open: !this.state.open});
+    this.setState({open: !this.state.open});
     this.props.moveFilterBoxToTop(this.props.name);
   }
 

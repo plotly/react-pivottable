@@ -47,7 +47,7 @@ function redColorScaleGenerator(values) {
   const max = Math.max.apply(Math, values);
   return x => {
     // eslint-disable-next-line no-magic-numbers
-    const nonRed = 255 - Math.round(255 * (x - min) / (max - min));
+    const nonRed = 255 - Math.round((255 * (x - min)) / (max - min));
     return {backgroundColor: `rgb(255,${nonRed},${nonRed})`};
   };
 }
@@ -138,10 +138,9 @@ function makeRenderer(opts = {}) {
             {colAttrs.map(function(c, j) {
               return (
                 <tr key={`colAttr${j}`}>
-                  {j === 0 &&
-                    rowAttrs.length !== 0 && (
-                      <th colSpan={rowAttrs.length} rowSpan={colAttrs.length} />
-                    )}
+                  {j === 0 && rowAttrs.length !== 0 && (
+                    <th colSpan={rowAttrs.length} rowSpan={colAttrs.length} />
+                  )}
                   <th className="pvtAxisLabel">{c}</th>
                   {colKeys.map(function(colKey, i) {
                     const x = spanSize(colKeys, i, j);

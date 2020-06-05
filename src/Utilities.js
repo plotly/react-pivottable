@@ -402,7 +402,10 @@ const aggregatorTemplates = {
 aggregatorTemplates.countUnique = f =>
   aggregatorTemplates.uniques(x => x.length, f);
 aggregatorTemplates.listUnique = s =>
-  aggregatorTemplates.uniques(x => x.join(s), x => x);
+  aggregatorTemplates.uniques(
+    x => x.join(s),
+    x => x
+  );
 aggregatorTemplates.max = f => aggregatorTemplates.extremes('max', f);
 aggregatorTemplates.min = f => aggregatorTemplates.extremes('min', f);
 aggregatorTemplates.first = f => aggregatorTemplates.extremes('first', f);
@@ -479,7 +482,7 @@ const zeroPad = number => `0${number}`.substr(-2, 2); // eslint-disable-line no-
 
 const derivers = {
   bin(col, binWidth) {
-    return record => record[col] - record[col] % binWidth;
+    return record => record[col] - (record[col] % binWidth);
   },
   dateFormat(
     col,
