@@ -1,6 +1,6 @@
 {
   "name": "react-pivottable",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "A React-based pivot table",
   "main": "PivotTableUI.js",
   "files": [
