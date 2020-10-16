@@ -375,9 +375,9 @@ class PivotTableUI extends React.PureComponent {
     const numValsAllowed =
       this.props.aggregators[this.props.aggregatorName]([])().numInputs || 0;
 
-    const aggregatorControls = this.props.aggregators[
+    const aggregatorCellOutlet = this.props.aggregators[
       this.props.aggregatorName
-    ]([])().controls;
+    ]([])().outlet;
 
     const rendererName =
       this.props.rendererName in this.props.renderers
@@ -472,7 +472,7 @@ class PivotTableUI extends React.PureComponent {
           />,
           i + 1 !== numValsAllowed ? <br key={`br${i}`} /> : null,
         ])}
-        {aggregatorControls && aggregatorControls(this.props.data)}
+        {aggregatorCellOutlet && aggregatorCellOutlet(this.props.data)}
       </td>
     );
 
