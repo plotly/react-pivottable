@@ -345,10 +345,28 @@ class TSVExportRenderer extends React.PureComponent {
 TSVExportRenderer.defaultProps = PivotData.defaultProps;
 TSVExportRenderer.propTypes = PivotData.propTypes;
 
+class RawExportRenderer extends React.PureComponent {
+  render() {
+    const pivotData = new PivotData(this.props);
+
+    return (
+      <textarea
+        value={JSON.stringify(pivotData, null, 4)}
+        style={{width: window.innerWidth / 2, height: window.innerHeight / 2}}
+        readOnly={true}
+      />
+    );
+  }
+}
+
+RawExportRenderer.defaultProps = PivotData.defaultProps;
+RawExportRenderer.propTypes = PivotData.propTypes;
+
 export default {
   Table: makeRenderer(),
   'Table Heatmap': makeRenderer({heatmapMode: 'full'}),
   'Table Col Heatmap': makeRenderer({heatmapMode: 'col'}),
   'Table Row Heatmap': makeRenderer({heatmapMode: 'row'}),
   'Exportable TSV': TSVExportRenderer,
+  'Raw Exportable JSON': RawExportRenderer
 };
