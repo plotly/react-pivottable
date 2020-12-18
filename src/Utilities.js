@@ -231,6 +231,34 @@ const aggregatorTemplates = {
     };
   },
 
+  // Adapted from https://gist.github.com/stephanvd/7246890
+  multisum(formatter = usFmt) {
+    return function(facts) {
+      return function() {
+        var summedFacts = {};
+        for (let _i = 0, _len = facts.length; _i < _len; _i++) {
+          summedFacts[facts[_i]] = 0
+        }
+        return {
+          push: function(record) {
+            for (let _i = 0, _len = facts.length; _i < _len; _i++) {
+              summedFacts[facts[_i]] += parseFloat(record[facts[_i]]);
+            }
+          },
+          multivalue: function() {
+            return summedFacts;
+          },
+          // return the first element for unsupported renderers.
+          value: function() { 
+            return summedFacts[facts[0]]
+          },
+          format: formatter,
+          label: 'Facts'
+        };
+      };
+    };
+  },
+
   extremes(mode, formatter = usFmt) {
     return function([attr]) {
       return function(data) {
@@ -424,6 +452,7 @@ const aggregators = (tpl => ({
   'Count Unique Values': tpl.countUnique(usFmtInt),
   'List Unique Values': tpl.listUnique(', '),
   Sum: tpl.sum(usFmt),
+  Multisum: tpl.multisum(usFmt),
   'Integer Sum': tpl.sum(usFmtInt),
   Average: tpl.average(usFmt),
   Median: tpl.median(usFmt),
