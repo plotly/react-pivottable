@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {PivotData} from './Utilities';
 
 // helper function for setting row/col-span in pivotTableRenderer
-const spanSize = function(arr, i, j) {
+const spanSize = function(arr, i, j, multi, valsAttrs) {
   let x;
   if (i !== 0) {
     let asc, end;
@@ -39,6 +39,9 @@ const spanSize = function(arr, i, j) {
     }
     len++;
   }
+  if (multi && valsAttrs) {
+    return len * valsAttrs.length;
+  }
   return len;
 };
 
@@ -58,6 +61,8 @@ function makeRenderer(opts = {}) {
       const pivotData = new PivotData(this.props);
       const colAttrs = pivotData.props.cols;
       const rowAttrs = pivotData.props.rows;
+      const valsAttrs = pivotData.props.vals;
+      const multiValue = pivotData.isMultipe;
       const rowKeys = pivotData.getRowKeys();
       const colKeys = pivotData.getColKeys();
       const grandTotalAggregator = pivotData.getAggregator([], []);
@@ -132,6 +137,37 @@ function makeRenderer(opts = {}) {
             }
           : null;
 
+      function getCellValue(i, j, rowKey, colKey) {
+        const aggregator = pivotData.getAggregator(rowKey, colKey);
+        if (!multiValue) {
+          return (
+            <td
+              className="pvtVal"
+              key={`pvtVal${i}-${j}`}
+              onClick={
+                getClickHandler &&
+                getClickHandler(aggregator.value(), rowKey, colKey)
+              }
+              style={valueCellColors(rowKey, colKey, aggregator.value())}
+            >
+              {aggregator.format(aggregator.value())}
+            </td>
+          );
+        }
+        const valuesWithKeys = aggregator.value();
+        const values = Object.keys(valuesWithKeys).map(k => valuesWithKeys[k]);
+        return values.map((value, x) => (
+          <td
+            className="pvtVal"
+            key={`pvtVal${i}-${j}-${x}`}
+            onClick={getClickHandler && getClickHandler(value, rowKey, colKey)}
+            style={valueCellColors(rowKey, colKey, value)}
+          >
+            {aggregator.format(value)}
+          </td>
+        ));
+      }
+
       return (
         <table className="pvtTable">
           <thead>
@@ -143,7 +179,7 @@ function makeRenderer(opts = {}) {
                   )}
                   <th className="pvtAxisLabel">{c}</th>
                   {colKeys.map(function(colKey, i) {
-                    const x = spanSize(colKeys, i, j);
+                    const x = spanSize(colKeys, i, j, multiValue, valsAttrs);
                     if (x === -1) {
                       return null;
                     }
@@ -159,6 +195,9 @@ function makeRenderer(opts = {}) {
                         }
                       >
                         {colKey[j]}
+                        {multiValue &&
+                          valsAttrs &&
+                          valsAttrs.map(x => <th>{x}</th>)}
                       </th>
                     );
                   })}
@@ -186,6 +225,11 @@ function makeRenderer(opts = {}) {
                     </th>
                   );
                 })}
+                {colAttrs.length === 0 &&
+                  multiValue &&
+                  valsAttrs &&
+                  valsAttrs.map(x => <th>{x}</th>)}
+
                 <th className="pvtTotalLabel">
                   {colAttrs.length === 0 ? 'Totals' : null}
                 </th>
@@ -196,6 +240,12 @@ function makeRenderer(opts = {}) {
           <tbody>
             {rowKeys.map(function(rowKey, i) {
               const totalAggregator = pivotData.getAggregator(rowKey, []);
+              const totalAggregatorValue = totalAggregator.value();
+              const totalRowValue = multiValue
+                ? Object.keys(totalAggregatorValue)
+                    .map(k => totalAggregatorValue[k])
+                    .reduce((a, b) => a + b, 0)
+                : totalAggregatorValue;
               return (
                 <tr key={`rowKeyRow${i}`}>
                   {rowKey.map(function(txt, j) {
@@ -219,34 +269,21 @@ function makeRenderer(opts = {}) {
                     );
                   })}
                   {colKeys.map(function(colKey, j) {
-                    const aggregator = pivotData.getAggregator(rowKey, colKey);
-                    return (
-                      <td
-                        className="pvtVal"
-                        key={`pvtVal${i}-${j}`}
-                        onClick={
-                          getClickHandler &&
-                          getClickHandler(aggregator.value(), rowKey, colKey)
-                        }
-                        style={valueCellColors(
-                          rowKey,
-                          colKey,
-                          aggregator.value()
-                        )}
-                      >
-                        {aggregator.format(aggregator.value())}
-                      </td>
-                    );
+                    return getCellValue(i, j, rowKey, colKey);
                   })}
+                  {colAttrs.length === 0 &&
+                    multiValue &&
+                    valsAttrs &&
+                    getCellValue(i, 0, rowKey, [])}
                   <td
                     className="pvtTotal"
                     onClick={
                       getClickHandler &&
-                      getClickHandler(totalAggregator.value(), rowKey, [null])
+                      getClickHandler(totalRowValue, rowKey, [null])
                     }
-                    style={colTotalColors(totalAggregator.value())}
+                    style={colTotalColors(totalRowValue)}
                   >
-                    {totalAggregator.format(totalAggregator.value())}
+                    {totalAggregator.format(totalRowValue)}
                   </td>
                 </tr>
               );
@@ -262,19 +299,37 @@ function makeRenderer(opts = {}) {
 
               {colKeys.map(function(colKey, i) {
                 const totalAggregator = pivotData.getAggregator([], colKey);
-                return (
-                  <td
-                    className="pvtTotal"
-                    key={`total${i}`}
-                    onClick={
-                      getClickHandler &&
-                      getClickHandler(totalAggregator.value(), [null], colKey)
-                    }
-                    style={rowTotalColors(totalAggregator.value())}
-                  >
-                    {totalAggregator.format(totalAggregator.value())}
-                  </td>
+                if (!multiValue) {
+                  return (
+                    <td
+                      className="pvtTotal"
+                      key={`total${i}`}
+                      onClick={
+                        getClickHandler &&
+                        getClickHandler(totalAggregator.value(), [null], colKey)
+                      }
+                      style={rowTotalColors(totalAggregator.value())}
+                    >
+                      {totalAggregator.format(totalAggregator.value())}
+                    </td>
+                  );
+                }
+                const totalValuesWithKeys = totalAggregator.value();
+                const totalvalues = Object.keys(totalValuesWithKeys).map(
+                  k => totalValuesWithKeys[k]
                 );
+                return totalvalues.map((value, x) => (
+                  <td
+                    className="pvtVal"
+                    key={`total${i}-${x}`}
+                    onClick={
+                      getClickHandler && getClickHandler(value, [null], colKey)
+                    }
+                    style={rowTotalColors(value)}
+                  >
+                    {totalAggregator.format(value)}
+                  </td>
+                ));
               })}
 
               <td
@@ -351,7 +406,7 @@ class RawExportRenderer extends React.PureComponent {
 
     return (
       <textarea
-        value={JSON.stringify(pivotData, null, 4)}
+        value={JSON.stringify(pivotData, null, 4)} // eslint-disable-line
         style={{width: window.innerWidth / 2, height: window.innerHeight / 2}}
         readOnly={true}
       />
@@ -368,5 +423,5 @@ export default {
   'Table Col Heatmap': makeRenderer({heatmapMode: 'col'}),
   'Table Row Heatmap': makeRenderer({heatmapMode: 'row'}),
   'Exportable TSV': TSVExportRenderer,
-  'Raw Exportable JSON': RawExportRenderer
+  'Raw Exportable JSON': RawExportRenderer,
 };

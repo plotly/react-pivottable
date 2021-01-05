@@ -167,6 +167,13 @@ describe('  utils', function() {
     describe('.sum', () =>
       it('works', () => expect(getVal(tpl.sum(), ['trials'])).toBe(412)));
 
+    describe('.multisum', () =>
+    it('works', () => {
+      const calcvalue = getVal(tpl.multisum(), ['trials', 'successes'])
+      expect(calcvalue.trials).toBe(412)
+      expect(calcvalue.successes).toBe(81)
+    }))
+
     describe('.min', () =>
       it('works', () => expect(getVal(tpl.min(), ['trials'])).toBe(95)));
 

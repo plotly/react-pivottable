@@ -211,6 +211,29 @@ const aggregatorTemplates = {
     };
   },
 
+  multisum(formatter = usFmt) {
+    return function(attr) {
+      return function() {
+        return {
+          sum: {},
+          push(record) {
+            attr.forEach((thisAttr, i) => {
+              if (!isNaN(parseFloat(record[attr[i]]))) {
+                this.sum[thisAttr] =
+                  (this.sum[thisAttr] | 0) + parseFloat(record[attr[i]]);
+              }
+            });
+          },
+          value() {
+            return this.sum;
+          },
+          format: formatter,
+          numInputs: attr.length,
+        };
+      };
+    };
+  },
+
   sum(formatter = usFmt) {
     return function([attr]) {
       return function() {
@@ -425,6 +448,7 @@ const aggregators = (tpl => ({
   'List Unique Values': tpl.listUnique(', '),
   Sum: tpl.sum(usFmt),
   'Integer Sum': tpl.sum(usFmtInt),
+  MultiSum: tpl.multisum(usFmt),
   Average: tpl.average(usFmt),
   Median: tpl.median(usFmt),
   'Sample Variance': tpl.var(1, usFmt),
@@ -542,6 +566,9 @@ class PivotData {
     this.aggregator = this.props.aggregators[this.props.aggregatorName](
       this.props.vals
     );
+    this.isMultipe = (this.props.aggregatorName || '')
+      .toLowerCase()
+      .includes('multi');
     this.tree = {};
     this.rowKeys = [];
     this.colKeys = [];
