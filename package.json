@@ -4,15 +4,7 @@
   "description": "A React-based pivot table",
   "main": "PivotTableUI.js",
   "files": [
-    "PivotTable.js",
-    "PivotTableUI.js",
-    "TableRenderers.js",
-    "Utilities.js",
-    "PivotTable.js.map",
-    "PivotTableUI.js.map",
-    "TableRenderers.js.map",
-    "Utilities.js.map",
-    "pivottable.css"
+    "lib/"
   ],
   "scripts": {
     "start": "webpack-dev-server",
@@ -22,8 +14,8 @@
     "test:prettier:fix": "prettier  --write \"src/*.js*\"",
     "test:jest": "jest",
     "test": "npm run test:eslint && npm run test:prettier && npm run test:jest",
-    "clean": "rm -rf __tests__ PivotTable.js* PivotTableUI.js* TableRenderers.js* Utilities.js* pivottable.css",
-    "build": "npm run clean && cp src/pivottable.css . && babel src --out-dir=. --source-maps --presets=env,react --plugins babel-plugin-add-module-exports",
+    "clean": "rm -rf lib/ && mkdir lib/",
+    "build": "npm run clean && cp src/pivottable.css lib/ && babel src --out-dir=lib/ --source-maps --presets=env,react --plugins babel-plugin-add-module-exports",
     "doPublish": "npm run build && npm publish",
     "postpublish": "npm run clean",
     "deploy": "webpack -p && mv bundle.js examples && cd examples && git init && git add . && git commit -m build && git push --force git@github.com:plotly/react-pivottable.git master:gh-pages && rm -rf .git bundle.js"
