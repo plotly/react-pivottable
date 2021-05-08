@@ -70,7 +70,7 @@ export default class App extends React.Component {
                         });
                         alert(names.join('\n'));
                     },
-                },
+                }
             },
         });
     }
