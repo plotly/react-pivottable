@@ -1,6 +1,6 @@
 import React from 'react';
 import tips from './tips';
-import {sortAs} from '../src/Utilities';
+import {stickHeader} from '../src/Utilities';
 import TableRenderers from '../src/TableRenderers';
 import createPlotlyComponent from 'react-plotly.js/factory';
 import createPlotlyRenderers from '../src/PlotlyRenderers';
@@ -19,6 +19,18 @@ class PivotTableUISmartWrapper extends React.PureComponent {
 
     componentWillReceiveProps(nextProps) {
         this.setState({pivotState: nextProps});
+    }
+
+    componentDidMount() {
+        setTimeout(() => {
+            stickHeader()
+        }, 0);
+    }
+
+    componentDidUpdate() {
+        setTimeout(() => {
+            stickHeader()
+        }, 0);
     }
 
     render() {
@@ -44,20 +56,22 @@ export default class App extends React.Component {
             filename: 'Sample Dataset: Tips',
             pivotState: {
                 data: tips,
-                rows: ['Payer Gender'],
-                cols: ['Party Size'],
-                aggregatorName: 'Sum over Sum',
+                rows: ['Payer Gender', 'Party Size'],
+                cols: ['Payer Smoker', 'Day of Week'],
+                aggregatorName: 'Sum',
                 vals: ['Tip', 'Total Bill'],
-                rendererName: 'Grouped Column Chart',
+                rendererName: 'Table',
                 sorters: {
-                    Meal: sortAs(['Lunch', 'Dinner']),
-                    'Day of Week': sortAs([
-                        'Thursday',
-                        'Friday',
-                        'Saturday',
-                        'Sunday',
-                    ]),
+                    // Meal: sortAs(['Lunch', 'Dinner']),
+                    // 'Day of Week': sortAs([
+                    //     'Thursday',
+                    //     'Friday',
+                    //     'Saturday',
+                    //     'Sunday',
+                    // ]),
                 },
+                enableRowSort: true,
+                enableColSort: false,
                 plotlyOptions: {width: 900, height: 500},
                 plotlyConfig: {},
                 tableOptions: {
@@ -70,7 +84,7 @@ export default class App extends React.Component {
                         });
                         alert(names.join('\n'));
                     },
-                }
+                },
             },
         });
     }

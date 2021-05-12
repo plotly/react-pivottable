@@ -356,7 +356,7 @@ class PivotTableUI extends React.PureComponent {
           <DraggableAttribute
             name={x}
             key={x}
-            attrValues={this.state.attrValues[x]}
+            attrValues={this.state.attrValues[x] || {}}
             valueFilter={this.props.valueFilter[x] || {}}
             sorter={getSort(this.props.sorters, x)}
             menuLimit={this.props.menuLimit}
