@@ -28,7 +28,7 @@
     "build": "npm run clean && cp src/pivottable.css . && babel src --out-dir=. --source-maps --presets=env,react --plugins babel-plugin-add-module-exports",
     "doPublish": "npm run build && npm publish",
     "postpublish": "npm run clean",
-    "deploy": "webpack -p && mv bundle.js examples && cd examples && git init && git add . && git commit -m build && git push --force git@github.com:plotly/react-pivottable.git master:gh-pages && rm -rf .git bundle.js"
+    "deploy": "webpack -p && mv bundle.js examples && cd examples && git init && git add . && git commit -m build"
   },
   "repository": {
     "type": "git",
