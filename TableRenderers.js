@@ -16,7 +16,13 @@ var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _Utilities = require('./Utilities');
 
+var _immutabilityHelper = require('immutability-helper');
+
+var _immutabilityHelper2 = _interopRequireDefault(_immutabilityHelper);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -58,6 +64,19 @@ var spanSize = function spanSize(arr, i, j) {
   return len;
 };
 
+var orders = {
+  desc: {
+    label: 'desc',
+    fn: function fn(a, b) {
+      return -(0, _Utilities.naturalSort)(a, b);
+    }
+  },
+  asc: {
+    label: 'asc',
+    fn: _Utilities.naturalSort
+  }
+};
+
 function redColorScaleGenerator(values) {
   var min = Math.min.apply(Math, values);
   var max = Math.max.apply(Math, values);
@@ -91,10 +110,21 @@ function makeRenderer() {
         var rowKeys = pivotData.getRowKeys();
         var colKeys = pivotData.getColKeys();
         var grandTotalAggregator = pivotData.getAggregator([], []);
+        var sorters = pivotData.props.sorters;
+        var sortRow = pivotData.props.enableRowSort;
+        var sortCol = pivotData.props.enableColSort;
         var _props = this.props,
             rowTotals = _props.rowTotals,
             colTotals = _props.colTotals;
 
+        var sorterCol = this.props.sorterCol;
+
+        if (sorterCol) {
+          var name = sorterCol.name,
+              order = sorterCol.order;
+
+          rowKeys = pivotData.getUserSortedRowKeys(name, order);
+        }
 
         var valueCellColors = function valueCellColors() {};
         var rowTotalColors = function rowTotalColors() {};
@@ -145,6 +175,80 @@ function makeRenderer() {
             };
           }
         }
+
+        var joiner = String.fromCharCode(0);
+        var getSortRowClasses = function getSortRowClasses(order, key) {
+          var classes = 'pvtTriangle sorterIcon ';
+          if (order === orders.desc) {
+            classes += 'rotate180 ';
+          }
+          if (sorters[key] === order.fn) {
+            classes += 'activeSorterIcon';
+          }
+          return classes;
+        };
+
+        var getSortedColClasses = function getSortedColClasses(order, key, colKey) {
+          var keyStr = colKey.join(joiner);
+          var sorter = _this2.props.sorterCol;
+          var classes = 'pvtTriangle sorterIcon ';
+          if (order === orders.desc.label) {
+            classes += 'rotate180 ';
+          }
+          if (sorter && sorter.name === keyStr && sorter.order === order) {
+            classes += 'activeSorterIcon';
+          }
+          return classes;
+        };
+
+        var handleRowClick = function handleRowClick() {
+          var order = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : orders.asc;
+          var key = arguments[1];
+
+          // simple wrap the naturalSort fn so that it doesn't treated the same as asc func
+          var wrapperFn = function wrapperFn(a, b) {
+            return (0, _Utilities.naturalSort)(a, b);
+          };
+          _this2.props.onChange((0, _immutabilityHelper2.default)(_this2.props, {
+            sorters: { $merge: _defineProperty({}, key, sorters[key] === order.fn ? wrapperFn : order.fn) },
+            sorterCol: { $set: {} }
+          }));
+        };
+
+        var updateSorterCol = function updateSorterCol(val) {
+          _this2.props.onChange((0, _immutabilityHelper2.default)(_this2.props, {
+            sorterCol: { $set: val },
+            // only one works
+            sorters: { $set: {} }
+          }));
+        };
+
+        var handleColClick = function handleColClick() {
+          var keys = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+          var key = arguments[1];
+          var order = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : orders.asc.label;
+
+          var rows = pivotData.props.rows;
+          if (rows.length < 1) {
+            return;
+          }
+          var valKey = keys.join(joiner);
+          // handle last level of cols only
+          if (keys.indexOf(key) === keys.length - 1) {
+            if (sorterCol) {
+              var _name = sorterCol.name,
+                  oldOrder = sorterCol.order;
+
+              if (_name === valKey && oldOrder === order) {
+                updateSorterCol(null);
+              } else {
+                updateSorterCol({ name: valKey, order: order });
+              }
+            } else {
+              updateSorterCol({ name: valKey, order: order });
+            }
+          }
+        };
 
         var getClickHandler = this.props.tableOptions && this.props.tableOptions.clickCallback ? function (value, rowValues, colValues) {
           var filters = {};
@@ -238,7 +342,31 @@ function makeRenderer() {
                       colSpan: x,
                       rowSpan: j === colAttrs.length - 1 && rowAttrs.length !== 0 ? 2 : 1
                     },
-                    colKey[j]
+                    _react2.default.createElement(
+                      'div',
+                      { className: 'flex-center' },
+                      colKey[j],
+                      sortCol && colKey && colKey.indexOf(colKey[j]) === colKey.length - 1 ? _react2.default.createElement(
+                        'div',
+                        { className: 'sorters' },
+                        _react2.default.createElement(
+                          'div',
+                          { className: getSortedColClasses(orders.asc.label, colKey[j], colKey),
+                            onClick: function onClick() {
+                              return handleColClick(colKey, colKey[j], orders.asc.label);
+                            } },
+                          '\u25B4'
+                        ),
+                        _react2.default.createElement(
+                          'div',
+                          { className: getSortedColClasses(orders.desc.label, colKey[j], colKey),
+                            onClick: function onClick() {
+                              return handleColClick(colKey, colKey[j], orders.desc.label);
+                            } },
+                          '\u25B4'
+                        )
+                      ) : null
+                    )
                   );
                 }),
                 j === 0 && rowTotals && _react2.default.createElement(
@@ -258,7 +386,31 @@ function makeRenderer() {
                 return _react2.default.createElement(
                   'th',
                   { className: 'pvtAxisLabel', key: 'rowAttr' + i },
-                  r
+                  _react2.default.createElement(
+                    'div',
+                    { className: 'centered-sorters-box' },
+                    r,
+                    sortRow ? _react2.default.createElement(
+                      'div',
+                      { className: 'sorters' },
+                      _react2.default.createElement(
+                        'div',
+                        { className: getSortRowClasses(orders.asc, r),
+                          onClick: function onClick() {
+                            return handleRowClick(orders.asc, r);
+                          } },
+                        '\u25B4'
+                      ),
+                      _react2.default.createElement(
+                        'div',
+                        { className: getSortRowClasses(orders.desc, r),
+                          onClick: function onClick() {
+                            return handleRowClick(orders.desc, r);
+                          } },
+                        '\u25B4'
+                      )
+                    ) : null
+                  )
                 );
               }),
               _react2.default.createElement(
@@ -360,9 +512,9 @@ function makeRenderer() {
   TableRenderer.defaultProps = _Utilities.PivotData.defaultProps;
   TableRenderer.propTypes = _Utilities.PivotData.propTypes;
   TableRenderer.defaultProps.tableColorScaleGenerator = redColorScaleGenerator;
+  TableRenderer.defaultProps.tableOptions = {};
   TableRenderer.defaultProps.rowTotals = true;
   TableRenderer.defaultProps.colTotals = true;
-  TableRenderer.defaultProps.tableOptions = {};
   TableRenderer.propTypes.tableColorScaleGenerator = _propTypes2.default.func;
   TableRenderer.propTypes.tableOptions = _propTypes2.default.object;
   return TableRenderer;

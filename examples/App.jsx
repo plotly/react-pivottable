@@ -71,7 +71,7 @@ export default class App extends React.Component {
                     // ]),
                 },
                 enableRowSort: true,
-                enableColSort: false,
+                enableColSort: true,
                 plotlyOptions: {width: 900, height: 500},
                 plotlyConfig: {},
                 tableOptions: {

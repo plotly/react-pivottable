@@ -18,7 +18,7 @@
 table.pvtTable {
     font-size: 8pt;
     text-align: left;
-    border-collapse: collapse;
+    border-collapse: separate;
     margin-top: 3px;
     margin-left: 3px;
     font-family: Verdana;
@@ -26,7 +26,6 @@ table.pvtTable {
 table.pvtTable thead tr th,
 table.pvtTable tbody tr th {
     background-color: #ebf0f8;
-    border: 1px solid #c8d4e3;
     font-size: 8pt;
     padding: 5px;
 }
@@ -42,7 +41,6 @@ table.pvtTable tbody tr td {
     color: #2a3f5f;
     padding: 5px;
     background-color: #fff;
-    border: 1px solid #c8d4e3;
     vertical-align: top;
     text-align: right;
 }
@@ -320,4 +318,70 @@ table.pvtTable tbody tr td {
 
 .pvtRendererArea {
     padding: 5px;
+}
+
+.sorters {
+    margin-left: 5px;
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.rotate180 {
+    transform: rotate(180deg);
+}
+
+/* to avoid icons and text are in different lines */
+.centered-sorters-box {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.flex-center{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+div.scroll-table-container {
+    margin-top: 3px;
+    margin-left: 3px;
+    overflow: scroll;
+    height: 400px;
+    max-height: 800px;
+    padding: 0;
+}
+
+
+table.pvtTable td,
+table.pvtTable th {
+    border-bottom: 1px solid #c8d4e3;
+    border-right: 1px solid #c8d4e3;
+}
+
+table.pvtTable {
+    border-spacing: 0px;
+    border-left: 0.5px solid #c8d4e3
+}
+
+
+.triangle {
+    height: 0;
+    width: 0;
+    border: 4px solid transparent;
+    border-bottom: 4px solid #506784;
+}
+
+.triangle:hover{
+    cursor: pointer;
+    border-bottom-color: #119dff;
+}
+
+.activeSorterIcon {
+    border-bottom-color: #119dff;
+}
+
+.triangle.rotate180 {
+    margin-top: 3px;
 }

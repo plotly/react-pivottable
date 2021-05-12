@@ -490,7 +490,7 @@ var PivotTableUI = function (_React$PureComponent2) {
           return _react2.default.createElement(DraggableAttribute, {
             name: x,
             key: x,
-            attrValues: _this7.state.attrValues[x],
+            attrValues: _this7.state.attrValues[x] || {},
             valueFilter: _this7.props.valueFilter[x] || {},
             sorter: (0, _Utilities.getSort)(_this7.props.sorters, x),
             menuLimit: _this7.props.menuLimit,

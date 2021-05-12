@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PivotData = exports.sortAs = exports.getSort = exports.numberFormat = exports.naturalSort = exports.locales = exports.derivers = exports.aggregators = exports.aggregatorTemplates = undefined;
+exports.stickHeader = exports.PivotData = exports.sortAs = exports.getSort = exports.numberFormat = exports.naturalSort = exports.locales = exports.derivers = exports.aggregators = exports.aggregatorTemplates = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -709,6 +709,52 @@ var PivotData = function () {
       };
     }
   }, {
+    key: 'getUserSortedRowKeys',
+    value: function getUserSortedRowKeys(col, order) {
+      try {
+        var rowKeys = this.rowKeys;
+        var tableTree = this.tree;
+        var joiner = String.fromCharCode(0);
+        var leaderKeys = [].concat(_toConsumableArray(new Set(rowKeys.map(function (keys) {
+          return keys.slice(0, -1).join(joiner);
+        }))));
+
+        var results = leaderKeys.map(function (_) {
+          return [];
+        });
+
+        rowKeys.forEach(function (keys) {
+          var key = keys.join(joiner);
+          var compareKey = keys.slice(0, -1).join(joiner);
+          leaderKeys.forEach(function (_, index) {
+            if (compareKey === leaderKeys[index]) {
+              results[index].push(key);
+            }
+          });
+        });
+
+        var defaultVal = { value: function value() {
+            return 0;
+          } };
+        results.forEach(function (arr) {
+          arr.sort(function (a, b) {
+            var aVal = tableTree[a][col] || defaultVal;
+            var bVal = tableTree[b][col] || defaultVal;
+            return order === 'asc' ? aVal.value() - bVal.value() : bVal.value() - aVal.value();
+          });
+        });
+
+        return results.reduce(function (pre, cur) {
+          var combined = pre.concat(cur);
+          return combined;
+        }, []).map(function (item) {
+          return item.split(joiner);
+        });
+      } catch (e) {
+        return this.rowKeys;
+      }
+    }
+  }, {
     key: 'sortKeys',
     value: function sortKeys() {
       var _this4 = this;
@@ -1023,6 +1069,21 @@ PivotData.propTypes = {
   colOrder: _propTypes2.default.oneOf(['key_a_to_z', 'value_a_to_z', 'value_z_to_a'])
 };
 
+function stickHeader() {
+  var tables = document.querySelectorAll('table.pvtTable');
+  Array.from(tables).forEach(function (table) {
+    var trs = table.querySelectorAll('thead tr');
+    Array.from(trs).reduce(function (prev, cur) {
+      var height = cur.getBoundingClientRect().height;
+      cur.childNodes.forEach(function (node) {
+        // console.info(node)
+        node.setAttribute('style', 'position: sticky; top: ' + prev + 'px');
+      });
+      return height + prev;
+    }, 0);
+  });
+}
+
 exports.aggregatorTemplates = aggregatorTemplates;
 exports.aggregators = aggregators;
 exports.derivers = derivers;
@@ -1032,4 +1093,5 @@ exports.numberFormat = numberFormat;
 exports.getSort = getSort;
 exports.sortAs = sortAs;
 exports.PivotData = PivotData;
+exports.stickHeader = stickHeader;
 //# sourceMappingURL=Utilities.js.map
