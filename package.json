@@ -1,7 +1,7 @@
 {
-  "name": "react-pivottable",
-  "version": "0.11.0",
-  "description": "A React-based pivot table",
+  "name": "react-pivottable-grouping",
+  "version": "0.1.0",
+  "description": "A React-based pivot table with grouping",
   "main": "PivotTableUI.js",
   "files": [
     "PivotTable.js",
@@ -29,22 +29,22 @@
     "build": "npm run clean && cp src/pivottable.css . && cp src/grouping.css . && babel src --out-dir=. --source-maps --presets=env,react --plugins babel-plugin-add-module-exports",
     "doPublish": "npm run build && npm publish",
     "postpublish": "npm run clean",
-    "deploy": "webpack -p && mv bundle.js examples && cd examples && git init && git add . && git commit -m build && git push --force git@github.com:plotly/react-pivottable.git master:gh-pages && rm -rf .git bundle.js"
+    "deploy": "webpack -p && mv bundle.js examples && cd examples && git init && git add . && git commit -m build && git push --force git@github.com:jjagielka/react-pivottable-grouping.git master:gh-pages && rm -rf .git bundle.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/plotly/react-pivottable.git"
+    "url": "git+https://github.com/jjagielka/react-pivottable-grouping.git"
   },
   "keywords": [
     "react",
     "pivottable"
   ],
-  "author": "Nicolas Kruchten <nicolas@kruchten.com>",
+  "author": "Jakub Jagielka <jjagielka@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/plotly/react-pivottable/issues"
+    "url": "https://github.com/jjagielka/react-pivottable-grouping/issues"
   },
-  "homepage": "https://github.com/plotly/react-pivottable#readme",
+  "homepage": "https://github.com/jjagielka/react-pivottable-grouping#readme",
   "dependencies": {
     "immutability-helper": "^2.3.1",
     "prop-types": "^15.5.10",
