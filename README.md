@@ -4,8 +4,9 @@ This is a fork of [react-pivottable](https://react-pivottable.js.org/) with adde
 It adds an option `grouping: true` to the possible options. The rest of the API remains unchaged.
 
 ## Preview
+See the working [demo](https://jjagielka.github.io/react-pivottable-demo/) here.
 
-Left image is the default [PivotTable.js](https://pivottable.js.org/) rendering, while right images shows [PivotTable-Grouping.js](https://jjagielka.github.com/pivottable-grouping) with the default _grouping:true_ enabled.
+Left image is the default [react-pivottable](https://github.com/plotly/react-pivottable) rendering, while right images shows [react-pivottable-grouping](https://jjagielka.github.com/react-pivottable-grouping) with the default _grouping:true_ enabled.
 
 <img src="http://jjagielka.github.io/pivottable-grouping-demo/images/grouping_false.png" width="50%"> <img src="http://jjagielka.github.io/pivottable-grouping-demo/images/grouping_true.png" width="49%">
 ---
