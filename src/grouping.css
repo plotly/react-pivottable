@@ -3,53 +3,87 @@
   --pvt-row-indent: 20px;
 }
 
-table.pvtTable.rowGroupBefore tbody tr.pvtLevel2 td {
-  border-top: 1px double black;
-}
-
 table.pvtTable.rowGroupBefore tbody tr.pvtLevel1 td {
   border-top: 1px double #aaa;
 }
-
-table.pvtTable.rowGroupAfter tbody tr.pvtLevel2 td {
-  border-bottom: 1px double black;
+table.pvtTable.rowGroupBefore tbody tr.pvtLevel2 td {
+  border-top: 1px double black;
 }
+table.pvtTable.rowGroupBefore tbody tr.pvtLevel3 td {
+  border-top: 1px double black;
+}
+table.pvtTable.rowGroupBefore tbody tr.pvtLevel4 td {
+  border-top: 2px double black;
+}
+
 
 table.pvtTable.rowGroupAfter tbody tr.pvtLevel1 td {
   border-bottom:  1px double #aaa;
 }
-
-table tbody tr.pvtLevel2 td,
-table tbody tr td.pvtLevel2 {
-  font-weight: 900;
-  background-color: gainsboro;
+table.pvtTable.rowGroupAfter tbody tr.pvtLevel2 td {
+  border-bottom: 1px double black;
 }
+table.pvtTable.rowGroupAfter tbody tr.pvtLevel3 td {
+  border-bottom: 1px double black;
+}
+table.pvtTable.rowGroupAfter tbody tr.pvtLevel4 td {
+  border-bottom: 2px double black;
+}
+
 
 table tbody tr.pvtLevel1 td,
 table tbody tr td.pvtLevel1 {
   font-weight: 700;
-  background-color: #eee;
+  background-color: #eee !important;
 }
+table tbody tr.pvtLevel2 td,
+table tbody tr td.pvtLevel2 {
+  font-weight: 900;
+  background-color: gainsboro !important;
+}
+table tbody tr.pvtLevel3 td,
+table tbody tr td.pvtLevel3 {
+  font-weight: 900;
+  background-color: #ccc !important;
+}
+table tbody tr.pvtLevel4 td,
+table tbody tr td.pvtLevel4 {
+  font-weight: 900;
+  background-color: darkgray !important;
+}
+
 
 /* tr.pvtData th:not(.pvtSubtotal) { */
 tr.pvtData th:last-of-type {
   font-weight: normal;
 }
 
-table.colGroupAfter td.pvtLevel2 {
-  border-right: 1px double black;
-}
 
 table.colGroupAfter td.pvtLevel1 {
   border-right: 1px double #aaa;
 }
-
-table.colGroupBefore td.pvtLevel2 {
-  border-left: 1px double black;
+table.colGroupAfter td.pvtLevel2 {
+  border-right: 1px double black;
 }
+table.colGroupAfter td.pvtLevel3 {
+  border-right: 1px double black;
+}
+table.colGroupAfter td.pvtLevel4 {
+  border-right: 2px double black;
+}
+
 
 table.colGroupBefore td.pvtLevel1 {
   border-left: 1px double #aaa;
+}
+table.colGroupBefore td.pvtLevel2 {
+  border-left: 1px double black;
+}
+table.colGroupBefore td.pvtLevel3 {
+  border-left: 1px double black;
+}
+table.colGroupBefore td.pvtLevel4 {
+  border-left: 2px double black;
 }
 
 .pvtTotal,
