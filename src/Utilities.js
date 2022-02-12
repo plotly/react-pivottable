@@ -49,13 +49,13 @@ const numberFormat = function(opts_in) {
 const rx = /(\d+)|(\D+)/g;
 const rd = /\d/;
 const rz = /^0/;
-const naturalSort = (as, bs) => {
-  // nulls first
+const naturalSort = (as = null, bs = null, nulls_first = true) => {
+  // nulls first or last
   if (bs !== null && as === null) {
-    return -1;
+    return nulls_first ? -1 : 1;
   }
   if (as !== null && bs === null) {
-    return 1;
+    return nulls_first ? 1 : -1;
   }
 
   // then raw NaNs
@@ -133,7 +133,15 @@ const sortAs = function(order) {
       l_mapping[x.toLowerCase()] = i;
     }
   }
-  return function(a, b) {
+  return function(a = null, b = null, nulls_first = true) {
+    if (b !== null && a === null) {
+      return nulls_first ? -1 : 1;
+    }
+    if (a !== null && b === null) {
+      return nulls_first ? 1 : -1;
+    }
+
+
     if (a in mapping && b in mapping) {
       return mapping[a] - mapping[b];
     } else if (a in mapping) {
@@ -147,7 +155,7 @@ const sortAs = function(order) {
     } else if (b in l_mapping) {
       return 1;
     }
-    return naturalSort(a, b);
+    return naturalSort(a, b, nulls_first);
   };
 };
 
@@ -525,6 +533,9 @@ const derivers = {
   },
 };
 
+// [1,2,3] -> [[1], [1,2], [1,2,3]]
+const subarrays = (array) => array.map((d, i) => array.slice(0, i + 1));
+
 /*
 Data Model class
 */
@@ -590,7 +601,7 @@ class PivotData {
     );
   }
 
-  arrSort(attrs) {
+  arrSort(attrs, nulls_first) {
     let a;
     const sortersArr = (() => {
       const result = [];
@@ -599,10 +610,12 @@ class PivotData {
       }
       return result;
     })();
+    // Why not .map above?
+    // const sortersArr = Array.from(attrs).map(a => getSort(this.props.sorters, a));
     return function(a, b) {
       for (const i of Object.keys(sortersArr || {})) {
         const sorter = sortersArr[i];
-        const comparison = sorter(a[i], b[i]);
+        const comparison = sorter(a[i], b[i], nulls_first);
         if (comparison !== 0) {
           return comparison;
         }
@@ -623,7 +636,7 @@ class PivotData {
           this.rowKeys.sort((a, b) => -naturalSort(v(a, []), v(b, [])));
           break;
         default:
-          this.rowKeys.sort(this.arrSort(this.props.rows));
+          this.rowKeys.sort(this.arrSort(this.props.rows, this.props.rowGroupBefore));
       }
       switch (this.props.colOrder) {
         case 'value_a_to_z':
@@ -633,64 +646,77 @@ class PivotData {
           this.colKeys.sort((a, b) => -naturalSort(v([], a), v([], b)));
           break;
         default:
-          this.colKeys.sort(this.arrSort(this.props.cols));
+          this.colKeys.sort(this.arrSort(this.props.cols, this.props.colGroupBefore));
       }
     }
   }
 
-  getColKeys() {
+  getColKeys(all_keys = false) {
     this.sortKeys();
-    return this.colKeys;
+    return all_keys ? this.colKeys : this.colKeys.filter(x => x.length === this.props.cols.length);
   }
 
-  getRowKeys() {
+  getRowKeys(all_keys = false) {
     this.sortKeys();
-    return this.rowKeys;
+    return all_keys ? this.rowKeys : this.rowKeys.filter(x => x.length === this.props.rows.length);
   }
 
   processRecord(record) {
     // this code is called in a tight loop
-    const colKey = [];
-    const rowKey = [];
+    let colKeys = [];
+    let rowKeys = [];
     for (const x of Array.from(this.props.cols)) {
-      colKey.push(x in record ? record[x] : 'null');
+      colKeys.push(x in record ? record[x] : 'null');
     }
     for (const x of Array.from(this.props.rows)) {
-      rowKey.push(x in record ? record[x] : 'null');
+      rowKeys.push(x in record ? record[x] : 'null');
     }
-    const flatRowKey = rowKey.join(String.fromCharCode(0));
-    const flatColKey = colKey.join(String.fromCharCode(0));
+
+    colKeys = this.props.grouping ? subarrays(colKeys) : [colKeys];
+    rowKeys = this.props.grouping ? subarrays(rowKeys) : [rowKeys];
 
     this.allTotal.push(record);
 
-    if (rowKey.length !== 0) {
-      if (!this.rowTotals[flatRowKey]) {
-        this.rowKeys.push(rowKey);
-        this.rowTotals[flatRowKey] = this.aggregator(this, rowKey, []);
-      }
-      this.rowTotals[flatRowKey].push(record);
-    }
+    for (const rowKey of rowKeys) {
+      const flatRowKey = rowKey.join(String.fromCharCode(0));
 
-    if (colKey.length !== 0) {
-      if (!this.colTotals[flatColKey]) {
-        this.colKeys.push(colKey);
-        this.colTotals[flatColKey] = this.aggregator(this, [], colKey);
-      }
-      this.colTotals[flatColKey].push(record);
-    }
+      for (const colKey of colKeys) {
+        const flatColKey = colKey.join(String.fromCharCode(0));
 
-    if (colKey.length !== 0 && rowKey.length !== 0) {
-      if (!this.tree[flatRowKey]) {
-        this.tree[flatRowKey] = {};
+        if (rowKey.length !== 0) {
+          if (!this.rowTotals[flatRowKey]) {
+            this.rowKeys.push(rowKey);
+            this.rowTotals[flatRowKey] = this.aggregator(this, rowKey, []);
+          }
+          if (!(this.props.grouping && colKey.length !== 1)) {
+            this.rowTotals[flatRowKey].push(record);
+          }
+        }
+
+        if (colKey.length !== 0) {
+          if (!this.colTotals[flatColKey]) {
+            this.colKeys.push(colKey);
+            this.colTotals[flatColKey] = this.aggregator(this, [], colKey);
+          }
+          if (!(this.props.grouping && rowKey.length !== 1)) {
+            this.colTotals[flatColKey].push(record);
+          }
+        }
+
+        if (colKey.length !== 0 && rowKey.length !== 0) {
+          if (!this.tree[flatRowKey]) {
+            this.tree[flatRowKey] = {};
+          }
+          if (!this.tree[flatRowKey][flatColKey]) {
+            this.tree[flatRowKey][flatColKey] = this.aggregator(
+              this,
+              rowKey,
+              colKey
+            );
+          }
+          this.tree[flatRowKey][flatColKey].push(record);
+        }
       }
-      if (!this.tree[flatRowKey][flatColKey]) {
-        this.tree[flatRowKey][flatColKey] = this.aggregator(
-          this,
-          rowKey,
-          colKey
-        );
-      }
-      this.tree[flatRowKey][flatColKey].push(record);
     }
   }
 
@@ -783,6 +809,9 @@ PivotData.defaultProps = {
   rowOrder: 'key_a_to_z',
   colOrder: 'key_a_to_z',
   derivedAttributes: {},
+  grouping: false,
+  rowGroupBefore: true,
+  colGroupBefore: false
 };
 
 PivotData.propTypes = {
@@ -800,6 +829,9 @@ PivotData.propTypes = {
   derivedAttributes: PropTypes.objectOf(PropTypes.func),
   rowOrder: PropTypes.oneOf(['key_a_to_z', 'value_a_to_z', 'value_z_to_a']),
   colOrder: PropTypes.oneOf(['key_a_to_z', 'value_a_to_z', 'value_z_to_a']),
+  grouping: PropTypes.bool,
+  rowGroupBefore: PropTypes.bool,
+  colGroupBefore: PropTypes.bool
 };
 
 export {
