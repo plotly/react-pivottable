@@ -420,44 +420,44 @@ aggregatorTemplates.stdev = (ddof, f) =>
 
 // default aggregators & renderers use US naming and number formatting
 const aggregators = (tpl => ({
-  Count: tpl.count(usFmtInt),
-  'Count Unique Values': tpl.countUnique(usFmtInt),
-  'List Unique Values': tpl.listUnique(', '),
-  Sum: tpl.sum(usFmt),
-  'Integer Sum': tpl.sum(usFmtInt),
-  Average: tpl.average(usFmt),
-  Median: tpl.median(usFmt),
-  'Sample Variance': tpl.var(1, usFmt),
-  'Sample Standard Deviation': tpl.stdev(1, usFmt),
-  Minimum: tpl.min(usFmt),
-  Maximum: tpl.max(usFmt),
-  First: tpl.first(usFmt),
-  Last: tpl.last(usFmt),
-  'Sum over Sum': tpl.sumOverSum(usFmt),
-  'Sum as Fraction of Total': tpl.fractionOf(tpl.sum(), 'total', usFmtPct),
-  'Sum as Fraction of Rows': tpl.fractionOf(tpl.sum(), 'row', usFmtPct),
-  'Sum as Fraction of Columns': tpl.fractionOf(tpl.sum(), 'col', usFmtPct),
-  'Count as Fraction of Total': tpl.fractionOf(tpl.count(), 'total', usFmtPct),
-  'Count as Fraction of Rows': tpl.fractionOf(tpl.count(), 'row', usFmtPct),
-  'Count as Fraction of Columns': tpl.fractionOf(tpl.count(), 'col', usFmtPct),
+  Contar: tpl.count(usFmtInt),
+  'Contar Valores Únicos': tpl.countUnique(usFmtInt),
+  'Listar Valores Únicos': tpl.listUnique(', '),
+  Soma: tpl.sum(usFmt),
+  'Soma de Inteiros': tpl.sum(usFmtInt),
+  Media: tpl.average(usFmt),
+  Mediana: tpl.median(usFmt),
+  'Variação de Modelo': tpl.var(1, usFmt),
+  'Desvio Padrão de Modelo': tpl.stdev(1, usFmt),
+  Minimo: tpl.min(usFmt),
+  Maximo: tpl.max(usFmt),
+  Primeiro: tpl.first(usFmt),
+  Ultimo: tpl.last(usFmt),
+  'Soma Sobre Soma': tpl.sumOverSum(usFmt),
+  'Soma Como Fração do Total': tpl.fractionOf(tpl.sum(), 'total', usFmtPct),
+  'Soma Como Fração de Linhas': tpl.fractionOf(tpl.sum(), 'row', usFmtPct),
+  'Soma Como Fração de Colunas': tpl.fractionOf(tpl.sum(), 'col', usFmtPct),
+  'Contar Como Fração do Total': tpl.fractionOf(tpl.count(), 'total', usFmtPct),
+  'Contar Como Fração de Linhas': tpl.fractionOf(tpl.count(), 'row', usFmtPct),
+  'Contar Como Fração de Colunas': tpl.fractionOf(tpl.count(), 'col', usFmtPct)
 }))(aggregatorTemplates);
 
 const locales = {
   en: {
     aggregators,
     localeStrings: {
-      renderError: 'An error occurred rendering the PivotTable results.',
-      computeError: 'An error occurred computing the PivotTable results.',
-      uiRenderError: 'An error occurred rendering the PivotTable UI.',
-      selectAll: 'Select All',
-      selectNone: 'Select None',
-      tooMany: '(too many to list)',
-      filterResults: 'Filter values',
-      apply: 'Apply',
-      cancel: 'Cancel',
-      totals: 'Totals',
+      renderError: 'Ocorreu um erro ao renderizar os resultados da Tabela Dinâmica.',
+      computeError: 'Ocorreu um erro ao calcular os resultados da Tabela Dinâmica.',
+      uiRenderError: 'Ocorreu um erro ao renderizar a interface do usuário da Tabela Dinâmica',
+      selectAll: 'Selecione Todos',
+      selectNone: 'Selecione Nenhum',
+      tooMany: '(Muitos para Listar)',
+      filterResults: 'Filtrar Valores',
+      apply: 'Aplicar',
+      cancel: 'Cancelar',
+      totals: 'Totais',
       vs: 'vs',
-      by: 'by',
+      by: 'por'
     },
   },
 };
@@ -465,19 +465,19 @@ const locales = {
 // dateFormat deriver l10n requires month and day names to be passed in directly
 const mthNamesEn = [
   'Jan',
-  'Feb',
+  'Fev',
   'Mar',
-  'Apr',
-  'May',
+  'Abr',
+  'Mai',
   'Jun',
   'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
+  'Ago',
+  'Set',
+  'Out',
   'Nov',
-  'Dec',
+  'Dez',
 ];
-const dayNamesEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const dayNamesEn = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
 const zeroPad = number => `0${number}`.substr(-2, 2); // eslint-disable-line no-magic-numbers
 
 const derivers = {

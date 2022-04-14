@@ -170,7 +170,7 @@ function makeRenderer(opts = {}) {
                         colAttrs.length + (rowAttrs.length === 0 ? 0 : 1)
                       }
                     >
-                      Totals
+                      Totais
                     </th>
                   )}
                 </tr>
@@ -187,7 +187,7 @@ function makeRenderer(opts = {}) {
                   );
                 })}
                 <th className="pvtTotalLabel">
-                  {colAttrs.length === 0 ? 'Totals' : null}
+                  {colAttrs.length === 0 ? 'Totais' : null}
                 </th>
               </tr>
             )}
@@ -257,7 +257,7 @@ function makeRenderer(opts = {}) {
                 className="pvtTotalLabel"
                 colSpan={rowAttrs.length + (colAttrs.length === 0 ? 0 : 1)}
               >
-                Totals
+                Totais
               </th>
 
               {colKeys.map(function(colKey, i) {
@@ -346,9 +346,9 @@ TSVExportRenderer.defaultProps = PivotData.defaultProps;
 TSVExportRenderer.propTypes = PivotData.propTypes;
 
 export default {
-  Table: makeRenderer(),
-  'Table Heatmap': makeRenderer({heatmapMode: 'full'}),
-  'Table Col Heatmap': makeRenderer({heatmapMode: 'col'}),
-  'Table Row Heatmap': makeRenderer({heatmapMode: 'row'}),
-  'Exportable TSV': TSVExportRenderer,
+  Tabela: makeRenderer(),
+  'Tabela Mapa de Calor': makeRenderer({heatmapMode: 'full'}),
+  'Tabela Mapa de Calor Colunas': makeRenderer({heatmapMode: 'col'}),
+  'Tabela Mapa de Calor Linhas': makeRenderer({heatmapMode: 'row'}),
+  'Exportar Para TSV': TSVExportRenderer,
 };

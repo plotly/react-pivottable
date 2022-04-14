@@ -29,7 +29,7 @@ function makeRenderer(
       const numInputs =
         this.props.aggregators[fullAggName]([])().numInputs || 0;
       if (numInputs !== 0) {
-        fullAggName += ` of ${this.props.vals.slice(0, numInputs).join(', ')}`;
+        fullAggName += ` de ${this.props.vals.slice(0, numInputs).join(', ')}`;
       }
 
       const data = traceKeys.map(traceKey => {
@@ -69,7 +69,7 @@ function makeRenderer(
         titleText += ` vs ${hAxisTitle}`;
       }
       if (groupByTitle !== '') {
-        titleText += ` by ${groupByTitle}`;
+        titleText += ` por ${groupByTitle}`;
       }
 
       const layout = {
@@ -199,33 +199,33 @@ function makeScatterRenderer(PlotlyComponent) {
 
 export default function createPlotlyRenderers(PlotlyComponent) {
   return {
-    'Grouped Column Chart': makeRenderer(
+    'Gráfico de Colunas Agrupadas': makeRenderer(
       PlotlyComponent,
       {type: 'bar'},
       {barmode: 'group'}
     ),
-    'Stacked Column Chart': makeRenderer(
+    'Gráfico de Colunas Empilhadas': makeRenderer(
       PlotlyComponent,
       {type: 'bar'},
       {barmode: 'relative'}
     ),
-    'Grouped Bar Chart': makeRenderer(
+    'Gráfico de Barras Agrupadas': makeRenderer(
       PlotlyComponent,
       {type: 'bar', orientation: 'h'},
       {barmode: 'group'},
       true
     ),
-    'Stacked Bar Chart': makeRenderer(
+    'Gráfico de Barras Empilhadas': makeRenderer(
       PlotlyComponent,
       {type: 'bar', orientation: 'h'},
       {barmode: 'relative'},
       true
     ),
-    'Line Chart': makeRenderer(PlotlyComponent),
-    'Dot Chart': makeRenderer(PlotlyComponent, {mode: 'markers'}, {}, true),
-    'Area Chart': makeRenderer(PlotlyComponent, {stackgroup: 1}),
-    'Scatter Chart': makeScatterRenderer(PlotlyComponent),
-    'Multiple Pie Chart': makeRenderer(
+    'Gráfico de Linhas': makeRenderer(PlotlyComponent),
+    'Gráfico de Pontos': makeRenderer(PlotlyComponent, {mode: 'markers'}, {}, true),
+    'Gráfico de Área': makeRenderer(PlotlyComponent, {stackgroup: 1}),
+    'Gráfico de Dispersão': makeScatterRenderer(PlotlyComponent),
+    'Gráfico de Setores': makeRenderer(
       PlotlyComponent,
       {type: 'pie', scalegroup: 1, hoverinfo: 'label+value', textinfo: 'none'},
       {},

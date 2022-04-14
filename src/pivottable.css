@@ -1,5 +1,5 @@
 .pvtUi {
-    color: #2a3f5f;
+    color: black;
     font-family: Verdana;
     border-collapse: collapse;
 }
@@ -22,11 +22,12 @@ table.pvtTable {
     margin-top: 3px;
     margin-left: 3px;
     font-family: Verdana;
+    font-weight: 500;
 }
 table.pvtTable thead tr th,
 table.pvtTable tbody tr th {
-    background-color: #ebf0f8;
-    border: 1px solid #c8d4e3;
+    background-color: #fafafa;
+    border: 1px solid #e5e5e5;
     font-size: 8pt;
     padding: 5px;
 }
@@ -39,7 +40,7 @@ table.pvtTable .pvtTotalLabel {
 }
 
 table.pvtTable tbody tr td {
-    color: #2a3f5f;
+    color: black;
     padding: 5px;
     background-color: #fff;
     border: 1px solid #c8d4e3;
@@ -68,8 +69,8 @@ table.pvtTable tbody tr td {
 
 .pvtAxisContainer,
 .pvtVals {
-    border: 1px solid #a2b1c6;
-    background: #f2f5fa;
+    border: 1px solid #f0f0f0;
+    background: #fafafa;
     padding: 5px;
     min-width: 20px;
     min-height: 20px;
@@ -78,9 +79,11 @@ table.pvtTable tbody tr td {
 .pvtRenderers {
     padding-left: 5px;
     user-select: none;
+    padding-bottom: 6px;
 }
 
 .pvtDropdown {
+    color: black;
     display: inline-block;
     position: relative;
     -webkit-user-select: none;
@@ -89,20 +92,26 @@ table.pvtTable tbody tr td {
     -ms-user-select: none;
     margin: 3px;
 }
+.pvtDropdown:hover {
+    border: #8b82f5;
+}
 
 .pvtDropdownIcon {
     float: right;
-    color: #a2b1c6;
+    color: #d9d9d9;
 }
 .pvtDropdownCurrent {
     text-align: left;
-    border: 1px solid #a2b1c6;
+    border: 1px solid #d9d9d9;
     border-radius: 4px;
     display: inline-block;
     position: relative;
     width: 210px;
     box-sizing: border-box;
     background: white;
+}
+.pvtDropdownCurrent:hover {
+    border: 1px solid #8b82f5;
 }
 
 .pvtDropdownCurrentOpen {
@@ -115,18 +124,21 @@ table.pvtTable tbody tr td {
     width: 100%;
     margin-top: -1px;
     border-radius: 0 0 4px 4px;
-    border: 1px solid #a2b1c6;
+    border: 1px solid #d9d9d9;
     border-top: 1px solid #dfe8f3;
     box-sizing: border-box;
+    z-index: 300;
+    height: 300px;
+    overflow: auto;
 }
 
 .pvtDropdownValue {
     padding: 2px 5px;
-    font-size: 12px;
+    font-size: 14px;
     text-align: left;
 }
 .pvtDropdownActiveValue {
-    background: #ebf0f8;
+    background: #fafafa;
 }
 
 .pvtVals {
@@ -158,7 +170,7 @@ table.pvtTable tbody tr td {
 
 .pvtAxisContainer li span.pvtAttr {
     -webkit-text-size-adjust: 100%;
-    background: #f3f6fa;
+    background: white;
     border: 1px solid #c8d4e3;
     padding: 2px 5px;
     white-space: nowrap;
@@ -211,12 +223,11 @@ table.pvtTable tbody tr td {
 }
 
 .pvtButton {
-    color: #506784;
+    color: #ffffff;
     border-radius: 5px;
     padding: 3px 6px;
-    background: #f2f5fa;
+    background: #5e56e7;
     border: 1px solid;
-    border-color: #c8d4e3;
     font-size: 14px;
     margin: 3px;
     transition: 0.34s all cubic-bezier(0.19, 1, 0.22, 1);
@@ -224,12 +235,12 @@ table.pvtTable tbody tr td {
 }
 
 .pvtButton:hover {
-    background: #e2e8f0;
-    border-color: #a2b1c6;
-}
+    opacity: 0.4;
+    color: white;
+  }
 
 .pvtButton:active {
-    background: #d1dae6;
+   /* background: white;*/
 }
 
 .pvtFilterBox input {
@@ -239,16 +250,22 @@ table.pvtTable tbody tr td {
     padding: 0 3px;
     font-size: 14px;
 }
+.pvtFilterBox input:hover {
+  border: 1px solid #5e56e7;
+}
+
+
 
 .pvtFilterBox input:focus {
-    border-color: #119dff;
+    border-color: #5e56e7;
     outline: none;
 }
 
 .pvtFilterBox {
-    z-index: 100;
+    z-index: 1500;
     width: 300px;
-    border: 1px solid #506784;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
     background-color: #fff;
     position: absolute;
     text-align: center;
@@ -264,7 +281,7 @@ table.pvtTable tbody tr td {
     margin: 15px;
 }
 .pvtFilterBox p {
-    margin: 10px auto;
+    margin: 12px auto;
 }
 .pvtFilterBox button {
     color: #2a3f5f;
@@ -272,7 +289,7 @@ table.pvtTable tbody tr td {
 .pvtFilterBox input[type='text'] {
     width: 230px;
     color: #2a3f5f;
-    margin-bottom: 5px;
+    margin-bottom: 12px;
 }
 
 .pvtCheckContainer {
@@ -293,16 +310,19 @@ table.pvtTable tbody tr td {
 }
 
 .pvtCheckContainer p.selected {
-    background: #ebf0f8;
+    background: #f0f0f0;
 }
 
 .pvtOnly {
+    color: #f0f0f0;
     display: none;
     width: 35px;
     float: left;
     font-size: 12px;
     padding-left: 5px;
-    cursor: pointer;
+    padding-right: 30px;
+    cursor: default;
+    visibility: hidden;
 }
 
 .pvtOnlySpacer {
