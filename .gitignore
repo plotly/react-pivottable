@@ -4,15 +4,6 @@ examples/bundle.js
 yarn.lock
 package-lock.json
 
-/PivotTable.js
-/PivotTable.js.map
-/PivotTableUI.js
-/PivotTableUI.js.map
-/PlotlyRenderers.js
-/PlotlyRenderers.js.map
-/TableRenderers.js
-/TableRenderers.js.map
-/Utilities.js
-/Utilities.js.map
+
 /__tests__/*
-/pivottable.css
+
