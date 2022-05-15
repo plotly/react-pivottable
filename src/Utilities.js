@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 
+const zeroCharCodeStr = String.fromCharCode(0);
+
 const addSeparators = function(nStr, thousandsSep, decimalSep) {
   const x = String(nStr).split('.');
   let x1 = x[0];
@@ -641,8 +643,8 @@ class PivotData {
     for (const x of this.props.rows) {
       rowKey.push(x in record ? record[x] : 'null');
     }
-    const flatRowKey = rowKey.join(String.fromCharCode(0));
-    const flatColKey = colKey.join(String.fromCharCode(0));
+    const flatRowKey = rowKey.join(zeroCharCodeStr);
+    const flatColKey = colKey.join(zeroCharCodeStr);
 
     this.allTotal.push(record);
 
@@ -679,8 +681,8 @@ class PivotData {
 
   getAggregator(rowKey, colKey) {
     let agg;
-    const flatRowKey = rowKey.join(String.fromCharCode(0));
-    const flatColKey = colKey.join(String.fromCharCode(0));
+    const flatRowKey = rowKey.join(zeroCharCodeStr);
+    const flatColKey = colKey.join(zeroCharCodeStr);
     if (rowKey.length === 0 && colKey.length === 0) {
       agg = this.allTotal;
     } else if (rowKey.length === 0) {
