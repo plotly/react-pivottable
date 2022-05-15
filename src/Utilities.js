@@ -1,17 +1,5 @@
 import PropTypes from 'prop-types';
 
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS201: Simplify complex destructure assignments
- * DS203: Remove `|| {}` from converted for-own loops
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-
 const addSeparators = function(nStr, thousandsSep, decimalSep) {
   const x = String(nStr).split('.');
   let x1 = x[0];
@@ -197,7 +185,7 @@ const aggregatorTemplates = {
         return {
           uniq: [],
           push(record) {
-            if (!Array.from(this.uniq).includes(record[attr])) {
+            if (!this.uniq.includes(record[attr])) {
               this.uniq.push(record[attr]);
             }
           },
@@ -380,7 +368,7 @@ const aggregatorTemplates = {
           selector: {total: [[], []], row: [rowKey, []], col: [[], colKey]}[
             type
           ],
-          inner: wrapped(...Array.from(x || []))(data, rowKey, colKey),
+          inner: wrapped(...x)(data, rowKey, colKey),
           push(record) {
             this.inner.push(record);
           },
@@ -388,12 +376,10 @@ const aggregatorTemplates = {
           value() {
             return (
               this.inner.value() /
-              data
-                .getAggregator(...Array.from(this.selector || []))
-                .inner.value()
+              data.getAggregator(...this.selector).inner.value()
             );
           },
-          numInputs: wrapped(...Array.from(x || []))().numInputs,
+          numInputs: wrapped(...x)().numInputs,
         };
       };
   },
@@ -591,16 +577,13 @@ class PivotData {
   }
 
   arrSort(attrs) {
-    let a;
-    const sortersArr = (() => {
-      const result = [];
-      for (a of Array.from(attrs)) {
-        result.push(getSort(this.props.sorters, a));
-      }
-      return result;
-    })();
+    const sortersArr = [];
+    for (const attr of attrs) {
+      sortersArr.push(getSort(this.props.sorters, attr));
+    }
+
     return function(a, b) {
-      for (const i of Object.keys(sortersArr || {})) {
+      for (let i = 0; i < sortersArr.length; i++) {
         const sorter = sortersArr[i];
         const comparison = sorter(a[i], b[i]);
         if (comparison !== 0) {
@@ -652,10 +635,10 @@ class PivotData {
     // this code is called in a tight loop
     const colKey = [];
     const rowKey = [];
-    for (const x of Array.from(this.props.cols)) {
+    for (const x of this.props.cols) {
       colKey.push(x in record ? record[x] : 'null');
     }
-    for (const x of Array.from(this.props.rows)) {
+    for (const x of this.props.rows) {
       rowKey.push(x in record ? record[x] : 'null');
     }
     const flatRowKey = rowKey.join(String.fromCharCode(0));
@@ -741,33 +724,28 @@ PivotData.forEachRecord = function(input, derivedAttributes, f) {
   if (typeof input === 'function') {
     return input(addRecord);
   } else if (Array.isArray(input)) {
+    const result = [];
     if (Array.isArray(input[0])) {
       // array of arrays
-      return (() => {
-        const result = [];
-        for (const i of Object.keys(input || {})) {
-          const compactRecord = input[i];
-          if (i > 0) {
-            record = {};
-            for (const j of Object.keys(input[0] || {})) {
-              const k = input[0][j];
-              record[k] = compactRecord[j];
-            }
-            result.push(addRecord(record));
+      for (const i of Object.keys(input || {})) {
+        const compactRecord = input[i];
+        if (i > 0) {
+          record = {};
+          for (const j of Object.keys(input[0] || {})) {
+            const k = input[0][j];
+            record[k] = compactRecord[j];
           }
+          result.push(addRecord(record));
         }
-        return result;
-      })();
+      }
+      return result;
     }
 
     // array of objects
-    return (() => {
-      const result1 = [];
-      for (record of Array.from(input)) {
-        result1.push(addRecord(record));
-      }
-      return result1;
-    })();
+    for (record of input) {
+      result.push(addRecord(record));
+    }
+    return result;
   }
   throw new Error('unknown input format');
 };
