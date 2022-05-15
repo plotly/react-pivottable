@@ -187,8 +187,9 @@ const aggregatorTemplates = {
         return {
           uniq: [],
           push(record) {
-            if (!this.uniq.includes(record[attr])) {
-              this.uniq.push(record[attr]);
+            const x = record[attr];
+            if (!this.uniq.includes(x)) {
+              this.uniq.push(x);
             }
           },
           value() {
@@ -207,8 +208,9 @@ const aggregatorTemplates = {
         return {
           sum: 0,
           push(record) {
-            if (!isNaN(parseFloat(record[attr]))) {
-              this.sum += parseFloat(record[attr]);
+            const x = parseFloat(record[attr]);
+            if (!isNaN(x)) {
+              this.sum += x;
             }
           },
           value() {
@@ -345,11 +347,13 @@ const aggregatorTemplates = {
           sumNum: 0,
           sumDenom: 0,
           push(record) {
-            if (!isNaN(parseFloat(record[num]))) {
-              this.sumNum += parseFloat(record[num]);
+            const x = parseFloat(record[num]);
+            const y = parseFloat(record[denom]);
+            if (!isNaN(x)) {
+              this.sumNum += x;
             }
-            if (!isNaN(parseFloat(record[denom]))) {
-              this.sumDenom += parseFloat(record[denom]);
+            if (!isNaN(y)) {
+              this.sumDenom += y;
             }
           },
           value() {
