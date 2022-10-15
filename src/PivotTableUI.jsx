@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
-import {PivotData, sortAs, getSort} from './Utilities';
+import {PivotData, sortAs, getSort, aggregators} from './Utilities';
 import PivotTable from './PivotTable';
 import Sortable from 'react-sortablejs';
 import Draggable from 'react-draggable';
@@ -576,6 +576,7 @@ PivotTableUI.propTypes = Object.assign({}, PivotTable.propTypes, {
   hiddenFromDragDrop: PropTypes.arrayOf(PropTypes.string),
   unusedOrientationCutoff: PropTypes.number,
   menuLimit: PropTypes.number,
+  aggregators: PropTypes.arrayOf(PropTypes.string),
 });
 
 PivotTableUI.defaultProps = Object.assign({}, PivotTable.defaultProps, {
@@ -584,6 +585,7 @@ PivotTableUI.defaultProps = Object.assign({}, PivotTable.defaultProps, {
   hiddenFromDragDrop: [],
   unusedOrientationCutoff: 85,
   menuLimit: 500,
+  aggregators: aggregators,
 });
 
 export default PivotTableUI;
