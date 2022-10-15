@@ -13,15 +13,6 @@ export class DraggableAttribute extends React.Component {
   constructor(props) {
     super(props);
     this.state = { open: false, filterText: '' };
-    
-    // if aggregators are passed as strings, match them with those defined in ./Utilities/aggregators
-    var aggs = {};
-    if (!props.aggregators) {
-      for (agg in props.aggregators) {
-        aggs[agg] = aggregators[agg];
-      }
-      props.aggregators = aggs;
-    }
   }
 
   toggleValue(value) {
@@ -239,6 +230,17 @@ export class Dropdown extends React.PureComponent {
 class PivotTableUI extends React.PureComponent {
   constructor(props) {
     super(props);
+
+    // if aggregators are passed as strings, match them with those defined in ./Utilities/aggregators
+    var aggs = {};
+    if (!!props.aggregators) {
+      for (agg in props.aggregators) {
+        aggs[agg] = aggregators[agg];
+      }
+      props.aggregators = aggs;
+    }
+    console.log(props);
+
     this.state = {
       unusedOrder: [],
       zIndices: {},
