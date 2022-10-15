@@ -163,7 +163,7 @@ function makeRenderer(opts = {}) {
                     );
                   })}
 
-                  {j === 0 && this?.props.tableOptions.colTotals && (
+                  {j === 0 && this.props.tableOptions.colTotals && (
                     <th
                       className="pvtTotalLabel"
                       rowSpan={

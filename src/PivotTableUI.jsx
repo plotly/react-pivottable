@@ -12,7 +12,16 @@ import Draggable from 'react-draggable';
 export class DraggableAttribute extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {open: false, filterText: ''};
+    this.state = { open: false, filterText: '' };
+    
+    // if aggregators are passed as strings, match them with those defined in ./Utilities/aggregators
+    var aggs = {};
+    if (!props.aggregators) {
+      for (agg in props.aggregators) {
+        aggs[agg] = aggregators[agg];
+      }
+      props.aggregators = aggs;
+    }
   }
 
   toggleValue(value) {
