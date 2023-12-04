@@ -170,7 +170,7 @@ function makeRenderer(opts = {}) {
                         colAttrs.length + (rowAttrs.length === 0 ? 0 : 1)
                       }
                     >
-                      Totals
+                      Tots
                     </th>
                   )}
                 </tr>
@@ -272,7 +272,7 @@ function makeRenderer(opts = {}) {
                     }
                     style={rowTotalColors(totalAggregator.value())}
                   >
-                    {totalAggregator.format(totalAggregator.value())}
+                    N/A
                   </td>
                 );
               })}
