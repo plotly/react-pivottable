@@ -6,6 +6,12 @@ functionality. It is a React port of the jQuery-based
 
 `react-pivottable` is part of Plotly's [React Component Suite](https://plot.ly/products/react/) for building data visualization Web apps and products.
 
+<div align="center">
+  <a href="https://dash.plotly.com/project-maintenance">
+    <img src="https://dash.plotly.com/assets/images/maintained-by-plotly.png" width="400px" alt="Maintained by Plotly">
+  </a>
+</div>
+
 ## What does it do & where is the demo?
 
 `react-pivottable`'s function is to enable data exploration and analysis by
