@@ -1,3 +1,18 @@
+# react-pivottable-grouping
+
+This is a fork of [react-pivottable](https://react-pivottable.js.org/) with added capacity of grouping and displaying subtotals.
+It adds an option `grouping: true` to the possible options. The rest of the API remains unchaged.
+
+## Preview
+See the working [demo](https://jjagielka.github.io/react-pivottable-demo/) here.
+
+Left image is the default [react-pivottable](https://github.com/plotly/react-pivottable) rendering, while right images shows [react-pivottable-grouping](https://jjagielka.github.com/react-pivottable-grouping) with the default _grouping:true_ enabled.
+
+<img src="http://jjagielka.github.io/pivottable-grouping-demo/images/grouping_false.png" width="50%"> <img src="http://jjagielka.github.io/pivottable-grouping-demo/images/grouping_true.png" width="49%">
+---
+
+Original [react-pivottable](https://react-pivottable.js.org/) README.md
+
 # react-pivottable
 
 `react-pivottable` is a React-based pivot table library with drag'n'drop
@@ -41,25 +56,29 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PivotTableUI from 'react-pivottable/PivotTableUI';
 import 'react-pivottable/pivottable.css';
+import 'react-pivottable/grouping.css';
 
 // see documentation for supported input formats
-const data = [['attribute', 'attribute2'], ['value1', 'value2']];
+const data = [
+  ['attribute', 'attribute2'],
+  ['value1', 'value2'],
+];
 
 class App extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = props;
-    }
+  constructor(props) {
+    super(props);
+    this.state = props;
+  }
 
-    render() {
-        return (
-            <PivotTableUI
-                data={data}
-                onChange={s => this.setState(s)}
-                {...this.state}
-            />
-        );
-    }
+  render() {
+    return (
+      <PivotTableUI
+        data={data}
+        onChange={s => this.setState(s)}
+        {...this.state}
+      />
+    );
+  }
 }
 
 ReactDOM.render(<App />, document.body);
@@ -85,6 +104,7 @@ To add the Plotly renderers to your app, you can use the following pattern:
 import React from 'react';
 import PivotTableUI from 'react-pivottable/PivotTableUI';
 import 'react-pivottable/pivottable.css';
+import 'react-pivottable/grouping.css';
 import TableRenderers from 'react-pivottable/TableRenderers';
 import Plot from 'react-plotly.js';
 import createPlotlyRenderers from 'react-pivottable/PlotlyRenderers';
@@ -93,24 +113,27 @@ import createPlotlyRenderers from 'react-pivottable/PlotlyRenderers';
 const PlotlyRenderers = createPlotlyRenderers(Plot);
 
 // see documentation for supported input formats
-const data = [['attribute', 'attribute2'], ['value1', 'value2']];
+const data = [
+  ['attribute', 'attribute2'],
+  ['value1', 'value2'],
+];
 
 class App extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = props;
-    }
+  constructor(props) {
+    super(props);
+    this.state = props;
+  }
 
-    render() {
-        return (
-            <PivotTableUI
-                data={data}
-                onChange={s => this.setState(s)}
-                renderers={Object.assign({}, TableRenderers, PlotlyRenderers)}
-                {...this.state}
-            />
-        );
-    }
+  render() {
+    return (
+      <PivotTableUI
+        data={data}
+        onChange={s => this.setState(s)}
+        renderers={Object.assign({}, TableRenderers, PlotlyRenderers)}
+        {...this.state}
+      />
+    );
+  }
 }
 
 ReactDOM.render(<App />, document.body);
@@ -126,6 +149,7 @@ peer-dependcy warning and handle the dependency injection like this:
 import React from 'react';
 import PivotTableUI from 'react-pivottable/PivotTableUI';
 import 'react-pivottable/pivottable.css';
+import 'react-pivottable/grouping.css';
 import TableRenderers from 'react-pivottable/TableRenderers';
 import createPlotlyComponent from 'react-plotly.js/factory';
 import createPlotlyRenderers from 'react-pivottable/PlotlyRenderers';
@@ -137,24 +161,27 @@ const Plot = createPlotlyComponent(window.Plotly);
 const PlotlyRenderers = createPlotlyRenderers(Plot);
 
 // see documentation for supported input formats
-const data = [['attribute', 'attribute2'], ['value1', 'value2']];
+const data = [
+  ['attribute', 'attribute2'],
+  ['value1', 'value2'],
+];
 
 class App extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = props;
-    }
+  constructor(props) {
+    super(props);
+    this.state = props;
+  }
 
-    render() {
-        return (
-            <PivotTableUI
-                data={data}
-                onChange={s => this.setState(s)}
-                renderers={Object.assign({}, TableRenderers, PlotlyRenderers)}
-                {...this.state}
-            />
-        );
-    }
+  render() {
+    return (
+      <PivotTableUI
+        data={data}
+        onChange={s => this.setState(s)}
+        renderers={Object.assign({}, TableRenderers, PlotlyRenderers)}
+        {...this.state}
+      />
+    );
+  }
 }
 
 ReactDOM.render(<App />, document.body);
@@ -162,10 +189,10 @@ ReactDOM.render(<App />, document.body);
 
 ## Properties and layered architecture
 
-* `<PivotTableUI {...props} />`
-  * `<PivotTable {...props} />`
-    * `<Renderer {...props} />`
-      * `PivotData(props)`
+- `<PivotTableUI {...props} />`
+  - `<PivotTable {...props} />`
+    - `<Renderer {...props} />`
+      - `PivotData(props)`
 
 The interactive component provided by `react-pivottable` is `PivotTableUI`, but
 output rendering is delegated to the non-interactive `PivotTable` component,
@@ -188,7 +215,7 @@ indication of which layer consumes each, from the bottom up:
 | `PivotData`    | `vals` <br /> array of strings                   | `[]`                          | attribute names used as arguments to aggregator (gets passed to aggregator generating function)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `PivotData`    | `aggregators` <br /> object of functions         | `aggregators` from `Utilites` | dictionary of generators for aggregation functions in dropdown (see [original PivotTable.js documentation](https://github.com/nicolaskruchten/pivottable/wiki/Aggregators))                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `PivotData`    | `aggregatorName` <br /> string                   | first key in `aggregators`    | key to `aggregators` object specifying the aggregator to use for computations                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `PivotData`    | `valueFilter` <br /> object of arrays of strings | `{}`                          | object whose keys are attribute names and values are objects of attribute value-boolean pairs which denote records to include or exclude from computation and rendering; used to prepopulate the filter menus that appear on double-click                                                                                                                                                                                                                                                                                                                                                                                              |
+| `PivotData`    | `valueFilter` <br /> object of arrays of strings | `{}`                          | object whose keys are attribute names and values are objects of attribute value-boolean pairs which denote records to include or exclude from computation and rendering; used to prepopulate the filter menus that appear on double-click                                                                                                                                                                                                                                                                                                                                                                     |
 | `PivotData`    | `sorters` <br /> object or function              | `{}`                          | accessed or called with an attribute name and can return a [function which can be used as an argument to `array.sort`](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) for output purposes. If no function is returned, the default sorting mechanism is a built-in "natural sort" implementation. Useful for sorting attributes like month names, see [original PivotTable.js example 1](http://nicolas.kruchten.com/pivottable/examples/mps_agg.html) and [original PivotTable.js example 2](http://nicolas.kruchten.com/pivottable/examples/montreal_2014.html). |
 | `PivotData`    | `rowOrder` <br /> string                         | `"key_a_to_z"`                | the order in which row data is provided to the renderer, must be one of `"key_a_to_z"`, `"value_a_to_z"`, `"value_z_to_a"`, ordering by value orders by row total                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `PivotData`    | `colOrder` <br /> string                         | `"key_a_to_z"`                | the order in which column data is provided to the renderer, must be one of `"key_a_to_z"`, `"value_a_to_z"`, `"value_z_to_a"`, ordering by value orders by column total                                                                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -214,17 +241,17 @@ if the value was the string `"null"`.
 
 ```js
 const data = [
-    {
-        attr1: 'value1_attr1',
-        attr2: 'value1_attr2',
-        //...
-    },
-    {
-        attr1: 'value2_attr1',
-        attr2: 'value2_attr2',
-        //...
-    },
+  {
+    attr1: 'value1_attr1',
+    attr2: 'value1_attr2',
     //...
+  },
+  {
+    attr1: 'value2_attr1',
+    attr2: 'value2_attr2',
+    //...
+  },
+  //...
 ];
 ```
 
@@ -238,10 +265,10 @@ compatible with the output of CSV parsing libraries like PapaParse.
 
 ```js
 const data = [
-    ['attr1', 'attr2'],
-    ['value1_attr1', 'value1_attr2'],
-    ['value2_attr1', 'value2_attr2'],
-    //...
+  ['attr1', 'attr2'],
+  ['value1_attr1', 'value1_attr2'],
+  ['value2_attr1', 'value2_attr2'],
+  //...
 ];
 ```
 
