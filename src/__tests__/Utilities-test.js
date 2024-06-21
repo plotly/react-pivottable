@@ -19,7 +19,11 @@ const fixtureData = [
 describe('  utils', function() {
   describe('.PivotData()', function() {
     describe('with no options', function() {
-      const aoaInput = [['a', 'b'], [1, 2], [3, 4]];
+      const aoaInput = [
+        ['a', 'b'],
+        [1, 2],
+        [3, 4],
+      ];
       const pd = new utils.PivotData({data: aoaInput});
 
       it('has the correct grand total value', () =>
@@ -27,7 +31,11 @@ describe('  utils', function() {
     });
 
     describe('with array-of-array input', function() {
-      const aoaInput = [['a', 'b'], [1, 2], [3, 4]];
+      const aoaInput = [
+        ['a', 'b'],
+        [1, 2],
+        [3, 4],
+      ];
       const pd = new utils.PivotData({
         data: aoaInput,
         aggregatorName: 'Sum over Sum',
@@ -39,7 +47,10 @@ describe('  utils', function() {
     });
 
     describe('with array-of-object input', function() {
-      const aosInput = [{a: 1, b: 2}, {a: 3, b: 4}];
+      const aosInput = [
+        {a: 1, b: 2},
+        {a: 3, b: 4},
+      ];
       const pd = new utils.PivotData({
         data: aosInput,
         aggregatorName: 'Sum over Sum',
@@ -127,6 +138,23 @@ describe('  utils', function() {
         const val = agg.value();
         expect(val).toBe(1);
         expect(agg.format(val)).toBe('1');
+      });
+
+      it('returns empty aggregator when key not found', function() {
+        // inexistent row key, empty col key
+        let agg = pd.getAggregator(['x', 'y'], []);
+        let val = agg.value();
+        expect(val).toBe(null);
+
+        // empty row key, inexistent col key
+        agg = pd.getAggregator([], [1, 2]);
+        val = agg.value();
+        expect(val).toBe(null);
+
+        // inexistent row key, non empty col key
+        agg = pd.getAggregator(['x', 'y'], [1, 2]);
+        val = agg.value();
+        expect(val).toBe(null);
       });
 
       it('has a correct grand total aggregator', function() {
