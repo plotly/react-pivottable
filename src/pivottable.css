@@ -23,8 +23,8 @@ table.pvtTable {
     margin-left: 3px;
     font-family: Verdana;
 }
-table.pvtTable thead tr th,
-table.pvtTable tbody tr th {
+table.pvtTable > thead > tr > th,
+table.pvtTable > tbody > tr > th {
     background-color: #ebf0f8;
     border: 1px solid #c8d4e3;
     font-size: 8pt;
@@ -38,7 +38,7 @@ table.pvtTable .pvtTotalLabel {
     text-align: right;
 }
 
-table.pvtTable tbody tr td {
+table.pvtTable > tbody > tr > td {
     color: #2a3f5f;
     padding: 5px;
     background-color: #fff;
