@@ -1,7 +1,17 @@
 {
-  "env": {
-    "test": {
-      "presets": ["env", "react"]
-    }
-  }
+  "presets": [
+    "react",
+    [
+      "env",
+      {
+        "targets": {
+          "browsers": [
+            ">0.5%",
+            "not ie 11",
+            "not op_mini all"
+          ]
+        }
+      }
+    ]
+  ]
 }
