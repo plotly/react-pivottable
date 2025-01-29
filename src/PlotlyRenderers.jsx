@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {PivotData} from './Utilities';
+import { PivotData } from './Utilities';
 
 /* eslint-disable react/prop-types */
 // eslint can't see inherited propTypes!
@@ -47,7 +47,7 @@ function makeRenderer(
           values.push(isFinite(val) ? val : null);
           labels.push(datumKey.join('-') || ' ');
         }
-        const trace = {name: traceKey.join('-') || fullAggName};
+        const trace = { name: traceKey.join('-') || fullAggName };
         if (traceOptions.type === 'pie') {
           trace.values = values;
           trace.labels = labels.length > 1 ? labels : [fullAggName];
@@ -84,7 +84,7 @@ function makeRenderer(
       if (traceOptions.type === 'pie') {
         const columns = Math.ceil(Math.sqrt(data.length));
         const rows = Math.ceil(data.length / columns);
-        layout.grid = {columns, rows};
+        layout.grid = { columns, rows };
         data.forEach((d, i) => {
           d.domain = {
             row: Math.floor(i / columns),
@@ -149,7 +149,7 @@ function makeScatterRenderer(PlotlyComponent) {
         colKeys.push([]);
       }
 
-      const data = {x: [], y: [], text: [], type: 'scatter', mode: 'markers'};
+      const data = { x: [], y: [], text: [], type: 'scatter', mode: 'markers' };
 
       rowKeys.map(rowKey => {
         colKeys.map(colKey => {
@@ -166,8 +166,8 @@ function makeScatterRenderer(PlotlyComponent) {
         title: this.props.rows.join('-') + ' vs ' + this.props.cols.join('-'),
         hovermode: 'closest',
         /* eslint-disable no-magic-numbers */
-        xaxis: {title: this.props.cols.join('-'), automargin: true},
-        yaxis: {title: this.props.rows.join('-'), automargin: true},
+        xaxis: { title: this.props.cols.join('-'), automargin: true },
+        yaxis: { title: this.props.rows.join('-'), automargin: true },
         width: window.innerWidth / 1.5,
         height: window.innerHeight / 1.4 - 50,
         /* eslint-enable no-magic-numbers */
@@ -201,33 +201,33 @@ export default function createPlotlyRenderers(PlotlyComponent) {
   return {
     'Grouped Column Chart': makeRenderer(
       PlotlyComponent,
-      {type: 'bar'},
-      {barmode: 'group'}
+      { type: 'bar' },
+      { barmode: 'group' }
     ),
     'Stacked Column Chart': makeRenderer(
       PlotlyComponent,
-      {type: 'bar'},
-      {barmode: 'relative'}
+      { type: 'bar' },
+      { barmode: 'relative' }
     ),
     'Grouped Bar Chart': makeRenderer(
       PlotlyComponent,
-      {type: 'bar', orientation: 'h'},
-      {barmode: 'group'},
+      { type: 'bar', orientation: 'h' },
+      { barmode: 'group' },
       true
     ),
     'Stacked Bar Chart': makeRenderer(
       PlotlyComponent,
-      {type: 'bar', orientation: 'h'},
-      {barmode: 'relative'},
+      { type: 'bar', orientation: 'h' },
+      { barmode: 'relative' },
       true
     ),
     'Line Chart': makeRenderer(PlotlyComponent),
-    'Dot Chart': makeRenderer(PlotlyComponent, {mode: 'markers'}, {}, true),
-    'Area Chart': makeRenderer(PlotlyComponent, {stackgroup: 1}),
+    'Dot Chart': makeRenderer(PlotlyComponent, { mode: 'markers' }, {}, true),
+    'Area Chart': makeRenderer(PlotlyComponent, { stackgroup: 1 }),
     'Scatter Chart': makeScatterRenderer(PlotlyComponent),
     'Multiple Pie Chart': makeRenderer(
       PlotlyComponent,
-      {type: 'pie', scalegroup: 1, hoverinfo: 'label+value', textinfo: 'none'},
+      { type: 'pie', scalegroup: 1, hoverinfo: 'label+value', textinfo: 'none' },
       {},
       true
     ),

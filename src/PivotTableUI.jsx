@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
-import {PivotData, sortAs, getSort} from './Utilities';
+import {PivotData, sortAs, getSort, aggregators} from './Utilities';
 import PivotTable from './PivotTable';
 import Sortable from 'react-sortablejs';
 import Draggable from 'react-draggable';
@@ -12,7 +12,7 @@ import Draggable from 'react-draggable';
 export class DraggableAttribute extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {open: false, filterText: ''};
+    this.state = { open: false, filterText: '' };
   }
 
   toggleValue(value) {
@@ -230,6 +230,17 @@ export class Dropdown extends React.PureComponent {
 class PivotTableUI extends React.PureComponent {
   constructor(props) {
     super(props);
+
+    // if aggregators are passed as strings, match them with those defined in ./Utilities/aggregators
+    var aggs = {};
+    if (!!props.aggregators) {
+      for (agg in props.aggregators) {
+        aggs[agg] = aggregators[agg];
+      }
+      props.aggregators = aggs;
+    }
+    console.log(props);
+
     this.state = {
       unusedOrder: [],
       zIndices: {},
@@ -576,6 +587,7 @@ PivotTableUI.propTypes = Object.assign({}, PivotTable.propTypes, {
   hiddenFromDragDrop: PropTypes.arrayOf(PropTypes.string),
   unusedOrientationCutoff: PropTypes.number,
   menuLimit: PropTypes.number,
+  aggregators: PropTypes.arrayOf(PropTypes.string),
 });
 
 PivotTableUI.defaultProps = Object.assign({}, PivotTable.defaultProps, {
@@ -584,6 +596,7 @@ PivotTableUI.defaultProps = Object.assign({}, PivotTable.defaultProps, {
   hiddenFromDragDrop: [],
   unusedOrientationCutoff: 85,
   menuLimit: 500,
+  aggregators: aggregators,
 });
 
 export default PivotTableUI;
