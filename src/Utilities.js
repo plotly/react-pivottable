@@ -705,7 +705,7 @@ class PivotData {
     } else if (colKey.length === 0) {
       agg = this.rowTotals[flatRowKey];
     } else {
-      agg = this.tree[flatRowKey][flatColKey];
+      agg = (this.tree[flatRowKey] || {})[flatColKey];
     }
     return (
       agg || {
