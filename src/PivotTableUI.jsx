@@ -13,6 +13,7 @@ export class DraggableAttribute extends React.Component {
   constructor(props) {
     super(props);
     this.state = {open: false, filterText: ''};
+    this.nodeRef = React.createRef();
   }
 
   toggleValue(value) {
@@ -48,8 +49,9 @@ export class DraggableAttribute extends React.Component {
       .sort(this.props.sorter);
 
     return (
-      <Draggable handle=".pvtDragHandle">
+      <Draggable handle=".pvtDragHandle" nodeRef={this.nodeRef}>
         <div
+          ref={this.nodeRef}
           className="pvtFilterBox"
           style={{
             display: 'block',
