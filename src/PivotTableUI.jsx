@@ -212,6 +212,7 @@ export class Dropdown extends React.PureComponent {
                     this.props.toggle();
                   } else {
                     this.props.setValue(r);
+                    this.props.toggle(); // Close the dropdown after selection
                   }
                 }}
                 className={
@@ -286,12 +287,38 @@ class PivotTableUI extends React.PureComponent {
     this.setState(newState);
   }
 
+  handleDuplicates(newAttributes, existingAttributes) {
+    if (!newAttributes || !existingAttributes) {
+      return existingAttributes || [];
+    }
+    const duplicates = newAttributes.filter(item => existingAttributes.includes(item));
+    return duplicates.length > 0 
+      ? existingAttributes.filter(item => !duplicates.includes(item))
+      : existingAttributes;
+  }
+
   sendPropUpdate(command) {
     this.props.onChange(update(this.props, command));
   }
 
   propUpdater(key) {
-    return value => this.sendPropUpdate({[key]: {$set: value}});
+    return value => {
+      const update = {[key]: {$set: value}};
+
+      if (key === 'rows') {
+        const updatedCols = this.handleDuplicates(value, this.props.cols);
+        if (updatedCols.length !== this.props.cols.length) {
+          update.cols = {$set: updatedCols};
+        }
+      } else if (key === 'cols') {
+        const updatedRows = this.handleDuplicates(value, this.props.rows);
+        if (updatedRows.length !== this.props.rows.length) {
+          update.rows = {$set: updatedRows};
+        }
+      }
+  
+      this.sendPropUpdate(update);
+    };
   }
 
   setValuesInFilter(attribute, values) {
@@ -504,7 +531,6 @@ class PivotTableUI extends React.PureComponent {
         !this.props.hiddenAttributes.includes(e) &&
         !this.props.hiddenFromDragDrop.includes(e)
     );
-
     const colAttrsCell = this.makeDnDCell(
       colAttrs,
       this.propUpdater('cols'),
@@ -521,6 +547,7 @@ class PivotTableUI extends React.PureComponent {
       this.propUpdater('rows'),
       'pvtAxisContainer pvtVertList pvtRows'
     );
+    
     const outputCell = (
       <td className="pvtOutput">
         <PivotTable
