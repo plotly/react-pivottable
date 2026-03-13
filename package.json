@@ -8,6 +8,7 @@
     "PivotTableUI.js",
     "PlotlyRenderers.js",
     "TableRenderers.js",
+    "SubtotalsRenderers.js",
     "Utilities.js",
     "PivotTable.js.map",
     "PivotTableUI.js.map",

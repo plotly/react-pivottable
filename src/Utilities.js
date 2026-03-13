@@ -525,6 +525,10 @@ const derivers = {
   },
 };
 
+// Given an array of attribute values, convert to a key that
+// can be used in objects.
+const flatKey = attrVals => attrVals.join(String.fromCharCode(0));
+
 /*
 Data Model class
 */
@@ -550,7 +554,6 @@ class PivotData {
     this.allTotal = this.aggregator(this, [], []);
     this.sorted = false;
 
-    // iterate through input, accumulating data for cells
     PivotData.forEachRecord(
       this.props.data,
       this.props.derivedAttributes,
@@ -718,6 +721,28 @@ class PivotData {
       }
     );
   }
+
+  forEachTotal(callback) {
+    // Process row totals
+    this.getRowKeys().forEach((rowKey, i) => {
+      callback([rowKey, null], i);
+    });
+
+    // Process column totals
+    this.getColKeys().forEach((colKey, i) => {
+      callback([null, colKey], i);
+    });
+  }
+
+  forEachCell(callback) {
+    this.getRowKeys().forEach(rowKey => {
+      this.getColKeys().forEach(colKey => {
+        const agg = this.getAggregator(rowKey, colKey);
+        const value = agg.value();
+        callback(value, rowKey, colKey);
+      });
+    });
+  }
 }
 
 // can handle arrays or jQuery selections of tables
@@ -811,5 +836,6 @@ export {
   numberFormat,
   getSort,
   sortAs,
+  flatKey,
   PivotData,
 };
