@@ -39,7 +39,7 @@
     "pivottable"
   ],
   "author": "Nicolas Kruchten <nicolas@kruchten.com>",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "bugs": {
     "url": "https://github.com/plotly/react-pivottable/issues"
   },
