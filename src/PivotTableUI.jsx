@@ -291,7 +291,19 @@ class PivotTableUI extends React.PureComponent {
   }
 
   propUpdater(key) {
-    return value => this.sendPropUpdate({[key]: {$set: value}});
+    return value => {
+      const command = {[key]: {$set: value}};
+      if (key === 'cols') {
+        command.rows = {
+          $set: this.props.rows.filter(e => !value.includes(e)),
+        };
+      } else if (key === 'rows') {
+        command.cols = {
+          $set: this.props.cols.filter(e => !value.includes(e)),
+        };
+      }
+      this.sendPropUpdate(command);
+    };
   }
 
   setValuesInFilter(attribute, values) {
